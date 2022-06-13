@@ -1,0 +1,10 @@
+# rename to boak.yml
+appPath: .
+cmds: .gitlab-ci, precommittest, script
+defaultArgs: null
+envs:
+- '3.9'
+- '3.10'
+executable: C:\python_venvs\packages\joringels\.venv\Scripts\python.exe
+logDir:  \python_venvs\packages\joringels\joringels\test\logs
+name: joringels

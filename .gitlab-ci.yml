@@ -1,0 +1,39 @@
+stages:
+  - test
+  - review
+  - deploy
+
+before_script:
+  - docker login -u someMail@gmail.com -p somesecurepwd $CI_REGISTRY
+
+precommittest:
+  stage: test
+  when: manual
+  allow_failure: true
+  tags:
+        - test
+  script:
+    - python -m unittest
+
+unittest:
+  stage: test
+  tags:
+        - test
+  script:
+    - docker pull registry.gitlab.com/larsmielke2/300_threedesigns
+    - docker run registry.gitlab.com/larsmielke2/300_threedesigns /usr/src/300_threedesigns/90_test.sh unittest False False 80 True
+
+review:
+  stage: review
+  tags:
+        - test
+  script:
+    - docker stop $(docker ps -a -q)
+    - docker run -d -p 80:80 registry.gitlab.com/larsmielke2/300_threedesigns /usr/src/300_threedesigns/90_test.sh review
+
+integrationtest:
+  stage: deploy
+  tags:
+        - test
+  script:
+    - docker run registry.gitlab.com/larsmielke2/300_threedesigns /usr/src/300_threedesigns/90_test.sh integrationtest False False 80

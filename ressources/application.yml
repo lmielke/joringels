@@ -1,0 +1,27 @@
+# joringels.yml == [joringels.src.settings.appParamsFileName]
+
+# contains general working parameter for joringls
+
+# hosts that are allowed to fetch (get request) your secrets
+allowedHosts:
+- 172.17.0.2
+- 172.17.0.3
+- 192.168.0.123
+- 192.168.0.23
+
+application: joringels
+# decrypted files stored in .ssp folder are prefixed with decPrefix
+decPrefix: decrypted_
+# keepass database path
+kPath: /Users/Lars/OneDrive/Dokumente/50 sonstiges/aktuell_2021.kdbx
+lastUpdate: 2022-06-06-11-22-21-842103
+# port to server secrets on
+secretsPort: 9000
+# decryption vaidator
+validator: text_is_valid
+# hosts from which you serve secrets or keep de-crypted files on
+secureHosts:
+- BLUE-MOON
+- WHILE-AI-1
+- WHILE-AI-2
+- WHILE-AI-Raider

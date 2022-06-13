@@ -1,0 +1,164 @@
+# encryption_handler.py
+
+import os, time, yaml
+import colorama as color
+
+color.init()
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
+from Crypto import Random
+
+import joringels.src.settings as sts
+
+# touch "decrypted_test_hint.yml" "TestJoringels: pyCallTestString"
+
+tokenizers = {"&": "<and>", "@": "<at>"}
+chunksize = 64 * 1024
+
+
+class Handler:
+    """handels encryption and decryption of param files
+    call like:
+
+    from joringels.src.encryption_handler import Handler as decryptor
+
+    # h will provide:
+    #                'h.decrypted':bool   - flag which confirms decryption
+    #                'h.decryptPath':str  - path to decrypted file
+
+    with decryptor(encryptPath, key) as h:
+        if not h.decrypted: return False
+        with open(h.decryptPath, 'r') as f:
+            secrets = yaml.safe_load(f.read())
+    """
+
+    def __init__(self, encryptPath, key, *args, retain=False, **kwargs):
+        self.decrypted = None
+        self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
+        self.key = key
+        self.retain = retain
+
+    def __enter__(self, *args, **kwargs):
+        """
+        decrypts file and saves it to self.decryptPath
+        """
+        self.file_decrypt(*args, **kwargs)
+        self.data_cleanup(self.decryptPath, "dec")
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        """
+        removes decrypted file on exit
+        """
+        self.data_cleanup(self.decryptPath, "enc")
+        encryptSuccess = None
+        if self.decrypted:
+            encryptSuccess = self.file_encrypt(*args, **kwargs)
+        self.exit_cleanup(encryptSuccess, *args, **kwargs)
+
+    def exit_cleanup(self, encryptSuccess, *args, **kwargs):
+        if encryptSuccess == False or not self.retain:
+            if os.path.isfile(self.encryptPath):
+                os.remove(self.encryptPath)
+        if os.path.isfile(self.decryptPath):
+            os.remove(self.decryptPath)
+
+    def mk_paths(self, secretPath: str, *args, **kwargs) -> tuple[str]:
+        """
+        takes a valid secretPath and creates the missing counter secretPath
+        if encryptPath is given it creates the decryptPath
+        if decryptPath is given it creates the encryptPath
+
+        """
+        secretsDir, secretsFileName = os.path.split(secretPath)
+        if secretsFileName.startswith(sts.appParams.get("decPrefix")):
+            decFileName = secretsFileName
+            secretsFileName = secretsFileName.replace(sts.appParams.get("decPrefix"), "")
+        decFileName = f"{sts.appParams.get('decPrefix')}{secretsFileName}"
+        decryptPath = os.path.join(secretsDir, decFileName)
+        encryptPath = os.path.join(secretsDir, secretsFileName)
+        if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):
+            msg = f"\nsecretPath not found: {secretPath}\n"
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            raise FileNotFoundError
+        elif os.path.isfile(decryptPath):
+            self.decrypted = True
+        else:
+            self.decrypted = False
+        return encryptPath, decryptPath
+
+    def file_encrypt(self, *args, **kwargs):
+        """
+        ###Takes a file and encrypts its content.
+        saves the encrpyted text to self.encryptPath
+        """
+        try:
+            IV = Random.new().read(16)
+            sha = SHA256.new(self.key.encode("utf-8")).digest()
+            enc = AES.new(sha, AES.MODE_CBC, IV)
+            with open(self.decryptPath, "rb") as inFile:
+                with open(self.encryptPath, "wb") as outFile:
+                    outFile.write(IV)
+                    while chunk := inFile.read(chunksize):
+                        if len(chunk) % 16:
+                            chunk += b" " * (16 - (len(chunk) % 16))
+                        outFile.write(enc.encrypt(chunk))
+            return True
+        except Exception as e:
+            msg = f"encryption_handler.file_encrypt, Encryption failed ! : {e}"
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            return False
+
+    def file_decrypt(self, *args, **kwargs) -> bool:
+        if self.decrypted:
+            return None
+        """
+            reads a encrypted file from self.encryptPath and decrypts its content,
+            saves extracted readable text to self.decryptPath file
+        """
+        try:
+            with open(self.encryptPath, "rb") as inFile:
+                IV = inFile.read(16)
+                sha = SHA256.new(self.key.encode("utf-8")).digest()
+                dec = AES.new(sha, AES.MODE_CBC, IV)
+                with open(self.decryptPath, "wb") as outFile:
+                    while chunk := inFile.read(chunksize):
+                        outFile.write(dec.decrypt(chunk))
+                with open(self.decryptPath, "rb") as f:
+                    if fileSize := len(f.read()) == 0:
+                        raise Exception(f"decrypted fileSize: {fileSize}")
+            return True
+        except Exception as e:
+            print(f"file_decrypt, Exception: {e}")
+            return False
+
+    def data_cleanup(self, filePath: str, data: str, *args, **kwargs) -> bool:
+        """
+        cleans text and tokenizes decrypted file text
+        notAllowed values such as & are replaced
+        isValid allowes to confirm, that decryption result is readable
+        """
+        try:
+            with open(filePath, "r+") as f:
+                text = f.read()
+                if (not self.decrypted) or data == "enc":
+                    text = (text.strip() + sts.appParams.get("validator")).replace(
+                        2 * sts.appParams.get("validator"), ""
+                    )
+                isValid = text.endswith(sts.appParams.get("validator"))
+                for k, v in tokenizers.items():
+                    text = text.replace(k, v) if data == "dec" else text.replace(v, k)
+                f.seek(0)
+                f.truncate()
+                f.write(text.strip())
+            # validate cleanup results
+            if fileSize := str(len(text)).zfill(16) == 0:
+                raise Exception(f"{data}: fileSize: {fileSize}")
+            if data == "dec" and isValid:
+                raise Exception(f"{data}: isValid: {isValid}")
+            if data == "enc" and not isValid:
+                raise Exception(f"{data}: isValid: {isValid}")
+            self.decrypted = True
+        except Exception as e:
+            print(f"data_cleanup Error with data {data}: {e}")
+            self.decrypted = False

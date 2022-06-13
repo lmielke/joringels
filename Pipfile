@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+colorama = "*"
+pyyaml = "*"
+pycryptodome = "*"
+pyperclip = "*"
+requests = "*"
+tabulate = "*"
+psutil = "*"
+ipwhois = "*"
+joringels = {editable = true, path = "."}
+pykeepass = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
