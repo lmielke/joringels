@@ -34,7 +34,7 @@ def warn_deletion(*args, retain, **kwargs):
 
 
 def error_upload_all(action, *args, host, **kwargs):
-    if host is not None:
+    if action != 'fetch' and host is not None:
         msg = f"Your -ip, host contains {host}. It must be empty to use load_all!"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         exit()
