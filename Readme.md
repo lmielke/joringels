@@ -28,7 +28,7 @@ python3.9 +
 
 
 
-## 3 Set-up
+## 3 Set-up on your development machine
 
 ### If you want, adjust joringels/src/settings.py
 - set all relevant names and dirs (only upper section of settings.py)
