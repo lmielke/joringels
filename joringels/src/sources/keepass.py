@@ -19,7 +19,7 @@ class KeePassSecrets:
             sts.appParams.get("kPath"),
             key if key is not None else gp(prompt="KeePass: ", stream=None),
         )
-        self.dataSafes = self.session.find_groups(name=sts.kpsGrpName, first=True)
+        self.dataSafes = self.session.find_groups(name=sts.safeLocation, first=True)
         self.dataSafe = self.session.find_entries(
             title=groupName, group=self.dataSafes, first=True
         )

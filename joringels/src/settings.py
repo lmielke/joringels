@@ -5,9 +5,11 @@ import os, sys, yaml
 from contextlib import contextmanager
 from pathlib import Path
 
+
+
 # keepass parameters you might want to change
 # name of group in keeepass that stores data_safes entries
-kpsGrpName = "joringels_data_safe"
+safeLocation = "joringels_data_safes"
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
 safeParamsFileName = "safe_params.yml"
@@ -15,10 +17,12 @@ safeParamsFileName = "safe_params.yml"
 appParamsFileName = "application.yml"
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = "~/.ssp"
-# dont change that
+# path sepeator for path to find your secret inside its source i.e. keepass
 kps_sep = "/"
 
-#### do not change params below unless you know what your doing :)
+
+
+#### do NOT change params below unless you know what your doing :) ####
 def prep_path(checkPath: str, filePrefix=None) -> str:
     checkPath = checkPath.replace("~", os.path.expanduser("~"))
     checkPath = checkPath if checkPath.endswith(".yml") else f"{checkPath}.yml"

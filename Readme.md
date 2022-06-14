@@ -1,7 +1,7 @@
 # Joringels manages your secrets across multiple VMs.
 - NOTE: Joringels assumes, that your source and target VMs are un-compromized.
 - NOTE: ONLY serve secrets via http inside a protected local network
-- Currently keepass is the only supported secret source
+- Currently keepass (password-manager) is the only supported secret source
 
 ## 1 What joringels does
 - serve data_safes to a single target system using decrypted files (usually dev environment)
@@ -20,7 +20,7 @@ python3.9 +
 ### Install inside existing environment
 - pipenv shell (activate your target environment)
 - cd joringels
-- pipenv install .
+- pipenv install . or pipenv install -e .
 
 ### Install using repo Pipfile
 - cd joringels
@@ -31,11 +31,11 @@ python3.9 +
 ## 3 Set-up
 
 ### If you want, adjust joringels/src/settings.py
-- set all relevant names and dirs
-- you can also leave these parameters unchanged
+- set all relevant names and dirs (only upper section of settings.py)
+- you can leave these parameters unchanged
 
 ### General setup (mandatory)
-- creta a \~/.ssp directory
+- creta a \~/.ssp directory (this will contain any en/decrpyted files)
 - install a secret source (currently keepass is supported)
 
 ### Adjust the ressources/joringels.yml file to your needs (mandatory)
@@ -50,7 +50,7 @@ python3.9 +
 
 ### Create as data_safe in i.e. keepass
 - open keepass
-- create a new group called like settings.kpsGrpName i.e. 'joringels_data_safe'
+- create a new group called like settings.safeLocation i.e. 'joringels_data_safe'
 - add a new entry, example: (title: mydigiserver, pwd: my_safe_secrets_encryption_password)
 - go to advanced tab and add joringels.yml and safe_params.yml
 - safe your entry and veryfy the files are properly attached
