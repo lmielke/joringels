@@ -10,15 +10,19 @@
 - extract and upload your data_safes as encrpyted files to multiple server simultaneously
 
 ## Download and install
+NOTE: python3.9 and higher
 ### Download
-git clone git@gitlab.com:larsmielke2/joringels.git
-cd joringels
-you might want to: git remote rm origin
+- git clone git@gitlab.com:larsmielke2/joringels.git
+- you might want to: git remote rm origin
 
-### Install
-pipenv shell (activate your target environment)
-cd joringels
-pipenv install .
+### Install in existing environment
+- cd joringels
+- pipenv shell (activate your target environment)
+- pipenv install .
+
+### Install using repo Pipfile
+- cd joringels
+- pipenv install
 
 
 
@@ -48,3 +52,6 @@ pipenv install .
 ## Try the folowing commands
 - 'joringels info', (will show you more readme)
 - try the cmds as shown there
+
+## Known issues
+- as of 06/2022 python 10.5 not installing (use 10.4 instead)
