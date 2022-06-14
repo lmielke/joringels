@@ -1,16 +1,18 @@
 # Joringels manages your secrets across multiple VMs.
-## NOTE: Joringels assumes, that your source and target VMs are un-compromized.
-## NOTE: ONLY serve secrets via http inside a protected local network
+- NOTE: Joringels assumes, that your source and target VMs are un-compromized.
+- NOTE: ONLY serve secrets via http inside a protected local network
+- Currently keepass is the only supported secret source
 
 ## What joringels does
-- serve data_safes to single instance as decrypted files or to multiple instances as local http socket
-- NOTE: joringels will create a .ssp directory next to your .ssh directory to manage secrets
+- serve data_safes to a single target system using decrypted files (usually dev environment)
+- NOTE: uses a .ssp directory next to your .ssh directory to manage secrets
+- serve data_safes to multiple instances simultaneously using local http socket
 - manage and maintain your secrets in a save location i.e. keepass
 - create data_safes (bundles of secrets) using combined entries in your secret source
 - extract and upload your data_safes as encrpyted files to multiple server simultaneously
 
 ## Download and install
-NOTE: python3.9 and higher
+python3.9 +
 ### Download
 - git clone https://gitlab.com/larsmielke2/joringels.git
 - you might want to: git remote rm origin
@@ -27,9 +29,14 @@ NOTE: python3.9 and higher
 
 
 # Set-up
+
 ## if you want, adjust joringels/src/settings.py
 - set all relevant names and dirs
 - you can also leave these parameters unchanged
+
+## mandatory: general setup
+- creta a \~/.ssp directory
+- install a secret source (currently keepass is supported)
 
 ## mandatory: adjust the ressources/joringels.yml file to your needs
 - copy the file to a directry of your choice
@@ -54,4 +61,4 @@ NOTE: python3.9 and higher
 - try the cmds as shown there
 
 ## Known issues
-- as of 06/2022 python 10.5 not installing (use 10.4 instead)
+- as of 06/2022 python10.5 not installing (use python10.4 instead)
