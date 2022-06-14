@@ -12,7 +12,7 @@
 ## Download and install
 NOTE: python3.9 and higher
 ### Download
-- git clone git@gitlab.com:larsmielke2/joringels.git
+- git clone https://gitlab.com/larsmielke2/joringels.git
 - you might want to: git remote rm origin
 
 ### Install in existing environment
