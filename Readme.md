@@ -3,15 +3,15 @@
 - NOTE: ONLY serve secrets via http inside a protected local network
 - Currently keepass is the only supported secret source
 
-## What joringels does
+## 1 What joringels does
 - serve data_safes to a single target system using decrypted files (usually dev environment)
-- NOTE: uses a .ssp directory next to your .ssh directory to manage secrets
+    - joringels uses a .ssp directory next to your .ssh directory to manage secrets
 - serve data_safes to multiple instances simultaneously using local http socket
-- manage and maintain your secrets in a save location i.e. keepass
+- efficiently manage your secrets while maintaining it in a save location i.e. keepass
 - create data_safes (bundles of secrets) using combined entries in your secret source
 - extract and upload your data_safes as encrpyted files to multiple server simultaneously
 
-## Download and install
+## 2 Download and install
 python3.9 +
 ### Download
 - git clone https://gitlab.com/larsmielke2/joringels.git
@@ -28,27 +28,27 @@ python3.9 +
 
 
 
-# Set-up
+## 3 Set-up
 
-## if you want, adjust joringels/src/settings.py
+### If you want, adjust joringels/src/settings.py
 - set all relevant names and dirs
 - you can also leave these parameters unchanged
 
-## mandatory: general setup
+### General setup (mandatory)
 - creta a \~/.ssp directory
 - install a secret source (currently keepass is supported)
 
-## mandatory: adjust the ressources/joringels.yml file to your needs
+### Adjust the ressources/joringels.yml file to your needs (mandatory)
 - copy the file to a directry of your choice
 - adjust allowed hosts (hosts that can access your secrets via http)
 - adjust secure server hosts (hosts that can hold decrypted secret files or serve via http)
 
-## mandatory: adjust the ressources/safe_params.yml file to your needs
+### Adjust the ressources/safe_params.yml file to your needs (mandatory)
 - copy the file to a directory of your choice
 - define entries that your data_safe contains (i.e. keepass entries of secrets)
 - define targets your data_safe is served to (i.e. keepass entries of servers)
 
-## Create as data_safe in i.e. keepass
+### Create as data_safe in i.e. keepass
 - open keepass
 - create a new group called like settings.kpsGrpName i.e. 'joringels_data_safe'
 - add a new entry, example: (title: mydigiserver, pwd: my_safe_secrets_encryption_password)
@@ -56,9 +56,16 @@ python3.9 +
 - safe your entry and veryfy the files are properly attached
 - remove the unprotected .yml files, so they only exist in keepass now
 
-## Try the folowing commands
+### Try the folowing commands
 - 'joringels info', (will show you more readme)
 - try the cmds as shown there
 
-## Known issues
+## 4 What is a data_safe
+- a data_safe is a bundle of secrets comprizing of multiple secret entries
+- a data_safe may contain all sorts of secret / semi-secret information, not only user, pwd
+- each server instance uses one single data_safe to gain authorized access to its ressources
+- a secret is only referenced to the data_safe, which allows seemless updates and distribution
+- however, if a secret is updated it needs to be actively re-distributed via its data_safes
+
+## 5 Known issues
 - as of 06/2022 python10.5 not installing (use python10.4 instead)
