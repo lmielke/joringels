@@ -15,9 +15,9 @@ NOTE: python3.9 and higher
 - git clone https://gitlab.com/larsmielke2/joringels.git
 - you might want to: git remote rm origin
 
-### Install in existing environment
-- cd joringels
+### Install inside existing environment
 - pipenv shell (activate your target environment)
+- cd joringels
 - pipenv install .
 
 ### Install using repo Pipfile
