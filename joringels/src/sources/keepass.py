@@ -12,7 +12,7 @@ import joringels.src.settings as sts
 
 # :)L0veMi11i0n$
 class KeePassSecrets:
-    def __init__(self, *args, groupName, key=None, **kwargs):
+    def __init__(self, action, *args, groupName, key=None, **kwargs):
         self.groups, self.groupName = {}, groupName
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
         self.session = keePass(
@@ -23,7 +23,8 @@ class KeePassSecrets:
         self.dataSafe = self.session.find_entries(
             title=groupName, group=self.dataSafes, first=True
         )
-        self.targets, self.entries = self._get_safe_params(*args, **kwargs)
+        if action != 'show':
+            self.targets, self.entries = self._get_safe_params(*args, **kwargs)
 
     def _get_safe_params(self, *args, **kwargs) -> list:
         if self.dataSafe is None:
@@ -104,13 +105,13 @@ class KeePassSecrets:
             normal entries look like:             python_venvs/.../...
         """
         for i, element in enumerate(self.session.find_entries(title=".*", regex=True)):
-            if element.path[0] == groupName:
+            if element.path[0] == 'python_venvs':
                 entryPath = sts.kps_sep.join(element.path)
                 print(f"{i} copy to Notes:\t{entryPath}")
 
 
 def main(action=None, *args, **kwargs):
-    inst = KeePassSecrets(*args, **kwargs)
+    inst = KeePassSecrets(action, *args, **kwargs)
     if action is None:
         return inst
     else:
