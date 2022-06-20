@@ -12,7 +12,7 @@ allowedHosts:
 application: joringels
 # decrypted files stored in .ssp folder are prefixed with decPrefix
 decPrefix: decrypted_
-# keepass database path
+# kdbx database path
 kPath: /Users/Lars/OneDrive/Dokumente/50 sonstiges/aktuell_2021.kdbx
 lastUpdate: 2022-06-06-11-22-21-842103
 # port to server secrets on

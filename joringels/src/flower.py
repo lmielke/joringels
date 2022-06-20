@@ -27,32 +27,32 @@ class MagicFlower(BaseHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
-        client = unquote(self.path.strip("/"))
+        safeItem = unquote(self.path.strip("/"))
         if not (self.client_address[0] in self.allowedHosts):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
-        elif client == "ping":
+        elif safeItem == "ping":
             returnCode = 200
             responseTime = re.sub(r"([:. ])", r"-", str(dt.now()))
             response = bytes(json.dumps(f"OK {responseTime}"), "utf-8")
 
-        elif not self.agent.secrets.get(client):
-            returnCode, msg = 404, f"\nfrom {self.client_address[0]}, Not found! {client}"
+        elif not self.agent.secrets.get(safeItem):
+            returnCode, msg = 404, f"\nfrom {self.client_address[0]}, Not found! {safeItem}"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
         else:
-            found = self.agent.secrets.get(client, None)
+            found = self.agent.secrets.get(safeItem, None)
             returnCode = 200
             response = bytes(json.dumps(found), "utf-8")
 
         if returnCode in [200]:
             self.send_response(returnCode)
-            self.send_header("Content-type", f"{client}:json")
+            self.send_header("Content-type", f"{safeItem}:json")
             self.send_header("Content-Disposition", "testVal")
             self.end_headers()
             self.wfile.write(response)

@@ -20,17 +20,6 @@ def mk_args():
     )
 
     parser.add_argument(
-        "-c",
-        "--client",
-        required=False,
-        nargs=None,
-        const=None,
-        type=str,
-        default=None,
-        help="project to serve secrrets for",
-    )
-
-    parser.add_argument(
         "-ip",
         "--host",
         required=False,
@@ -53,14 +42,25 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-n",
+        "--safeName",
+        required=False,
+        nargs="?",
+        const=None,
+        type=str,
+        default=None,
+        help="secrets group name/alias i.e. entry title in kdbx",
+    )
+
+    parser.add_argument(
         "-src",
         "--source",
         required=False,
         nargs="?",
         const=None,
         type=str,
-        default="keepass",
-        help="source of secrets, i.e. keepass",
+        default="kdbx",
+        help="source of secrets, i.e. kdbx NOTE: if needed provide full path",
     )
 
     parser.add_argument(
@@ -72,17 +72,6 @@ def mk_args():
         type=str,
         default="scp",
         help="upload connector i.e. powershell scp",
-    )
-
-    parser.add_argument(
-        "-g",
-        "--groupName",
-        required=False,
-        nargs="?",
-        const=None,
-        type=str,
-        default=None,
-        help="secrets group name/alias",
     )
 
     parser.add_argument(

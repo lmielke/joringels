@@ -139,7 +139,7 @@ class Handler:
         isValid allowes to confirm, that decryption result is readable
         """
         try:
-            with open(filePath, "r+") as f:
+            with open(filePath, 'r+') as f:
                 text = f.read()
                 if (not self.decrypted) or data == "enc":
                     text = (text.strip() + sts.appParams.get("validator")).replace(
@@ -147,10 +147,11 @@ class Handler:
                     )
                 isValid = text.endswith(sts.appParams.get("validator"))
                 for k, v in tokenizers.items():
-                    text = text.replace(k, v) if data == "dec" else text.replace(v, k)
+                    text = text.replace(k, v) if data == "enc" else text.replace(v, k)
                 f.seek(0)
                 f.truncate()
                 f.write(text.strip())
+                time.sleep(.1)
             # validate cleanup results
             if fileSize := str(len(text)).zfill(16) == 0:
                 raise Exception(f"{data}: fileSize: {fileSize}")

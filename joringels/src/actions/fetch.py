@@ -1,5 +1,7 @@
+
 # serve.py
 import os, yaml
+from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
 
@@ -10,13 +12,13 @@ def remote(*args, **kwargs) -> dict:
     return secret
 
 
-def local(*args, client, **kwargs) -> dict:
+def local(*args, **kwargs) -> dict:
     try:
-        with open(sts.prep_path(os.path.join(sts.encryptDir, client)), "r") as f:
-            secret = yaml.safe_load(f)
+        j = Joringel(*args, **kwargs)
+        j._digest(*args, **kwargs)
     except FileNotFoundError:
         return None
-    return secret
+    return j.secrets
 
 
 def alloc(*args, **kwargs):

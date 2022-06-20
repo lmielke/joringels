@@ -11,7 +11,7 @@ def run(secImp, scpImp, action: str, *args, host, **kwargs) -> None:
     imports secrets from source, stores it in .ssp and then uploads it to remote host
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels upload -g digiserver -src keepass -con scp
+    run like: joringels upload -n digiserver -src kdbx -con scp
     """
 
     # get secret

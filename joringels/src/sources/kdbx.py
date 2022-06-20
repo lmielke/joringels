@@ -12,23 +12,36 @@ import joringels.src.settings as sts
 
 # :)L0veMi11i0n$
 class KeePassSecrets:
-    def __init__(self, action, *args, groupName, key=None, **kwargs):
-        self.groups, self.groupName = {}, groupName
+    def __init__(self, action, *args, safeName, key=None, **kwargs):
+        self.groups, self.safeName = {}, safeName
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
+        self.kPath = self._check_kPath(*args, **kwargs)
         self.session = keePass(
-            sts.appParams.get("kPath"),
+            self.kPath,
             key if key is not None else gp(prompt="KeePass: ", stream=None),
         )
-        self.dataSafes = self.session.find_groups(name=sts.safeLocation, first=True)
+        self.dataSafes = self.session.find_groups(name=sts.safeName, first=True)
         self.dataSafe = self.session.find_entries(
-            title=groupName, group=self.dataSafes, first=True
+            title=safeName, group=self.dataSafes, first=True
         )
         if action != 'show':
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
 
+    def _check_kPath(self, *args, source, **kwargs):
+        kPath = sts.appParams.get('kPath', source)
+        if not os.path.isfile(kPath):
+            msg = ( 
+                    f"kPath is not a file: {kPath}! "
+                    f"If sts.appParams['kPath'] is not existing, provide a full "
+                    f"path/to/file.kdbx !"
+                    )
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            exit()
+        return kPath
+
     def _get_safe_params(self, *args, **kwargs) -> list:
         if self.dataSafe is None:
-            msg = f"keepass._get_safe_params with data_safe not found: {self.groupName}"
+            msg = f"keepass._get_safe_params with data_safe not found: {self.safeName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None, None
         self.encrpytKey = self.dataSafe.password
@@ -38,15 +51,6 @@ class KeePassSecrets:
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
         return targets, entries
-
-    def load(self, *args, host=None, **kwargs) -> None:
-        host = host if host is not None else list(self.targets)[0]
-        target = self.targets.get(host, None)
-        self._mk_server_params(target, host, *args, **kwargs)
-        self._mk_secrets(*args, **kwargs)
-        self.secrets[sts.appParamsFileName] = self.joringelsParams
-        self._write_secs(*args, **kwargs)
-        return self.serverCreds
 
     def _mk_secrets(self, *args, **kwargs):
         for entryPath in self.entries:
@@ -82,21 +86,32 @@ class KeePassSecrets:
                 print(f"keepass._get_attachments: {e}")
         return attachs
 
-    def _write_secs(self, *args, groupName, filePrefix=None, **kwargs):
+    def _write_secs(self, *args, safeName, filePrefix=None, **kwargs):
         filePrefix = filePrefix if filePrefix else sts.appParams.get("decPrefix")
-        fileName = f"{filePrefix}{groupName}.yml"
+        fileName = f"{filePrefix}{safeName}.yml"
         filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
 
         # file extension is .yml
         with open(filePath, "w") as f:
             f.write(yaml.dump(self.secrets))
 
-    def show(self, *args, groupName: str, **kwargs) -> None:
+
+
+    def load(self, *args, host=None, **kwargs) -> None:
+        host = host if host is not None else list(self.targets)[0]
+        target = self.targets.get(host, None)
+        self._mk_server_params(target, host, *args, **kwargs)
+        self._mk_secrets(*args, **kwargs)
+        self.secrets[sts.appParamsFileName] = self.joringelsParams
+        self._write_secs(*args, **kwargs)
+        return self.serverCreds
+
+    def show(self, *args, safeName: str, **kwargs) -> None:
         """
         gets all relevant entry paths from keepass and prints them in a copy/paste
         optimized way
 
-        run like:   python -m joringels.src.sources.keepass show -g python_venvs
+        run like:   python -m joringels.src.sources.kdbx show -n python_venvs
                     enter keepass key when prompted
         copy the entries into the NOTES of you keepass joringels_data_save entry
 

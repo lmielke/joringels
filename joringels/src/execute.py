@@ -1,6 +1,6 @@
 # toserver.py
 import os
-from joringels.src.keepass import KeePassSecrets
+from joringels.src.kdbx import KeePassSecrets
 from joringels.src.scp import SCPPS
 from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
@@ -11,7 +11,7 @@ class Processes:
     def __init__(self, action, *args, source, method, **kwargs):
         self.action = action
         self.sources = {
-            "keepass": KeePassSecrets,
+            "kdbx": KeePassSecrets,
         }
         self.source = self.sources.get(source)
         self.methods = {
@@ -23,13 +23,13 @@ class Processes:
         filePath = self._mk_paths(*args, **kwargs)
         s = self.source(*args, **kwargs)
         filePath, serverCreds = s.load(filePath, *args, **kwargs)
-        # keepass key is replaced by secreatskey
+        # kdbx key is replaced by secreatskey
         kwargs.update({"key": s.secrets["key"]})
         filePath, _ = self.digest(*args, **kwargs)
         self.method(*args, **kwargs).upload(filePath, serverCreds, *args, **kwargs)
 
-    def _mk_paths(self, *args, groupName, **kwargs) -> str:
-        fileName = f"{sts.appParams.get('decPrefix')}{groupName}.yml"
+    def _mk_paths(self, *args, safeName, **kwargs) -> str:
+        fileName = f"{sts.appParams.get('decPrefix')}{safeName}.yml"
         filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
         return filePath
 

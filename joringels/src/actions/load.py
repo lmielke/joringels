@@ -12,7 +12,7 @@ def run(secImp: object, action: str, *args, **kwargs) -> None:
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels load -g digiserver -src keepass
+    run like: joringels load -n digiserver -src kdbx
     """
     # get secret
     sec = secImp.main(*args, **kwargs)
@@ -28,5 +28,9 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
     imports source and connector from src and con argument
     then runs load process using imported source an connector
     """
-    secImp = importlib.import_module(f"{sts.impStr}.sources.{source}")
-    return run(secImp, *args, **kwargs)
+    if os.path.isfile(source):
+        moduleName = os.path.splitext(source)[-1][1:]
+    else:
+        moduleName = source
+    secImp = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
+    return run(secImp, *args, source=source, **kwargs)

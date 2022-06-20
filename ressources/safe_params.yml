@@ -1,18 +1,18 @@
 # safe_params.yml == [joringesl.src.settings.safeParamsFileName]
 
-# NOTE: the following section exclusively consists of full paths to existing keepass entries
+# NOTE: the following section exclusively consists of full paths to existing kdbx entries
 # 
-# targets are keepass entries
-# i.e. test_server_main is a keepass entry that contains credentials for test_server login
+# targets are kdbx entries
+# i.e. test_server_main is a kdbx entry that contains credentials for test_server login
 # you can specify as many targets as you want, all targets will receive the same secrets
 #
 # read below to know how scp upload works
 # https://thedarksource.com/powershell-scp-to-transfer-files-between-windows-linux/
-# NOTE: keepass target entry has to contain url, username, password to allow file upload as 
+# NOTE: kdbx target entry has to contain url, username, password to allow file upload as 
 #   described under Upload file by Set-SCPFile
 targets:
   - python_venvs/001_create_projects_services/003_create_DevOps/test_server_main
-# these are the secrets (i.e. keepass entries) which you bundle into one data_safe
+# these are the secrets (i.e. kdbx entries) which you bundle into one data_safe
 # you can specify as many entries as you want, all entries will be combined to a single safe
 entries:
   - python_venvs/501_utils/80_db/digi_postgres_login

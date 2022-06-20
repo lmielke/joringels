@@ -46,6 +46,7 @@ import colorama as color
 
 color.init()
 from time import sleep
+from getpass import getpass as gp
 
 import joringels.src.settings as sts
 import joringels.src.flower as magic
@@ -54,13 +55,13 @@ from joringels.src.encryption_handler import Handler as decryptor
 
 
 class Joringel:
-    def __init__(self, *args, groupName, secrets=None, verbose=0, **kwargs):
+    def __init__(self, *args, safeName, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
-        self.groupName = groupName
-        self.encryptionPath = sts.prep_path(self.groupName)
+        self.safeName = safeName
+        self.encryptionPath = sts.prep_path(self.safeName)
         self.secrets = secrets
 
-    def chkey(self, *args, key, **kwargs):
+    def _chkey(self, *args, key, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-16*
@@ -71,11 +72,11 @@ class Joringel:
         ########################### START TEST ###########################
         # INPUTS NOTE: currently not tested !!!
         key: newKey
-        self.groupName: /python_venvs/packages/joringels/joringels/src/test/test_ch_self_key.txt
+        self.safeName: /python_venvs/packages/joringels/joringels/src/test/test_ch_self_key.txt
 
         # FUNCTION
         pyCall: instance.chkey(allYes=True, **kwargs)
-        shell_Call: python modulePath/joringels.py chkey -f self.groupName -k key -y
+        shell_Call: python modulePath/joringels.py chkey -f self.safeName -k key -y
 
         # RETURN
         returns: True
@@ -83,7 +84,8 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        encryptPath, fileNames = sts.file_or_files(self.groupName, *args, **kwargs)
+        if key is None: key = gp(prompt="Enter old key: ", stream=None)
+        encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
         msg = f"Continuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         for fileName in fileNames:
@@ -116,8 +118,7 @@ class Joringel:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        client: pyCall
-        self.groupName: "/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
+        self.safeName: "/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
 
         # FUNCTION
         pyCall: instance._digest(**kwargs)
@@ -130,7 +131,7 @@ class Joringel:
 
         """
         with decryptor(self.encryptionPath, key, **kwargs) as h:
-            with open(h.decryptPath, "r") as f:
+            with open(h.decryptPath, 'r') as f:
                 self.secrets = yaml.safe_load(f.read())
                 return h.encryptPath, self.secrets
 

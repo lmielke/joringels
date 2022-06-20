@@ -13,7 +13,7 @@ def run(secImp: object, action: str, *args, host, **kwargs) -> None:
     NOTE: this leaves unprotected secrets in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels unprotectedload -g digiserver -src keepass
+    run like: joringels unprotectedload -n digiserver -src kdbx
     """
     sec = secImp.main(*args, **kwargs)
     sec.load(*args, filePrefix=f"{action}_", **kwargs)
@@ -25,5 +25,9 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
     imports source
     then runs unprotected load process using imported source an connector
     """
-    secImp = importlib.import_module(f"{sts.impStr}.sources.{source}")
-    return run(secImp, *args, **kwargs)
+    if os.path.isfile(source):
+        moduleName = os.path.splitext(source)[-1][1:]
+    else:
+        moduleName = source
+    secImp = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
+    return run(secImp, *args, source=source, **kwargs)

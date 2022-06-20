@@ -7,25 +7,25 @@ from pathlib import Path
 
 
 
-# keepass parameters you might want to change
+fext = '.yml'
+# kdbx parameters you might want to change
 # name of group in keeepass that stores data_safes entries
-safeLocation = "joringels_data_safes"
+safeName = "joringels_data_safes"
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
-safeParamsFileName = "safe_params.yml"
+safeParamsFileName = f"safe_params{fext}"
 # name of general file containing program params such as allowed hosts ect.
-appParamsFileName = "application.yml"
+appParamsFileName = f"_joringels{fext}"
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = "~/.ssp"
-# path sepeator for path to find your secret inside its source i.e. keepass
+# path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
-
 
 
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(checkPath: str, filePrefix=None) -> str:
     checkPath = checkPath.replace("~", os.path.expanduser("~"))
-    checkPath = checkPath if checkPath.endswith(".yml") else f"{checkPath}.yml"
+    checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     if os.path.isfile(checkPath):
         return checkPath
     if checkPath.startswith("."):
@@ -34,7 +34,7 @@ def prep_path(checkPath: str, filePrefix=None) -> str:
         checkPath = f"{filePrefix}_{checkPath}"
     checkPath = os.path.join(encryptDir, checkPath)
     checkPath = checkPath.replace("~", os.path.expanduser("~"))
-    checkPath = checkPath if checkPath.endswith(".yml") else f"{checkPath}.yml"
+    checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     return checkPath
 
 
@@ -88,6 +88,7 @@ def temp_chdir(path: Path) -> None:
 try:
     with open(appParamsPath, "r") as f:
         appParams = yaml.safe_load(f)
+        print(f"{appParams = }")
         appParamsLoaded = True
 except FileNotFoundError:
     appParams = {

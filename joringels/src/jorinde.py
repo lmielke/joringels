@@ -12,7 +12,7 @@ class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, client=False, **kwargs):
+    def _fetch(self, *args, key=False, safeName=False, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -23,7 +23,7 @@ class Jorinde:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        client: TestJoringels
+        safeName: TestJoringels
         encryptPath: /python_venvs/packages/joringels/joringels/src/test/test_get.yml
 
         # FUNCTION
@@ -37,7 +37,7 @@ class Jorinde:
 
         """
         host, port = soc.host_info(*args, **kwargs)
-        resp = requests.get(f"http://{host}:{port}/{client}")
+        resp = requests.get(f"http://{host}:{port}/{safeName}")
         try:
             if resp.status_code == 200:
                 secret = yaml.safe_load(resp.text)
@@ -47,19 +47,17 @@ class Jorinde:
             secret = {"ERROR": e}
         return secret
 
-    def authorized(self, method, *args, **kwargs):
-        if method == "_unpack_decrypted" and (
-            soc.get_hostname() not in sts.appParams.get("secureHosts")
-        ):
-            print(f"Action not allowed on this host: {soc.get_hostname()}")
-            return False
-        else:
-            return True
+    # def authorized(self, method, *args, **kwargs):
+    #     if method == "_unpack_decrypted" and (
+    #         soc.get_hostname() not in sts.appParams.get("secureHosts")
+    #     ):
+    #         print(f"Action not allowed on this host: {soc.get_hostname()}")
+    #         return False
+    #     else:
+    #         return True
 
-    def _unpack_decrypted(self, *args, groupName, **kwargs):
-        decPath = sts.prep_path(groupName, "unprotectedload")
-        if not self.authorized("_unpack_decrypted", *args, **kwargs):
-            return False
+    def _unpack_decrypted(self, *args, safeName, **kwargs):
+        decPath = sts.prep_path(safeName, "unprotectedload")
         with open(decPath, "r") as f:
             entries = yaml.safe_load(f)
         # save every parameter to a seperate file
@@ -67,7 +65,9 @@ class Jorinde:
         for entry, prs in entries.items():
             if entry == "key":
                 continue
-            with open(os.path.join(decDir, f"{entry}.yml"), "w") as f:
+            else:
+                if not entry.endswith(sts.fext): entry = f"{entry}{sts.fext}"
+            with open(os.path.join(decDir, entry), "w") as f:
                 f.write(yaml.dump(prs))
         os.remove(decPath)
         msg = f"Saved entries to .ssp, NOTE: entries are unprotected !"

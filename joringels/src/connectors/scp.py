@@ -10,8 +10,8 @@ class SCPPS:
     def __init__(self, *args, **kwargs):
         pass
 
-    def upload(self, serverCreds, localPath=None, *args, groupName, **kwargs):
-        localPath = localPath if localPath is not None else sts.prep_path(groupName)
+    def upload(self, serverCreds, localPath=None, *args, safeName, **kwargs):
+        localPath = localPath if localPath is not None else sts.prep_path(safeName)
         if os.name == "nt":
             bash = "powershell.exe"
             script = os.path.join(sts.settingsPath, "connectors", "scp.ps1")
