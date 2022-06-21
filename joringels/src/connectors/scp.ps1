@@ -3,7 +3,7 @@
 Write-Host "`nscp.ps1" -BackgroundColor yellow -ForegroundColor black
 
 
-Write-Host "`tNow uploading: $($args[2]) to $($args[3])" -ForegroundColor yellow
+Write-Host "`tNow uploading to $($args[1]): $($args[2]) -> $($args[3])" -ForegroundColor yellow
 $rmUserName = $args[0]
 $rmHost = $args[1]
 $localPath = $args[2]

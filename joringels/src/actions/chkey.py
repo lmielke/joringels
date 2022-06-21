@@ -4,6 +4,7 @@ import os
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
 
+# run like: joringels chkey -n digiserver [-k "C:\Users\Lars\OneDrive\Dokumente\50 sonstiges\aktuell_2021.kdbx"]
 
 def run(action: str, *args, **kwargs) -> None:
     """
