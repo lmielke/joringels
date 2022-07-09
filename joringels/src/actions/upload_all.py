@@ -11,12 +11,10 @@ def run(secImp, scpImp, action: str, *args, host, **kwargs) -> None:
     imports secrets from source, stores it in .ssp and then uploads it to remote host
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels upload -n digiserver -src kdbx -con scp
+    run like: joringels upload_all -n digiserver -src kdbx -con scp
     """
-
     # get secret
     sec = secImp.main(*args, **kwargs)
-
     for target in sec.targets:
         serverCreds = sec.load(*args, host=target, **kwargs)
         # encrypt secret
@@ -33,4 +31,4 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
     """
     secImp = importlib.import_module(f"{sts.impStr}.sources.{source}")
     scpImp = importlib.import_module(f"{sts.impStr}.connectors.{connector}")
-    return run(secImp, scpImp, *args, **kwargs)
+    return run(secImp, scpImp, *args, source=source, **kwargs)
