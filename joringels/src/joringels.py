@@ -61,7 +61,7 @@ class Joringel:
         self.encryptionPath = sts.prep_path(self.safeName)
         self.secrets = secrets
 
-    def _chkey(self, *args, key, **kwargs):
+    def _chkey(self, *args, key, newKey=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-16*
@@ -91,23 +91,30 @@ class Joringel:
         for fileName in fileNames:
             print(f"\tfile: {fileName}")
         # keys are changed for all files in fileNames
-        if newKey := input("\ntype new key to continue: "):
-            if input("re-type new key to continue: ") == newKey:
-                print(f"changing self.key: {key} to {newKey}")
-                for fileName in fileNames:
-                    try:
-                        filePath = os.path.join(encryptPath, fileName)
-                        with decryptor(filePath, key, *args, **kwargs) as f:
-                            f.key = newKey
-                    except Exception as e:
-                        print(f"ERROR: {e}")
-            else:
-                print(f"keys not matching:")
+        if newKey == 'os':
+            print(f"{self.safeName = }")
+            newKey = os.environ[self.safeName]
+            confirmKey = newKey
         else:
-            print(f"not changed because invalid pwd: {newKey}")
+            if newKey := input("\ntype new key to continue: "):
+                confirmKey = input("re-type new key to continue: ") 
+            else:
+                print(f"not changed because invalid pwd: {newKey}")
+        # changing keys
+        if confirmKey == newKey:
+            for fileName in fileNames:
+                try:
+                    filePath = os.path.join(encryptPath, fileName)
+                    with decryptor(filePath, *args, key=key, **kwargs) as f:
+                        f.key = newKey
+                except Exception as e:
+                    print(f"ERROR: {e}")
+        else:
+            print(f"keys not matching:")
+
         return True
 
-    def _digest(self, *args, key, **kwargs):
+    def _digest(self, *args, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -130,7 +137,7 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        with decryptor(self.encryptionPath, key, **kwargs) as h:
+        with decryptor(self.encryptionPath, **kwargs) as h:
             with open(h.decryptPath, 'r') as f:
                 self.secrets = yaml.safe_load(f.read())
                 return h.encryptPath, self.secrets

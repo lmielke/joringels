@@ -32,10 +32,10 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(self, encryptPath, key, *args, retain=False, **kwargs):
+    def __init__(self, encryptPath, *args, safeName='', key=None, retain=False, **kwargs):
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
-        self.key = key
+        self.key = key if key is not None else os.environ.get(safeName)
         self.retain = retain
 
     def __enter__(self, *args, **kwargs):
@@ -107,6 +107,7 @@ class Handler:
         except Exception as e:
             msg = f"encryption_handler.file_encrypt, Encryption failed ! : {e}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            print(f"filePath: {self.encryptPath}")
             return False
 
     def file_decrypt(self, *args, **kwargs) -> bool:

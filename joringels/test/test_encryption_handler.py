@@ -27,6 +27,7 @@ class UnitTest(unittest.TestCase):
     def tearDownClass(cls, *args, **kwargs):
         try:
             shutil.rmtree(cls.tempDataPath, ignore_errors=False, onerror=None)
+            # pass
         except Exception as e:
             print(f"UnitTest, tearDownClass, e: {e}")
 
@@ -42,7 +43,7 @@ class UnitTest(unittest.TestCase):
     def test_mk_paths(self, *args, **kwargs):
         ### finds parameter fieles by serching throu relevant joringels/app folders and packages
         testPath = self.mk_test_data(self.tempDataPath, "mk_paths", *args, **kwargs)
-        inst = Handler(testPath, self.testKey)
+        inst = Handler(testPath, *args, key=self.testKey)
         self.assertEqual(
             (
                 os.path.join(self.tempDataPath, "mk_paths.yml"),
@@ -53,7 +54,7 @@ class UnitTest(unittest.TestCase):
 
     def test_file_encrypt(self, *args, **kwargs):
         testPath = self.mk_test_data(self.tempDataPath, "file_encrypt", *args, **kwargs)
-        inst = Handler(testPath, self.testKey)
+        inst = Handler(testPath, *args, key=self.testKey)
         inst.file_encrypt(*args, **kwargs)
         assert os.path.isfile(inst.encryptPath)
         # not working
@@ -62,7 +63,7 @@ class UnitTest(unittest.TestCase):
 
     def test_file_decrypt(self, *args, **kwargs):
         testPath = self.mk_test_data(self.tempDataPath, "file_decrypt", *args, **kwargs)
-        inst = Handler(testPath, self.testKey)
+        inst = Handler(testPath, self.testKey, *args,  key=self.testKey)
         inst.file_encrypt(*args, **kwargs)
         inst.file_decrypt(*args, **kwargs)
         with open(inst.decryptPath, "r") as dec:

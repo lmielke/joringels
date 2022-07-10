@@ -20,6 +20,17 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-nk",
+        "--newKey",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="provide a source for new key, i.e. os",
+    )
+
+    parser.add_argument(
         "-ip",
         "--host",
         required=False,
