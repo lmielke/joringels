@@ -1,4 +1,5 @@
 # contracts.py
+import joringels.src.settings as sts
 import colorama as color
 
 color.init()
@@ -7,6 +8,7 @@ color.init()
 def checks(*args, **kwargs):
     error_upload_all(*args, **kwargs)
     kwargs = warn_deletion(*args, **kwargs)
+    kwargs['source'] = sts.unalias_path(kwargs['source'])
     return kwargs
 
 

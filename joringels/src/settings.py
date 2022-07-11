@@ -6,6 +6,13 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
+def unalias_path(path: str) -> str:
+    path = path.replace(r'%USERPROFILE%', '~')
+    path = path.replace("~", os.path.expanduser("~"))
+    if path.startswith("."):
+        path = os.path.join(os.getcwd(), path[2:]).replace("/", os.sep)
+    return path
+
 
 fext = '.yml'
 # kdbx parameters you might want to change
@@ -17,23 +24,20 @@ safeParamsFileName = f"safe_params{fext}"
 # name of general file containing program params such as allowed hosts ect.
 appParamsFileName = f"_joringels{fext}"
 # local directory for storing en/decrpytd files and managing your secrets
-encryptDir = "~/.ssp"
+encryptDir = unalias_path("~/.ssp")
+assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}" 
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
 
-
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(checkPath: str, filePrefix=None) -> str:
-    checkPath = checkPath.replace("~", os.path.expanduser("~"))
+    checkPath = unalias_path(checkPath)
     checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     if os.path.isfile(checkPath):
         return checkPath
-    if checkPath.startswith("."):
-        checkPath = os.path.join(os.getcwd(), checkPath[2:]).replace("/", os.sep)
     if filePrefix:
         checkPath = f"{filePrefix}_{checkPath}"
     checkPath = os.path.join(encryptDir, checkPath)
-    checkPath = checkPath.replace("~", os.path.expanduser("~"))
     checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     return checkPath
 
