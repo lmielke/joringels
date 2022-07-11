@@ -12,7 +12,7 @@ requests = "*"
 tabulate = "*"
 psutil = "*"
 ipwhois = "*"
-joringels = {editable = true, path = "."}
+joringels = {editable = false, path = "."}
 pykeepass = "*"
 
 [dev-packages]
