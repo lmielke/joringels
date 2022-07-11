@@ -4,16 +4,13 @@ import subprocess
 import os, sys
 import configparser
 
-parser = configparser.ConfigParser()
-parser.read(os.path.join(sts.appBasePath, "setup.cfg"))
-
 import colorama as color
 
 color.init()
 
 
 def main(*args, **kwargs):
-    print(f"""\n{f" JORINGELS VERSION {parser.get('metadata', 'version')} ":#^80}""")
+    print(f"""\n{f" JORINGELS USER info ":#^80}""")
     print("Simple tool for managing your secrets in a semi secure way.")
     print(f"\nsample {kwargs = }\n")
     msg = f"\nGo through steps in Readme.md ! Then use the following shell cmds"
@@ -35,7 +32,7 @@ def main(*args, **kwargs):
         f"\texample: joringels fetch -c digi_postgres_login\n"
         f"\t\t-c, safeName: name of secret, i.e. in kdbx its the name of your entry\n\n"
         f"serve: via http to all apps inside your local network\n"
-        f"\texample: joringels serve -n digiserver -k 58039C1E5E9EF20D2D52F0A9D17E931A -rt\n"
+        f"\texample: joringels serve -n digiserver -k myextrasecurepassword -rt\n"
         f"\t\t-c, safeName: name of secret, i.e. in kdbx its the name of your entry"
     )
     print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
