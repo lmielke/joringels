@@ -21,20 +21,18 @@ class KeePassSecrets:
             key if key is not None else gp(prompt="KeePass: ", stream=None),
         )
         self.dataSafes = self.session.find_groups(name=sts.safeName, first=True)
-        self.dataSafe = self.session.find_entries(
-            title=safeName, group=self.dataSafes, first=True
-        )
-        if action != 'show':
+        self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
+        if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
 
     def _check_kPath(self, *args, source, **kwargs):
-        kPath = sts.appParams.get('kPath', source)
+        kPath = sts.appParams.get("kPath", source)
         if not os.path.isfile(kPath):
-            msg = ( 
-                    f"kPath is not a file: {kPath}! "
-                    f"If sts.appParams['kPath'] is not existing, provide a full "
-                    f"path/to/file.kdbx !"
-                    )
+            msg = (
+                f"kPath is not a file: {kPath}! "
+                f"If sts.appParams['kPath'] is not existing, provide a full "
+                f"path/to/file.kdbx !"
+            )
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             exit()
         return kPath
@@ -95,8 +93,6 @@ class KeePassSecrets:
         with open(filePath, "w") as f:
             f.write(yaml.dump(self.secrets))
 
-
-
     def load(self, *args, host=None, **kwargs) -> None:
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
@@ -120,7 +116,7 @@ class KeePassSecrets:
             normal entries look like:             python_venvs/.../...
         """
         for i, element in enumerate(self.session.find_entries(title=".*", regex=True)):
-            if element.path[0] == 'python_venvs':
+            if element.path[0] == "python_venvs":
                 entryPath = sts.kps_sep.join(element.path)
                 print(f"{i} copy to Notes:\t{entryPath}")
 

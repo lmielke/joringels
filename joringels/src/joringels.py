@@ -84,20 +84,21 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        if key is None: key = gp(prompt="Enter old key: ", stream=None)
+        if key is None:
+            key = gp(prompt="Enter old key: ", stream=None)
         encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
         msg = f"Continuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         for fileName in fileNames:
             print(f"\tfile: {fileName}")
         # keys are changed for all files in fileNames
-        if newKey == 'os':
+        if newKey == "os":
             print(f"{self.safeName = }")
             newKey = os.environ[self.safeName]
             confirmKey = newKey
         else:
             if newKey := input("\ntype new key to continue: "):
-                confirmKey = input("re-type new key to continue: ") 
+                confirmKey = input("re-type new key to continue: ")
             else:
                 print(f"not changed because invalid pwd: {newKey}")
         # changing keys
@@ -138,7 +139,7 @@ class Joringel:
 
         """
         with decryptor(self.encryptionPath, **kwargs) as h:
-            with open(h.decryptPath, 'r') as f:
+            with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())
                 return h.encryptPath, self.secrets
 

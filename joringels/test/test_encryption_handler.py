@@ -63,7 +63,7 @@ class UnitTest(unittest.TestCase):
 
     def test_file_decrypt(self, *args, **kwargs):
         testPath = self.mk_test_data(self.tempDataPath, "file_decrypt", *args, **kwargs)
-        inst = Handler(testPath, self.testKey, *args,  key=self.testKey)
+        inst = Handler(testPath, self.testKey, *args, key=self.testKey)
         inst.file_encrypt(*args, **kwargs)
         inst.file_decrypt(*args, **kwargs)
         with open(inst.decryptPath, "r") as dec:

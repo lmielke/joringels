@@ -32,7 +32,7 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(self, encryptPath, *args, safeName='', key=None, retain=False, **kwargs):
+    def __init__(self, encryptPath, *args, safeName="", key=None, retain=False, **kwargs):
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
         self.key = key if key is not None else os.environ.get(safeName)
@@ -140,7 +140,7 @@ class Handler:
         isValid allowes to confirm, that decryption result is readable
         """
         try:
-            with open(filePath, 'r+') as f:
+            with open(filePath, "r+") as f:
                 text = f.read()
                 if (not self.decrypted) or data == "enc":
                     text = (text.strip() + sts.appParams.get("validator")).replace(
@@ -152,7 +152,7 @@ class Handler:
                 f.seek(0)
                 f.truncate()
                 f.write(text.strip())
-                time.sleep(.1)
+                time.sleep(0.1)
             # validate cleanup results
             if fileSize := str(len(text)).zfill(16) == 0:
                 raise Exception(f"{data}: fileSize: {fileSize}")

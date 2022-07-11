@@ -15,7 +15,7 @@ def run(secImp, scpImp, action: str, *args, **kwargs) -> None:
     """
     # get secret
     sec = secImp.main(*args, **kwargs)
-    
+
     serverCreds = sec.load(*args, **kwargs)
     # encrypt secret
     kwargs.update({"key": sec.encrpytKey})

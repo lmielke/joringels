@@ -66,7 +66,8 @@ class Jorinde:
             if entry == "key":
                 continue
             else:
-                if not entry.endswith(sts.fext): entry = f"{entry}{sts.fext}"
+                if not entry.endswith(sts.fext):
+                    entry = f"{entry}{sts.fext}"
             with open(os.path.join(decDir, entry), "w") as f:
                 f.write(yaml.dump(prs))
         os.remove(decPath)

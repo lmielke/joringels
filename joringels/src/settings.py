@@ -7,14 +7,14 @@ from pathlib import Path
 
 
 def unalias_path(path: str) -> str:
-    path = path.replace(r'%USERPROFILE%', '~')
+    path = path.replace(r"%USERPROFILE%", "~")
     path = path.replace("~", os.path.expanduser("~"))
     if path.startswith("."):
         path = os.path.join(os.getcwd(), path[2:]).replace("/", os.sep)
     return path
 
 
-fext = '.yml'
+fext = ".yml"
 # kdbx parameters you might want to change
 # name of group in keeepass that stores data_safes entries
 safeName = "joringels_data_safes"
@@ -25,7 +25,7 @@ safeParamsFileName = f"safe_params{fext}"
 appParamsFileName = f"_joringels{fext}"
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
-assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}" 
+assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
 
