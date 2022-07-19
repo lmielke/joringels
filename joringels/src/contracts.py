@@ -12,9 +12,9 @@ def checks(*args, **kwargs):
     return kwargs
 
 
-def warn_deletion(*args, retain, **kwargs):
+def warn_deletion(*args, retain, hard, **kwargs):
     if kwargs["action"] == "serve":
-        if retain == False:
+        if retain == False and hard == False:
             msg = f"Retain is set to {retain}. Your secrets.yml will be deleted after reading !"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             y = input("To continue type [Y]: ")

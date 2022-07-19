@@ -11,13 +11,14 @@ def remote(*args, **kwargs) -> dict:
     return secret
 
 
-def local(*args, **kwargs) -> dict:
+def local(*args, paramName, **kwargs) -> dict:
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
-    except FileNotFoundError:
+        secret = j.secrets[paramName]
+    except Exception as e:
         return None
-    return j.secrets
+    return secret
 
 
 def alloc(*args, **kwargs):

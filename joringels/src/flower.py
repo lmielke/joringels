@@ -19,7 +19,7 @@ class MagicFlower(BaseHTTPRequestHandler):
         )
         self.host, self.port = soc.host_info(**kwargs)
         msg = f"\nNow serving http://{self.host}:{self.port}/ping"
-        logger.log(__name__, msg, *args, **kwargs)
+        logger.log(__name__, msg, *args, verbose=agent.verbose, **kwargs)
         self.allowedHosts = soc.get_allowed_hosts(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):

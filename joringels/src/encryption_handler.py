@@ -32,7 +32,8 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(self, encryptPath, *args, safeName="", key=None, retain=False, **kwargs):
+    def __init__(self, encryptPath, *args, safeName="", key=None, retain=False, verbose=0, **kwargs):
+        self.verbose = verbose
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
         self.key = key if key is not None else os.environ.get(safeName)
@@ -79,7 +80,7 @@ class Handler:
         encryptPath = os.path.join(secretsDir, secretsFileName)
         if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):
             msg = f"\nsecretPath not found: {secretPath}\n"
-            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            if self.verbose >= 2: print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             raise FileNotFoundError
         elif os.path.isfile(decryptPath):
             self.decrypted = True

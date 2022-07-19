@@ -92,7 +92,7 @@ def mk_args():
         nargs="?",
         const=1,
         type=int,
-        default=1,
+        default=0,
         help="0:silent, 1:user, 2:debug",
     )
 
@@ -123,9 +123,9 @@ def mk_args():
         "--hard",
         required=False,
         nargs="?",
-        const=0,
+        const=True,
         type=bool,
-        default=None,
+        default=False,
         help="PERMANENT CHANGE",
     )
 

@@ -43,19 +43,18 @@ MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings T
 
 import yaml, os, re
 import colorama as color
-
 color.init()
 from time import sleep
-from getpass import getpass as gp
 
 import joringels.src.settings as sts
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
+from joringels.src.get_creds import Creds
 
 
 class Joringel:
-    def __init__(self, *args, safeName, secrets=None, verbose=0, **kwargs):
+    def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
         self.safeName = safeName
         self.encryptionPath = sts.prep_path(self.safeName)
@@ -84,35 +83,27 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        if key is None:
-            key = gp(prompt="Enter old key: ", stream=None)
+        # confimr key change authorization
+        key = Creds(*args, **kwargs).set("dataSafe key: ", *args, **kwargs)
         encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
         msg = f"Continuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
-        for fileName in fileNames:
-            print(f"\tfile: {fileName}")
         # keys are changed for all files in fileNames
-        if newKey == "os":
-            print(f"{self.safeName = }")
-            newKey = os.environ[self.safeName]
-            confirmKey = newKey
-        else:
-            if newKey := input("\ntype new key to continue: "):
-                confirmKey = input("re-type new key to continue: ")
-            else:
-                print(f"not changed because invalid pwd: {newKey}")
+        newKey = (Creds(*args, key=newKey, **kwargs)
+                    .set("new key: ", *args, confirmed=False, **kwargs)
+                    )
         # changing keys
-        if confirmKey == newKey:
-            for fileName in fileNames:
-                try:
-                    filePath = os.path.join(encryptPath, fileName)
-                    with decryptor(filePath, *args, key=key, **kwargs) as f:
-                        f.key = newKey
-                except Exception as e:
-                    print(f"ERROR: {e}")
-        else:
-            print(f"keys not matching:")
-
+        for fileName in fileNames:
+            try:
+                filePath = os.path.join(encryptPath, fileName)
+                with decryptor(filePath, *args, key=key, **kwargs) as f:
+                    f.key = newKey
+                msg = f"\tKey changed for: {fileName}"
+                print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
+            except Exception as e:
+                msg = f"ERROR: {e}"
+                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                exit()
         return True
 
     def _digest(self, *args, **kwargs):

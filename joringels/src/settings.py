@@ -28,6 +28,9 @@ encryptDir = unalias_path("~/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
+# default ip to fetch dataSafe from
+dataSafeIp = os.environ.get('DATASAFEIP')
+dataSavePort = 7000
 
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(checkPath: str, filePrefix=None) -> str:
@@ -92,11 +95,11 @@ def temp_chdir(path: Path) -> None:
 try:
     with open(appParamsPath, "r") as f:
         appParams = yaml.safe_load(f)
-        print(f"{appParams = }")
         appParamsLoaded = True
 except FileNotFoundError:
     appParams = {
         "decPrefix": "decrypted_",
         "validator": "text_is_valid",
+        "secretsPort": 7000,
     }
     appParamsLoaded = False
