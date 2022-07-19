@@ -12,7 +12,7 @@ class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, paramName=False, host=None, port=None, **kwargs):
+    def _fetch(self, *args, key=False, entry=False, host=None, port=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -23,7 +23,7 @@ class Jorinde:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        paramName: TestJoringels
+        entry: TestJoringels
         encryptPath: /python_venvs/packages/joringels/joringels/src/test/test_get.yml
 
         # FUNCTION
@@ -38,7 +38,7 @@ class Jorinde:
         """
         port = sts.appParams.get("secretsPort") if port is None else port
         host = sts.dataSafeIp if host is None else host
-        resp = requests.get(f"http://{host}:{port}/{paramName}")
+        resp = requests.get(f"http://{host}:{port}/{entry}")
         try:
             if resp.status_code == 200:
                 secret = yaml.safe_load(resp.text)

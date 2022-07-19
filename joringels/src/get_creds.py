@@ -2,21 +2,22 @@
 import os, sys
 from getpass import getpass as gp
 import colorama as color
+
 color.init()
 
 
 class Creds:
-
     def __init__(self, *args, **kwargs):
         self.key = self.get(*args, **kwargs)
-        self.rules = None # implement key rules here
+        self.rules = None  # implement key rules here
 
-    def set(self, msg='key', *args, force=True, confirmed=True, **kwargs):
+    def set(self, msg="key", *args, force=True, confirmed=True, **kwargs):
         if not self.key:
             self.key = None
             while not self.key:
                 self.key = gp(prompt=f"{msg.strip(': ')}: ", stream=None)
-                if force == False: break
+                if force == False:
+                    break
             while not confirmed:
                 confirmed = self._confirm_equals(*args, **kwargs)
         return self.key
@@ -33,6 +34,6 @@ class Creds:
     def _confirm_equals(self, *args, **kwargs):
         # getting new key
         confirmKey = None
-        while (confirmKey != self.key):
+        while confirmKey != self.key:
             confirmKey = gp(prompt=f"re-type key to continue: ", stream=None)
         return True

@@ -11,11 +11,11 @@ def remote(*args, **kwargs) -> dict:
     return secret
 
 
-def local(*args, paramName, **kwargs) -> dict:
+def local(*args, entry, **kwargs) -> dict:
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
-        secret = j.secrets[paramName]
+        secret = j.secrets[entry]
     except Exception as e:
         return None
     return secret

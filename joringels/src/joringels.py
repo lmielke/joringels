@@ -43,6 +43,7 @@ MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings T
 
 import yaml, os, re
 import colorama as color
+
 color.init()
 from time import sleep
 
@@ -89,9 +90,9 @@ class Joringel:
         msg = f"Continuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         # keys are changed for all files in fileNames
-        newKey = (Creds(*args, key=newKey, **kwargs)
-                    .set("new key: ", *args, confirmed=False, **kwargs)
-                    )
+        newKey = Creds(*args, key=newKey, **kwargs).set(
+            "new key: ", *args, confirmed=False, **kwargs
+        )
         # changing keys
         for fileName in fileNames:
             try:

@@ -5,6 +5,7 @@ from pykeepass import PyKeePass as keePass
 import os, re, yaml
 import colorama as color
 from joringels.src.get_creds import Creds
+
 color.init()
 
 import joringels.src.settings as sts
@@ -15,7 +16,7 @@ class KeePassSecrets:
         self.groups, self.safeName = {}, safeName
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
         self.kPath = self._check_kPath(*args, **kwargs)
-        self.creds = Creds(*args, **kwargs).set('KeePass login', *args, **kwargs)
+        self.creds = Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         self.session = keePass(self.kPath, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.safeName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)

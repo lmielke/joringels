@@ -60,7 +60,18 @@ def mk_args():
         const=None,
         type=str,
         default=None,
-        help="secrets group name/alias i.e. entry title in kdbx",
+        help="safe name entry title in kdbx",
+    )
+
+    parser.add_argument(
+        "-e",
+        "--entry",
+        required=False,
+        nargs="?",
+        const=None,
+        type=str,
+        default=None,
+        help="single entry title from dataSafe in kdbx",
     )
 
     parser.add_argument(

@@ -29,7 +29,7 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
     then runs load process using imported source an connector
     """
     # sometimes windows adds a ; to env variables
-    source = source.strip(';')
+    source = source.strip(";")
     if os.path.isfile(source):
         moduleName = os.path.splitext(source)[-1][1:]
     else:

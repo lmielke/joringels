@@ -29,7 +29,7 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
 # default ip to fetch dataSafe from
-dataSafeIp = os.environ.get('DATASAFEIP')
+dataSafeIp = os.environ.get("DATASAFEIP")
 dataSavePort = 7000
 
 #### do NOT change params below unless you know what your doing :) ####
