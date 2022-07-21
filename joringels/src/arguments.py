@@ -65,7 +65,7 @@ def mk_args():
 
     parser.add_argument(
         "-e",
-        "--entry",
+        "--entryName",
         required=False,
         nargs="?",
         const=None,

@@ -12,7 +12,7 @@ class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, entry=False, host=None, port=None, **kwargs):
+    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -23,7 +23,7 @@ class Jorinde:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        entry: TestJoringels
+        entryName: TestJoringels
         encryptPath: /python_venvs/packages/joringels/joringels/src/test/test_get.yml
 
         # FUNCTION
@@ -38,7 +38,7 @@ class Jorinde:
         """
         port = sts.appParams.get("secretsPort") if port is None else port
         host = sts.dataSafeIp if host is None else host
-        resp = requests.get(f"http://{host}:{port}/{entry}")
+        resp = requests.get(f"http://{host}:{port}/{entryName}")
         try:
             if resp.status_code == 200:
                 secret = yaml.safe_load(resp.text)
@@ -63,13 +63,13 @@ class Jorinde:
             entries = yaml.safe_load(f)
         # save every parameter to a seperate file
         decDir, decFileName = os.path.split(decPath)
-        for entry, prs in entries.items():
-            if entry == "key":
+        for entryName, prs in entries.items():
+            if entryName == "key":
                 continue
             else:
-                if not entry.endswith(sts.fext):
-                    entry = f"{entry}{sts.fext}"
-            with open(os.path.join(decDir, entry), "w") as f:
+                if not entryName.endswith(sts.fext):
+                    entryName = f"{entryName}{sts.fext}"
+            with open(os.path.join(decDir, entryName), "w") as f:
                 f.write(yaml.dump(prs))
         os.remove(decPath)
         msg = f"Saved entries to .ssp, NOTE: entries are unprotected !"
