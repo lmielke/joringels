@@ -164,7 +164,8 @@ class Handler:
                 raise Exception(f"{data}: isValid: {isValid}")
             self.decrypted = True
         except UnicodeDecodeError as e:
-            if self.verbose: print(f"Decryption Failed: {e}")
+            if self.verbose:
+                print(f"Decryption Failed: {e}")
             self.decrypted = False
         except Exception as e:
             print(f"data_cleanup Error with data {data}: {e}")
