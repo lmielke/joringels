@@ -33,12 +33,12 @@ class Handler:
     """
 
     def __init__(
-        self, encryptPath, *args, safeName="", key=None, retain=False, verbose=0, **kwargs
+        self, encryptPath, *args, safeName="", key, retain=False, verbose=0, **kwargs
     ):
         self.verbose = verbose
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
-        self.key = key if key is not None else os.environ.get(safeName)
+        self.key = key
         self.retain = retain
 
     def __enter__(self, *args, **kwargs):
@@ -165,6 +165,9 @@ class Handler:
             if data == "enc" and not isValid:
                 raise Exception(f"{data}: isValid: {isValid}")
             self.decrypted = True
+        except UnicodeDecodeError as e:
+            print(f"Decryption Failed: {e}")
+            self.decrypted = False
         except Exception as e:
             print(f"data_cleanup Error with data {data}: {e}")
             self.decrypted = False

@@ -15,10 +15,9 @@ def local(*args, entryName, **kwargs) -> dict:
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
-        secret = j.secrets[entryName]
     except Exception as e:
         return None
-    return secret
+    return j.secrets[entryName]
 
 
 def alloc(*args, **kwargs):
@@ -30,9 +29,11 @@ def alloc(*args, **kwargs):
         return None
 
 
-def main(*args, **kwargs) -> None:
+def main(*args, safeName, entryName, **kwargs) -> None:
     """
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
-    return alloc(*args, **kwargs)
+    assert safeName is not None, f"missing value for '-n safeName'"
+    assert entryName is not None, f"missing value for '-e entryName'"
+    return alloc(*args, safeName=safeName, entryName=entryName, **kwargs)

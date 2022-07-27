@@ -20,7 +20,7 @@ def main(*args, **kwargs):
     print("\nactions")
     msg = (
         f"upload / upload_all: extract kdbx kdb secrets and upload to server:\n"
-        f"\t\t-g, safeName: name of data safe, i.e. [kdbx -> joringels_data_sefe/] digiserver\n"
+        f"\t\t-n, safeName: name of data safe, i.e. [kdbx -> joringels_data_sefe/] digiserver\n"
         f"\t\t-src, source: location of data safe, i.e. kdbx\n"
         f"\t\t-con, connector: method to connect to server, i.e. scp\n\n"
         f"\t\t-ip, host: limit upload to one of the safe targets, interrupts upload\n\n"
@@ -29,11 +29,11 @@ def main(*args, **kwargs):
         f"load: extract kdbx secrets and save encrypted result to .ssp dir\n"
         f"\texample: joringels load -n digiserver -src kdbx [-ip limit_target]\n\n"
         f"fetch: read secrets into your application\n"
-        f"\texample: joringels fetch -c digi_postgres_login\n"
-        f"\t\t-c, safeName: name of secret, i.e. in kdbx its the name of your entry\n\n"
+        f"\texample: joringels fetch -n digi_postgres_login\n"
+        f"\t\t-e, entryName: name of secret, i.e. in kdbx its the name of your entry\n\n"
         f"serve: via http to all apps inside your local network\n"
         f"\texample: joringels serve -n digiserver -k myextrasecurepassword -rt\n"
-        f"\t\t-c, safeName: name of secret, i.e. in kdbx its the name of your entry"
+        f"\t\t-e, entryName: name of secret, i.e. in kdbx its the name of your entry"
     )
     print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
     print(
@@ -52,7 +52,7 @@ def main(*args, **kwargs):
         f"running via shell is identical to directly launching an action joringels/src/actions/... "
     )
     msg = (
-        f"\t-g, safeName: string used by source such as kdbx.py\n"
+        f"\t-n, safeName: string used by source such as kdbx.py\n"
         f"\t-src, source: string which actions/module.py uses to import the source adapter\n"
         f"\t-con, connector: string which actions/module.py uses to import coonnection adapter\n"
         f"\t-ip, host: string used as a filter of target list"

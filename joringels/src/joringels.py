@@ -107,7 +107,7 @@ class Joringel:
                 exit()
         return True
 
-    def _digest(self, *args, **kwargs):
+    def _digest(self, *args, key=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -130,7 +130,8 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        with decryptor(self.encryptionPath, **kwargs) as h:
+        key = key if key is not None else os.environ.get(self.safeName)
+        with decryptor(self.encryptionPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())
                 return h.encryptPath, self.secrets

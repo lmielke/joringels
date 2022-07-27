@@ -60,7 +60,7 @@ def mk_args():
         const=None,
         type=str,
         default=None,
-        help="safe name entry title in kdbx",
+        help="dataSafe title in kdbx",
     )
 
     parser.add_argument(
@@ -71,7 +71,7 @@ def mk_args():
         const=None,
         type=str,
         default=None,
-        help="single entry title from dataSafe in kdbx",
+        help="entry title in kdbx",
     )
 
     parser.add_argument(

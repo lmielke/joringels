@@ -1,6 +1,6 @@
 # ps_upload.py
 
-import os, sys
+import os, sys, getpass
 import subprocess
 import joringels.src.settings as sts
 import joringels.src.get_soc as soc
@@ -22,10 +22,10 @@ class SCPPS:
             serverCreds["rmUserName"],
             serverCreds["rmHost"],
             localPath,
-            serverCreds["rmPath"],
+            serverCreds["rmPath"].replace(f"C:\\Users\\{getpass.getuser()}", '~'),
             serverCreds["rmKey"],
         ]
-
+        print(f"{cmds = }")
         p = subprocess.Popen(cmds, stdout=sys.stdout)
         p.communicate()
 
