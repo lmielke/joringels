@@ -22,7 +22,7 @@ class SCPPS:
             serverCreds["rmUserName"],
             serverCreds["rmHost"],
             localPath,
-            serverCreds["rmPath"].replace(f"C:\\Users\\{getpass.getuser()}", '~'),
+            serverCreds["rmPath"].replace(f"C:\\Users\\{getpass.getuser()}", "~"),
             serverCreds["rmKey"],
         ]
         print(f"{cmds = }")

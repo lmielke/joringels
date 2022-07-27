@@ -24,7 +24,7 @@ class Jorinde:
         # INPUTS
         key: testkey
         entryName: TestJoringels
-        encryptPath: /python_venvs/packages/joringels/joringels/src/test/test_get.yml
+        encryptPath: ~/python_venvs/packages/joringels/joringels/src/test/test_get.yml
 
         # FUNCTION
         pyCall: instance.get(**kwargs)

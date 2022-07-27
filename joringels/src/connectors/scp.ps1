@@ -12,7 +12,7 @@ $rmPath = $args[3]
 if ($args.Length -lt 4){
     Write-Host "`nMissing parameter" -ForegroundColor red
     Write-Host "`tusername:$($args[0]), hostIp:$($args[1]), locPath:$($args[2]), rmPath:$($args[3])"
-    Write-Host "Example: my_scp 998-testing /python_venvs"
+    Write-Host "Example: my_scp 998-testing ~/python_venvs"
     exit 0
 }
 

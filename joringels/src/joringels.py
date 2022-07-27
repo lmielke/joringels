@@ -31,11 +31,11 @@ MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings T
  - shellCall get_settings: joringels.py get_settings -n globals -o pipe.table.T
  - shellCall _serve: python ./joringels/src/joringels.py _serve 
             -c pyCall 
-            -f "/python_venvs/packages/joringels/joringels/src/test/test_get.yml"
+            -f "~/python_venvs/packages/joringels/joringels/src/test/test_get.yml"
             -k testkey
             -v 2
  - shellCall get:
-    python -m joringels.src.joringels get -c pyCall -f "/python_venvs/packages/joringels/joringels/src/test/test_get.yml"-k testkey -v 2
+    python -m joringels.src.joringels get -c pyCall -f "~/python_venvs/packages/joringels/joringels/src/test/test_get.yml"-k testkey -v 2
 
 ## NOTE: -hard to make NON RECOVERABLE changes !
 
@@ -72,7 +72,7 @@ class Joringel:
         ########################### START TEST ###########################
         # INPUTS NOTE: currently not tested !!!
         key: newKey
-        self.safeName: /python_venvs/packages/joringels/joringels/src/test/test_ch_self_key.txt
+        self.safeName: ~/python_venvs/packages/joringels/joringels/src/test/test_ch_self_key.txt
 
         # FUNCTION
         pyCall: instance.chkey(allYes=True, **kwargs)
@@ -118,7 +118,7 @@ class Joringel:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        self.safeName: "/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
+        self.safeName: "~/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
 
         # FUNCTION
         pyCall: instance._digest(**kwargs)
@@ -147,7 +147,7 @@ class Joringel:
         ########################### START TEST ###########################
         # INPUTS
         key: testkey
-        encryptPath: "/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
+        encryptPath: "~/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
 
         # FUNCTION
         pyCall: instance._serve(**kwargs)

@@ -32,9 +32,7 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(
-        self, encryptPath, *args, safeName="", key, retain=False, verbose=0, **kwargs
-    ):
+    def __init__(self, encryptPath, *args, safeName="", key, retain=False, verbose=0, **kwargs):
         self.verbose = verbose
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
@@ -166,7 +164,7 @@ class Handler:
                 raise Exception(f"{data}: isValid: {isValid}")
             self.decrypted = True
         except UnicodeDecodeError as e:
-            print(f"Decryption Failed: {e}")
+            if self.verbose: print(f"Decryption Failed: {e}")
             self.decrypted = False
         except Exception as e:
             print(f"data_cleanup Error with data {data}: {e}")

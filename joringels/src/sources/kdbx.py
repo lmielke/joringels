@@ -110,11 +110,11 @@ class KeePassSecrets:
         copy the entries into the NOTES of you keepass joringels_data_save entry
 
         NOTE: Each safe needs one server login credential entry for upload
-            server login credential start like: !/python_venvs/.../...
+            server login credential start like: !~/python_venvs/.../...
             normal entries look like:             python_venvs/.../...
         """
         for i, element in enumerate(self.session.find_entries(title=".*", regex=True)):
-            if element.path[0] == "python_venvs":
+            if element.path[0] == sts.entriesRoot:
                 entryPath = sts.kps_sep.join(element.path)
                 print(f"{i} copy to Notes:\t{entryPath}")
 

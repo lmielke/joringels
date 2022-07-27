@@ -31,6 +31,7 @@ kps_sep = "/"
 # default ip to fetch dataSafe from
 dataSafeIp = os.environ.get("DATASAFEIP")
 dataSavePort = 7000
+entriesRoot = 'python_venvs'
 
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(checkPath: str, filePrefix=None) -> str:
