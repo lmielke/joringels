@@ -45,6 +45,10 @@ def prep_path(checkPath: str, filePrefix=None) -> str:
     checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     return checkPath
 
+def mk_encrypt_path(safeName:str) -> str:
+    encrpytPath = os.path.join(encryptDir, f"{safeName}.yml").replace('.yml.yml', '.yml')
+    return encrpytPath
+
 
 # takes the current module and runs function with funcName
 settingsPath = os.path.split(__file__)[0]

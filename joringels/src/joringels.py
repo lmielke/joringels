@@ -58,7 +58,7 @@ class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
         self.safeName = safeName
-        self.encryptionPath = sts.prep_path(self.safeName)
+        self.encryptionPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
 
     def _chkey(self, *args, key, newKey=None, **kwargs):
