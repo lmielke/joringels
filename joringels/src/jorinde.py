@@ -37,7 +37,7 @@ class Jorinde:
 
         """
         port = sts.appParams.get("secretsPort") if port is None else port
-        host = sts.dataSafeIp if host is None else host
+        host = sts.dataSafeIp if (host is None or host == 'none') else host
         resp = requests.get(f"http://{host}:{port}/{entryName}")
         try:
             if resp.status_code == 200:

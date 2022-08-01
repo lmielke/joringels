@@ -29,6 +29,7 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
-    secImp = importlib.import_module(f"{sts.impStr}.sources.{source}")
+    isPath = os.path.isfile(source)
+    secImp = importlib.import_module(f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}")
     scpImp = importlib.import_module(f"{sts.impStr}.connectors.{connector}")
     return run(secImp, scpImp, *args, source=source, **kwargs)
