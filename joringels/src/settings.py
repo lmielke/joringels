@@ -13,7 +13,6 @@ def unalias_path(path: str) -> str:
         path = os.path.join(os.getcwd(), path[2:]).replace("/", os.sep)
     return path
 
-
 fext = ".yml"
 # kdbx parameters you might want to change
 # name of group in keeepass that stores data_safes entries
@@ -76,6 +75,24 @@ def file_or_files(checkPath: str, *args, **kwargs) -> list:
         checkPath, fileName = os.path.split(checkPath)
         fileNames = [fileName]
     return checkPath, fileNames
+
+
+@contextmanager
+def temp_safe_rename(*args, safeName:str, prefix:str='#', **kwargs) -> None:
+    """
+        temporaryly renames files in .ssp for upload to bypass files
+    """
+    # rename fileName by adding prefix
+    fileName = f"{safeName}.yml"
+    currPath = os.path.join(encryptDir, fileName)
+    tempPath = os.path.join(encryptDir, f"{prefix}{fileName}")
+    try:
+        if os.path.exists(currPath):
+            os.rename(currPath, tempPath)
+        yield
+    finally:
+        if os.path.exists(tempPath):
+            os.rename(tempPath, currPath)
 
 
 @contextmanager

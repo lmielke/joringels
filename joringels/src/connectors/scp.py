@@ -25,7 +25,6 @@ class SCPPS:
             serverCreds["rmPath"].replace(f"C:\\Users\\{getpass.getuser()}", "~"),
             serverCreds["rmKey"],
         ]
-        print(f"{cmds = }")
         p = subprocess.Popen(cmds, stdout=sys.stdout)
         p.communicate()
 

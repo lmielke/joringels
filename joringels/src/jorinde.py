@@ -37,7 +37,7 @@ class Jorinde:
 
         """
         port = sts.appParams.get("secretsPort") if port is None else port
-        host = sts.dataSafeIp if (host is None or host == 'none') else host
+        host = sts.dataSafeIp if host is None else host
         resp = requests.get(f"http://{host}:{port}/{entryName}")
         try:
             if resp.status_code == 200:
@@ -57,7 +57,8 @@ class Jorinde:
     #     else:
     #         return True
 
-    def _unpack_decrypted(self, *args, safeName, **kwargs):
+    def _unpack_decrypted(self, *args, safeName=None, **kwargs):
+        safeName = safeName if safeName is not None else os.environ.get('DATASAFENAME')
         decPath = sts.prep_path(safeName, "unprotectedload")
         with open(decPath, "r") as f:
             entries = yaml.safe_load(f)

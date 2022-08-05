@@ -57,8 +57,8 @@ from joringels.src.get_creds import Creds
 class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
-        self.safeName = safeName
-        self.encryptionPath = sts.mk_encrypt_path(self.safeName)
+        self.safeName = safeName if safeName is not None else os.environ.get('DATASAFENAME')
+        self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
 
     def _chkey(self, *args, key, newKey=None, **kwargs):
@@ -131,7 +131,7 @@ class Joringel:
 
         """
         key = key if key is not None else os.environ.get(self.safeName)
-        with decryptor(self.encryptionPath, key=key, **kwargs) as h:
+        with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())
                 return h.encryptPath, self.secrets

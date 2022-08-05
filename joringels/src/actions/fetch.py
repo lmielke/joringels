@@ -34,6 +34,5 @@ def main(*args, safeName, entryName, **kwargs) -> None:
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
-    assert safeName is not None, f"missing value for '-n safeName'"
     assert entryName is not None, f"missing value for '-e entryName'"
     return alloc(*args, safeName=safeName, entryName=entryName, **kwargs)

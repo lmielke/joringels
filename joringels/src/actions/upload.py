@@ -19,17 +19,24 @@ def run(secImp, scpImp, action: str, *args, **kwargs) -> None:
     serverCreds = sec.load(*args, **kwargs)
     # encrypt secret
     kwargs.update({"key": sec.encrpytKey})
-    filePath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
+    encryptPath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
     # upload to server
     scpImp.main(*args, **kwargs).upload(serverCreds, *args, **kwargs)
+    return encryptPath
 
 
-def main(*args, source: str, connector: str, **kwargs) -> None:
+def main(*args, source: str, connector: str, safeName=None, **kwargs) -> None:
     """
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
+    assert safeName is not None, f"missing value for '-n safeName'"
     isPath = os.path.isfile(source)
     secImp = importlib.import_module(f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}")
     scpImp = importlib.import_module(f"{sts.impStr}.connectors.{connector}")
-    return run(secImp, scpImp, *args, source=source, **kwargs)
+    # upload will temporaryly rename existing dataSafe with name identical to uploaded safe
+    with sts.temp_safe_rename(*args, prefix='#upload_', safeName=safeName, **kwargs) as t:
+        encryptPath = run(secImp, scpImp, *args, source=source, safeName=safeName, **kwargs)
+        if os.path.exists(encryptPath):
+            os.remove(encryptPath)
+    return True
