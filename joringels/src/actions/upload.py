@@ -32,10 +32,12 @@ def main(*args, source: str, connector: str, safeName=None, **kwargs) -> None:
     """
     assert safeName is not None, f"missing value for '-n safeName'"
     isPath = os.path.isfile(source)
-    secImp = importlib.import_module(f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}")
+    secImp = importlib.import_module(
+        f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}"
+    )
     scpImp = importlib.import_module(f"{sts.impStr}.connectors.{connector}")
     # upload will temporaryly rename existing dataSafe with name identical to uploaded safe
-    with sts.temp_safe_rename(*args, prefix='#upload_', safeName=safeName, **kwargs) as t:
+    with sts.temp_safe_rename(*args, prefix="#upload_", safeName=safeName, **kwargs) as t:
         encryptPath = run(secImp, scpImp, *args, source=source, safeName=safeName, **kwargs)
         if os.path.exists(encryptPath):
             os.remove(encryptPath)

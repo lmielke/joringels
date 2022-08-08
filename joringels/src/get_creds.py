@@ -8,32 +8,30 @@ color.init()
 
 class Creds:
     def __init__(self, *args, **kwargs):
-        self.key = self.get(*args, **kwargs)
         self.rules = None  # implement key rules here
 
-    def set(self, msg="key", *args, force=True, confirmed=True, **kwargs):
-        if not self.key:
-            self.key = None
-            while not self.key:
-                self.key = gp(prompt=f"{msg.strip(': ')}: ", stream=None)
+    def set(self, msg="key", *args, force=True, confirmed=True, key=None, **kwargs):
+        if not key:
+            key = None
+            while not key:
+                key = gp(prompt=f"{msg.strip(': ')}: ", stream=None)
                 if force == False:
                     break
             while not confirmed:
-                confirmed = self._confirm_equals(*args, **kwargs)
-        return self.key
+                confirmed = self._confirm_equals(key, *args, **kwargs)
+        key = self.get(key, *args, **kwargs)
+        return key
 
-    def get(self, *args, key=None, safeName=None, **kwargs):
+    def get(self, key, *args, safeName=None, **kwargs):
         if key == "os":
             msg = f"\tUsing $env:key {safeName}"
             key = os.environ[safeName]
             print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
-        else:
-            key = None
         return key
 
-    def _confirm_equals(self, *args, **kwargs):
+    def _confirm_equals(self, key, *args, **kwargs):
         # getting new key
         confirmKey = None
-        while confirmKey != self.key:
+        while confirmKey != key:
             confirmKey = gp(prompt=f"re-type key to continue: ", stream=None)
         return True

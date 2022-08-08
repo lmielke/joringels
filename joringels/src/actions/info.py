@@ -11,28 +11,28 @@ color.init()
 
 def main(*args, **kwargs):
     print(f"""\n{f" JORINGELS USER info ":#^80}""")
-    print("Simple tool for managing your secrets in a semi secure way.")
+    print("Example: jo fetch [-n digiserver] -e entryName")
     print(f"\nsample {kwargs = }\n")
     msg = f"\nGo through steps in Readme.md ! Then use the following shell cmds"
     print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
     print(f"{f' Usage info ':#^80}")
-    print(f"example: joringels upload -n digiserver -src kdbx -con scp [-ip limit_target]\n")
+    print(f"upload example: jo upload -n digiserver [-src kdbx] [-con scp] [-ip limit_target]\n")
     print("\nactions")
     msg = (
         f"upload / upload_all: extract kdbx kdb secrets and upload to server:\n"
-        f"\t\t-n, safeName: name of data safe, i.e. [kdbx -> joringels_data_sefe/] digiserver\n"
+        f"\t\t-n, safeName: name of data safe, i.e. [kdbx -> jo_data_sefe/] digiserver\n"
         f"\t\t-src, source: location of data safe, i.e. kdbx\n"
         f"\t\t-con, connector: method to connect to server, i.e. scp\n\n"
         f"\t\t-ip, host: limit upload to one of the safe targets, interrupts upload\n\n"
         f"unprotectedload: extract kdbx secrets and save them to .ssp dir\n"
-        f"\texample: joringels unprotectedload -n digiserver -src kdbx [-ip limit_target]\n\n"
+        f"\texample: jo unprotectedload -n digiserver -src kdbx [-ip limit_target]\n\n"
         f"load: extract kdbx secrets and save encrypted result to .ssp dir\n"
-        f"\texample: joringels load -n digiserver -src kdbx [-ip limit_target]\n\n"
+        f"\texample: jo load -n digiserver -src kdbx [-ip limit_target]\n\n"
         f"fetch: read secrets into your application\n"
-        f"\texample: joringels fetch -n digi_postgres_login\n"
+        f"\texample: jo fetch -n digi_postgres_login\n"
         f"\t\t-e, entryName: name of secret, i.e. in kdbx its the name of your entry\n\n"
         f"serve: via http to all apps inside your local network\n"
-        f"\texample: joringels serve -n digiserver -k myextrasecurepassword -rt\n"
+        f"\texample: jo serve -n digiserver -k myextrasecurepassword -rt\n"
         f"\t\t-e, entryName: name of secret, i.e. in kdbx its the name of your entry"
     )
     print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")

@@ -57,7 +57,7 @@ from joringels.src.get_creds import Creds
 class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
-        self.safeName = safeName if safeName is not None else os.environ.get('DATASAFENAME')
+        self.safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME")
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
 
@@ -90,8 +90,8 @@ class Joringel:
         msg = f"Continuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         # keys are changed for all files in fileNames
-        newKey = Creds(*args, key=newKey, **kwargs).set(
-            "new key: ", *args, confirmed=False, **kwargs
+        newKey = Creds(*args, **kwargs).set(
+            "new key: ", *args, confirmed=False, key=newKey, **kwargs
         )
         # changing keys
         for fileName in fileNames:

@@ -13,6 +13,7 @@ def unalias_path(path: str) -> str:
         path = os.path.join(os.getcwd(), path[2:]).replace("/", os.sep)
     return path
 
+
 fext = ".yml"
 # kdbx parameters you might want to change
 # name of group in keeepass that stores data_safes entries
@@ -44,8 +45,9 @@ def prep_path(checkPath: str, filePrefix=None) -> str:
     checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
     return checkPath
 
-def mk_encrypt_path(safeName:str) -> str:
-    encrpytPath = os.path.join(encryptDir, f"{safeName}.yml").replace('.yml.yml', '.yml')
+
+def mk_encrypt_path(safeName: str) -> str:
+    encrpytPath = os.path.join(encryptDir, f"{safeName}.yml").replace(".yml.yml", ".yml")
     return encrpytPath
 
 
@@ -78,9 +80,9 @@ def file_or_files(checkPath: str, *args, **kwargs) -> list:
 
 
 @contextmanager
-def temp_safe_rename(*args, safeName:str, prefix:str='#', **kwargs) -> None:
+def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
     """
-        temporaryly renames files in .ssp for upload to bypass files
+    temporaryly renames files in .ssp for upload to bypass files
     """
     # rename fileName by adding prefix
     fileName = f"{safeName}.yml"
