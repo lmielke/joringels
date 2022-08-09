@@ -13,7 +13,9 @@ def remote(*args, **kwargs) -> dict:
 
 def local(*args, entryName, **kwargs) -> dict:
     try:
+        print(f"{Joringel = }")
         j = Joringel(*args, **kwargs)
+        print(f"{j = }")
         j._digest(*args, **kwargs)
     except Exception as e:
         return None
@@ -29,10 +31,10 @@ def alloc(*args, **kwargs):
         return None
 
 
-def main(*args, safeName, entryName, **kwargs) -> None:
+def main(*args, entryName, **kwargs) -> None:
     """
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
     assert entryName is not None, f"missing value for '-e entryName'"
-    return alloc(*args, safeName=safeName, entryName=entryName, **kwargs)
+    return alloc(*args, entryName=entryName, **kwargs)
