@@ -18,6 +18,7 @@ def local(*args, entryName, **kwargs) -> dict:
         print(f"{j = }")
         j._digest(*args, **kwargs)
     except Exception as e:
+        print(f"{e = }")
         return None
     return j.secrets[entryName]
 
