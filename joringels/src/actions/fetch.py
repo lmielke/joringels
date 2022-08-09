@@ -13,12 +13,9 @@ def remote(*args, **kwargs) -> dict:
 
 def local(*args, entryName, **kwargs) -> dict:
     try:
-        print(f"{Joringel = }")
         j = Joringel(*args, **kwargs)
-        print(f"{j = }")
         j._digest(*args, **kwargs)
     except Exception as e:
-        print(f"{e = }")
         return None
     return j.secrets[entryName]
 
