@@ -1,58 +1,101 @@
 # Joringels manages your secrets across multiple VMs.
+- NOTE: holds password in environment variables (only use if env vars are safe)
 - NOTE: Joringels assumes, that your source and target VMs are un-compromized.
 - NOTE: ONLY serve secrets via http inside a protected local network
+
+# Important def info
 - Currently kdbx (password-manager) is the only supported secret source
 
+
+
+
 ## 1 What joringels does
-- serve data_safes to a single target system using decrypted files (usually dev environment)
-    - joringels uses a .ssp directory next to your .ssh directory to manage secrets
-- serve data_safes to multiple instances simultaneously using local http socket
+- serve dataSafes secrets to a single network
+    - dev network: joringels uses a ~/.ssp directory to host secrets
+    - linux web-server network: joringels serves secrets using encrypted http connection
+- serve dataSafes to multiple clients simultaneously using local http socket
 - efficiently manage your secrets while maintaining it in a save location i.e. kdbx
-- create data_safes (bundles of secrets) using combined entries in your secret source
-- extract and upload your data_safes as encrpyted files to multiple server simultaneously
+- create dataSafes (bundles of secrets) using combined entries in your secret source
+- extracts and uploads your encrypted dataSafes to multiple remote server simultaneously
 
 ## 2 Download and install
-python3.9 +
-### Download
+- python3.9 +
 - git clone https://gitlab.com/larsmielke2/joringels.git
-- you might want to: git remote rm origin
-
-### Install inside existing environment
-- pipenv shell (activate your target environment)
-- cd joringels
-- pipenv install . or pipenv install -e .
 
 ### Install using repo Pipfile
-- cd joringels
+- cd joringels (top folder where the Pipfile lives)
 - pipenv install
 
+### run in Shell
+```
+    jo action [-n safeName] -e entryName # actions: load, upload, fetch, serve
+```
+
+### use in Python
+```
+    from joringels.src.actions import fetch
+    # using retain=False (default is False) will delete dataSafe in .ssp folder
+    creds = fetch.alloc(safeName='mysafeName', entryName='myentryName', retain=True)
+```
+
+### development system setup (mandatory)
+- install password manager # Currently only keepass is supported !
+- define some helpful environment variables
+    - yourSafeName: 'pwd' (used to encrypt decrypt secrets)
+
+### development system setup (optional)
+- define some helpful environment variables
+    - DATASAFEIP: ip the host server uses to serve secrets (ipv4 address of your server)
+    - DATASAFENAME: name of dataSafe you want to use in a network
+    - DATASAFEROLE: server (serve and consume), client (consume only)
 
 
-## 3 Set-up on your development machine
+### Joringels setup (mandatory)
+- create a  \~/.ssp directory (this will contain any en/decrpyted files)
+- in keepass add Group -> name it like settings.py / groupName
+- in keepass create a dataSafe entry inside the Group (i.e. myfirstdatasafe)
 
-### If you want, adjust joringels/src/settings.py
-- set all relevant names and dirs (only upper section of settings.py)
-- you can leave these parameters unchanged
+- create a soures/targets yml file
+- file example
+````
+    targets:
+      - pyenvs/provider/droplets/testing/github-runner-token
+    entries:
+      - pyenvs/utils/dbs/my_db_login
+      - pyenvs/provider/apiTokens/repo_download
+      - pyenvs/provider/apiTokens/myprovider_api_token
+      - pyenvs/provider/google_oauth
+````
+- attach the yaml file to your dataSafe entry (myfirstdatasafe): keepass>>advanced>>attach
+- also attach \_joringels.yml file in the same was as above
+```
+    # only these hosts are allowed to request a secret
+    allowedHosts:
+        - 164.92.206.169
+        - 188.166.87.121
+    application: joringels
+    decPrefix: decrypted_
+    kPath: /Users/Lars/OneDrive/Dokumente/50 sonstiges/aktuell_2021.kdbx
+    lastUpdate: 2022-06-06-11-22-21-842103
+    secretsPort: 7000
+    validator: text_is_valid
+    # name of allowed develoment systems
+    secureHosts:
+        - BLUE-MOON_1
+        - BLUE-MOON_2
+```
 
-### General setup (mandatory)
-- creta a \~/.ssp directory (this will contain any en/decrpyted files)
-- install a secret source (currently kdbx is supported)
 
-### Adjust the ressources/joringels.yml file to your needs (mandatory)
-- copy the file to a directry of your choice
-- adjust allowed hosts (hosts that can access your secrets via http)
-- adjust secure server hosts (hosts that can hold decrypted secret files or serve via http)
 
-### Adjust the ressources/safe_params.yml file to your needs (mandatory)
-- copy the file to a directory of your choice
-- define entries that your data_safe contains (i.e. kdbx entries of secrets)
-- define targets your data_safe is served to (i.e. kdbx entries of servers)
+### Joringels setup (optional)
+- if you whish, change relevant names and dirs in joringels/src/settings.py
+
 
 ### Create as data_safe in i.e. kdbx
 - open kdbx
 - create a new group called like settings.safeName i.e. 'joringels_data_safe'
 - add a new entry, example: (title: mydigiserver, pwd: my_safe_secrets_encryption_password)
-- go to advanced tab and add joringels.yml and safe_params.yml
+- go to advanced tab and add \_joringels.yml and safe_params.yml
 - safe your entry and veryfy the files are properly attached
 - remove the unprotected .yml files, so they only exist in kdbx now
 
@@ -65,7 +108,24 @@ python3.9 +
 - a data_safe may contain all sorts of secret / semi-secret information, not only user, pwd
 - each server instance uses one single data_safe to gain authorized access to its ressources
 - a secret is only referenced to the data_safe, which allows seemless updates and distribution
-- however, if a secret is updated it needs to be actively re-distributed via its data_safes
+- however, if a secret is updated it needs to be actively re-distributed via its dataSafes
 
-## 5 Known issues
+## 5 Some Windows gimmics
+- run jo.serve from Windows start menu: copy joringels/prcs/jo.serve shortcut to startmenu
+- powershell function to add to your $PROFILE
+- then run like: JO entryname
+```
+    function JO($SECRET){
+        $out = curl "http://$($env:DATASAFEIP):7000/$SECRET"
+        return $out
+    }
+```
+
+## 6 Some docker stuff
+- docker container is under construction
+- to run use
+    - docker run -itd --rm --name [joringels] -p [7000:7000] -w /home/gitlab-runner/python_venvs/libraries/joringels --network [illuminati] joringels bash ./prcs/jo.serve.sh
+
+
+## 7 Known issues
 - as of 06/2022 python10.5 not installing (use python10.4 instead)

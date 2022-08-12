@@ -18,7 +18,7 @@ class KeePassSecrets:
         self.kPath = self._check_kPath(*args, **kwargs)
         self.creds = Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         self.session = keePass(self.kPath, self.creds)
-        self.dataSafes = self.session.find_groups(name=sts.safeName, first=True)
+        self.dataSafes = self.session.find_groups(name=sts.groupName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
