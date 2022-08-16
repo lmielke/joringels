@@ -141,9 +141,9 @@ class Joringel:
                 else:
                     return None, None
 
-    def check_auth(self, secrets, *args, **kwargs):
+    def check_auth(self, secrets, authIp=None, *args, **kwargs):
         self._update_joringels_appParams(secrets, *args, **kwargs)
-        authIp = soc.get_ip()
+        if authIp is None: authIp = soc.get_ip()
         for ip in soc.get_allowed_hosts(*args, **kwargs):
             print('\n')
             print(f"{authIp = }")

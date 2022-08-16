@@ -21,7 +21,6 @@ class MagicFlower(BaseHTTPRequestHandler):
         self.host, self.port = soc.host_info(**kwargs)
         msg = f"\nNow serving http://{self.host}:{self.port}/ping"
         logger.log(__name__, msg, *args, verbose=agent.verbose, **kwargs)
-        self.allowedHosts = soc.get_allowed_hosts(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
         """Handle a request."""
@@ -29,7 +28,7 @@ class MagicFlower(BaseHTTPRequestHandler):
 
     def do_GET(self):
         safeItem = unquote(self.path.strip("/"))
-        if not (self.client_address[0] in self.allowedHosts):
+        if not self.agent.check_auth(self.agent.secrets, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)
