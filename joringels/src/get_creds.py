@@ -11,6 +11,7 @@ class Creds:
         self.rules = None  # implement key rules here
 
     def set(self, msg="key", *args, force=True, confirmed=True, key=None, **kwargs):
+        key = self.get(key, *args, **kwargs)
         if not key:
             key = None
             while not key:

@@ -38,7 +38,6 @@ class Jorinde:
 
         """
         port = sts.appParams.get("secretsPort") if port is None else port
-        print(f"{host = }")
         host = sts.dataSafeIp if host is None else host
         resp = requests.get(f"http://{host}:{port}/{entryName}")
         try:

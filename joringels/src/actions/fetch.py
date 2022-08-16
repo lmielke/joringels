@@ -15,8 +15,9 @@ def local(*args, entryName, **kwargs) -> dict:
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
+        if not j.authorized:
+            raise Exception(f"Not authroized!")
     except Exception as e:
-        print(f"{e = }")
         return None
     return j.secrets[entryName]
 

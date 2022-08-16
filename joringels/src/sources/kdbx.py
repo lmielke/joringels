@@ -26,7 +26,7 @@ class KeePassSecrets:
     def _check_kPath(self, *args, source, **kwargs):
         kPath = sts.appParams.get("kPath", source)
         if not os.path.isfile(kPath):
-            kPath = os.path.expanduser(os.environ.get('secrets', kPath))
+            kPath = os.path.expanduser(os.environ.get("secrets", kPath))
         if not os.path.isfile(kPath):
             msg = (
                 f"kPath is not a file: {kPath}! "

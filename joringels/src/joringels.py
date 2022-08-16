@@ -60,6 +60,7 @@ class Joringel:
         self.safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME")
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
+        self.authorized = False
 
     def _chkey(self, *args, key, newKey=None, **kwargs):
         """<br><br>
@@ -85,9 +86,9 @@ class Joringel:
 
         """
         # confimr key change authorization
-        key = Creds(*args, **kwargs).set("dataSafe key: ", *args, **kwargs)
+        key = Creds(*args, **kwargs).set("old dataSafe key: ", *args, **kwargs)
         encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
-        msg = f"Continuing will change all keys for: \t{encryptPath}"
+        msg = f"\tContinuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         # keys are changed for all files in fileNames
         newKey = Creds(*args, **kwargs).set(
@@ -133,8 +134,22 @@ class Joringel:
         key = key if key is not None else os.environ.get(self.safeName)
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
-                self.secrets = yaml.safe_load(f.read()) 
-                return h.encryptPath, self.secrets
+                secrets = yaml.safe_load(f.read())
+                if authorized := self.check_auth(secrets):
+                    self.secrets, self.authorized = secrets, authorized
+                    return h.encryptPath, self.secrets
+                else:
+                    return None, None
+
+    def check_auth(self, secrets, *args, **kwargs):
+        self._update_joringels_appParams(secrets, *args, **kwargs)
+        authIp = soc.get_ip()
+        for ip in soc.get_allowed_hosts(*args, **kwargs):
+            if authIp == ip:
+                return True
+            elif ip.endswith("*") and authIp.startswith(ip[:-1]):
+                return True
+        return False
 
     def _serve(self, *args, **kwargs):
         """<br><br>
@@ -164,8 +179,8 @@ class Joringel:
             magic.HTTPServer(soc.host_info(*args, **kwargs), handler).serve_forever()
         # myServer.server_close()
 
-    def _update_joringels_appParams(self, *args, **kwargs) -> None:
-        sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
+    def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:
+        sts.appParams.update(secrets.get(sts.appParamsFileName, {}))
         with open(sts.appParamsPath, "w") as f:
             f.write(yaml.dump(sts.appParams))
         sts.appParamsLoaded == True
