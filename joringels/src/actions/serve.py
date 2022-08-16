@@ -8,7 +8,6 @@ import joringels.src.arguments as arguments
 def run(*args, **kwargs) -> None:
     j = Joringel(*args, **kwargs)
     j._digest(*args, **kwargs)
-    j._update_joringels_appParams(*args, **kwargs)
     j._serve(*args, **kwargs)
 
 
