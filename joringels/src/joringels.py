@@ -145,6 +145,9 @@ class Joringel:
         self._update_joringels_appParams(secrets, *args, **kwargs)
         authIp = soc.get_ip()
         for ip in soc.get_allowed_hosts(*args, **kwargs):
+            print('\n')
+            print(f"{authIp = }")
+            print(f"{ip = }")
             if authIp == ip:
                 return True
             elif ip.endswith("*") and authIp.startswith(ip[:-1]):
