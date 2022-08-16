@@ -6,6 +6,7 @@ import os, requests, yaml
 from copy import deepcopy
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
+from joringels.src.encryption_dict_handler import text_decrypt
 
 
 class Jorinde:
@@ -37,25 +38,25 @@ class Jorinde:
 
         """
         port = sts.appParams.get("secretsPort") if port is None else port
+        print(f"{host = }")
         host = sts.dataSafeIp if host is None else host
         resp = requests.get(f"http://{host}:{port}/{entryName}")
         try:
             if resp.status_code == 200:
                 secret = yaml.safe_load(resp.text)
+                secret = self.clean(secret)
             else:
                 secret = {"ERROR": resp.text}
         except Exception as e:
             secret = {"ERROR": e}
         return secret
 
-    # def authorized(self, method, *args, **kwargs):
-    #     if method == "_unpack_decrypted" and (
-    #         soc.get_hostname() not in sts.appParams.get("secureHosts")
-    #     ):
-    #         print(f"Action not allowed on this host: {soc.get_hostname()}")
-    #         return False
-    #     else:
-    #         return True
+    def clean(self, encrypted, *args, **kwargs):
+        decrypted = {}
+        for k, ciphertextBase64 in encrypted.items():
+            decryptedtext = text_decrypt(ciphertextBase64)
+            decrypted[k] = yaml.safe_load(decryptedtext)
+        return decrypted
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME")

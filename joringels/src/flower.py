@@ -1,11 +1,12 @@
 # flower.py
-import json, re, time
+import json, re, time, yaml
 from urllib.parse import unquote
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import joringels.src.settings as sts
 import joringels.src.logger as logger
 import joringels.src.get_soc as soc
 from datetime import datetime as dt
+from joringels.src.encryption_dict_handler import text_encrypt
 
 
 class MagicFlower(BaseHTTPRequestHandler):
@@ -47,8 +48,9 @@ class MagicFlower(BaseHTTPRequestHandler):
 
         else:
             found = self.agent.secrets.get(safeItem, None)
+            encrypted = {k: text_encrypt(yaml.dump(vs)) for k, vs in found.items()}
             returnCode = 200
-            response = bytes(json.dumps(found), "utf-8")
+            response = bytes(json.dumps(encrypted), "utf-8")
 
         if returnCode in [200]:
             self.send_response(returnCode)

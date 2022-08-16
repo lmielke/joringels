@@ -6,8 +6,8 @@ import joringels.src.settings as sts
 
 
 def remote(*args, **kwargs) -> dict:
-    j = Jorinde(*args, **kwargs)
-    secret = j._fetch(*args, **kwargs)
+    r = Jorinde(*args, **kwargs)
+    secret = r._fetch(*args, **kwargs)
     return secret
 
 
@@ -16,6 +16,7 @@ def local(*args, entryName, **kwargs) -> dict:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
     except Exception as e:
+        print(f"{e = }")
         return None
     return j.secrets[entryName]
 

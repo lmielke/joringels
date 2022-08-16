@@ -133,7 +133,7 @@ class Joringel:
         key = key if key is not None else os.environ.get(self.safeName)
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
-                self.secrets = yaml.safe_load(f.read())
+                self.secrets = yaml.safe_load(f.read()) 
                 return h.encryptPath, self.secrets
 
     def _serve(self, *args, **kwargs):
@@ -165,12 +165,11 @@ class Joringel:
         # myServer.server_close()
 
     def _update_joringels_appParams(self, *args, **kwargs) -> None:
-        if not sts.appParamsLoaded:
-            sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
-            with open(sts.appParamsPath, "w") as f:
-                f.write(yaml.dump(sts.appParams))
-            sts.appParamsLoaded == True
-            del self.secrets[sts.appParamsFileName]
+        sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
+        with open(sts.appParamsPath, "w") as f:
+            f.write(yaml.dump(sts.appParams))
+        sts.appParamsLoaded == True
+        # del self.secrets[sts.appParamsFileName]
 
 
 def main(*args, **kwargs):

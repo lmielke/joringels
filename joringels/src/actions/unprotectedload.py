@@ -6,7 +6,7 @@ import joringels.src.settings as sts
 import importlib
 
 
-def run(secImp: object, action: str, *args, host, **kwargs) -> None:
+def run(srcAdapt: object, action: str, *args, host, **kwargs) -> None:
     """
     imports secrets from source and unpacks it into .ssp folder
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
@@ -15,7 +15,7 @@ def run(secImp: object, action: str, *args, host, **kwargs) -> None:
 
     run like: joringels unprotectedload -n digiserver -src kdbx
     """
-    sec = secImp.main(*args, **kwargs)
+    sec = srcAdapt.main(*args, **kwargs)
     sec.load(*args, filePrefix=f"{action}_", **kwargs)
     Jorinde(*args, **kwargs)._unpack_decrypted(*args, **kwargs)
 
@@ -29,5 +29,5 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
         moduleName = os.path.splitext(source)[-1][1:]
     else:
         moduleName = source
-    secImp = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
-    return run(secImp, *args, source=source, **kwargs)
+    srcAdapt = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
+    return run(srcAdapt, *args, source=source, **kwargs)
