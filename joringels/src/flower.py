@@ -7,6 +7,7 @@ import joringels.src.logger as logger
 import joringels.src.get_soc as soc
 from datetime import datetime as dt
 from joringels.src.encryption_dict_handler import text_encrypt
+import joringels.src.auth_checker as auth_checker
 
 
 class MagicFlower(BaseHTTPRequestHandler):
@@ -28,7 +29,8 @@ class MagicFlower(BaseHTTPRequestHandler):
 
     def do_GET(self):
         safeItem = unquote(self.path.strip("/"))
-        if not self.agent.check_auth(self.agent.secrets, self.client_address[0]):
+        allowedClients = self.agent.secrets.get(sts.appParamsFileName).get('allowedClients')
+        if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)

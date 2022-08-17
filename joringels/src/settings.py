@@ -121,9 +121,6 @@ try:
         appParams = yaml.safe_load(f)
         appParamsLoaded = True
 except FileNotFoundError:
-    appParams = {
-        "decPrefix": "decrypted_",
-        "validator": "text_is_valid",
-        "secretsPort": 7000,
-    }
+    with open(os.path.join(appBasePath, 'resources', appParamsFileName), 'r') as f:
+        appParams = yaml.safe_load(f)
     appParamsLoaded = False

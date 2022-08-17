@@ -1,0 +1,8 @@
+decPrefix: decrypted_
+secretsPort: 7000
+validator: text_is_valid
+secureHosts:
+- WHILE-AI-1
+- WHILE-AI-2
+- WHILE-AI-3
+- WHILE-AI-4

@@ -15,11 +15,11 @@ def get_hostname():
     return socket.gethostname().upper()
 
 
-def get_allowed_hosts(*args, **kwargs):
-    allowedHosts = sts.appParams.get("allowedHosts")
+def get_allowed_clients(*args, **kwargs):
+    allowedClients = sts.appParams.get("allowedClients")
     if get_hostname() in sts.appParams.get("secureHosts"):
-        allowedHosts.append(get_ip())
-    return allowedHosts
+        allowedClients.append(get_ip())
+    return allowedClients
 
 
 def host_info(*args, host=False, port=False, **kwargs):

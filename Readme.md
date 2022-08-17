@@ -77,7 +77,7 @@
 - also attach the following \_joringels.yml (runtime parameters) file in the same dataSafe as above
 ```
     # only these hosts are allowed to request a secret
-    allowedHosts:
+    allowedClients:
         - 164.92.206.169
         - 188.166.87.121
     application: joringels

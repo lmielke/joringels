@@ -42,16 +42,18 @@ MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings T
 """
 
 import yaml, os, re
+from datetime import datetime as dt
 import colorama as color
 
 color.init()
-from time import sleep
+
 
 import joringels.src.settings as sts
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
 from joringels.src.get_creds import Creds
+import joringels.src.auth_checker as auth_checker
 
 
 class Joringel:
@@ -131,25 +133,19 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
+        if auth_checker.authorize_host():
+            self.authorized = True
+        else:
+            return None, None
+        # secrets are decryped and returned
         key = key if key is not None else os.environ.get(self.safeName)
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
-                secrets = yaml.safe_load(f.read())
-                if authorized := self.check_auth(secrets):
-                    self.secrets, self.authorized = secrets, authorized
-                    return h.encryptPath, self.secrets
-                else:
-                    return None, None
+                self.secrets = yaml.safe_load(f.read())
+        self.secrets[sts.appParamsFileName]['lastUpdate'] = re.sub(r"([: .])", r"-" , str(dt.now()))
+        sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
+        return h.encryptPath, self.secrets
 
-    def check_auth(self, secrets, authIp=None, *args, **kwargs):
-        self._update_joringels_appParams(secrets, *args, **kwargs)
-        if authIp is None: authIp = soc.get_ip()
-        for ip in soc.get_allowed_hosts(*args, **kwargs):
-            if authIp == ip:
-                return True
-            elif ip.endswith("*") and authIp.startswith(ip[:-1]):
-                return True
-        return False
 
     def _serve(self, *args, **kwargs):
         """<br><br>
