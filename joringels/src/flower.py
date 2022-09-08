@@ -29,7 +29,7 @@ class MagicFlower(BaseHTTPRequestHandler):
 
     def do_GET(self):
         safeItem = unquote(self.path.strip("/"))
-        allowedClients = self.agent.secrets.get(sts.appParamsFileName).get('allowedClients')
+        allowedClients = self.agent.secrets.get(sts.appParamsFileName).get("allowedClients")
         if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")

@@ -142,10 +142,9 @@ class Joringel:
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())
-        self.secrets[sts.appParamsFileName]['lastUpdate'] = re.sub(r"([: .])", r"-" , str(dt.now()))
+        self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
         sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         return h.encryptPath, self.secrets
-
 
     def _serve(self, *args, **kwargs):
         """<br><br>

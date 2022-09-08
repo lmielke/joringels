@@ -116,11 +116,12 @@ def temp_chdir(path: Path) -> None:
         os.chdir(origin)
 
 
+startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 try:
     with open(appParamsPath, "r") as f:
         appParams = yaml.safe_load(f)
         appParamsLoaded = True
 except FileNotFoundError:
-    with open(os.path.join(appBasePath, 'resources', appParamsFileName), 'r') as f:
+    with open(startupParamsPath, "r") as f:
         appParams = yaml.safe_load(f)
     appParamsLoaded = False

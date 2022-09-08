@@ -36,7 +36,7 @@
 - python3.9 +
 - git clone https://gitlab.com/larsmielke2/joringels.git
 
-### Install using repo Pipfile
+### Install using repo Pipfile (NOTE: handle install issues as described in pt 7 !)
 - pipenv install (NOTE: this installs joringels as editable, change Pipfile if needed)
 
 ## 3 Setup
@@ -131,8 +131,22 @@
 ## 6 Some docker stuff
 - docker container is under construction
 - to run use
-    - docker run -itd --rm --name [joringels] -p [7000:7000] -w /home/gitlab-runner/python_venvs/libraries/joringels --network [illuminati] joringels bash ./prcs/jo.serve.sh
+    - docker run -itd --rm --name [joringels] -p [7000:7000] -w /home/gitlab-runner/your_env_name/joringels --network [illuminati] joringels bash ./prcs/jo.serve.sh
 
 
 ## 7 Known issues
 - as of 06/2022 python10.5 not installing (use python10.4 instead)
+- FileNotFoundError: [Errno 2] No such file or directory <- create folder/file as shown below
+.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\resources\\\_joringels.yml
+```
+    # defaults used for startup sequence
+    decPrefix: decrypted_
+    secretsPort: pick a port
+    validator: text_is_valid
+    secureHosts:
+    - Computername1
+    - Computername2
+```
+
+FileNotFoundError: [Errno 2] No such file or directory  <- create empty folder as shown below
+.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\logs

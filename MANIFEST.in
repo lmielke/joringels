@@ -1,4 +1,5 @@
 include README.md
 include CHANGELOG.md
 include LICENSE
-recursive-include joringels/logs .gitkeep
+include joringels/resources/_joringels.yml
+include joringels/logs/.gitkeep

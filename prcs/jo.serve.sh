@@ -13,6 +13,5 @@ NC='\033[0m' # No Color
 
 
 source /etc/environment
-mkdir /home/gitlab-runner/.local/share/virtualenvs/joringels-TEFpyPgb/lib/python3.9/site-packages/joringels/logs
-cd /home/$USERNAME/python_venvs/libraries/joringels
+cd /home/$USERNAME/python_venvs/libs/joringels
 pipenv run jo serve -n digiserver -rt

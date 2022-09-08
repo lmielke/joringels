@@ -1,3 +1,4 @@
+# defaults used for startup sequence
 decPrefix: decrypted_
 secretsPort: 7000
 validator: text_is_valid
@@ -6,3 +7,4 @@ secureHosts:
 - WHILE-AI-2
 - WHILE-AI-3
 - WHILE-AI-4
+- 172.18.0.99

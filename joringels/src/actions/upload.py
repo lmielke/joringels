@@ -21,7 +21,11 @@ def run(srcAdapt, conAdapt, action: str, *args, **kwargs) -> None:
     kwargs.update({"key": sec.encrpytKey})
     encryptPath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
     # upload to server
-    conAdapt.main(*args, **kwargs).upload(serverCreds, *args, **kwargs)
+    scp = conAdapt.main(*args, **kwargs)
+    # uploading secrets
+    scp.upload(serverCreds, *args, **kwargs)
+    # uploading startup params to ressources folder
+    scp.upload(serverCreds, sts.startupParamsPath, sts.startupParamsPath, *args, **kwargs)
     return encryptPath
 
 
