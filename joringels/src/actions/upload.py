@@ -19,14 +19,17 @@ def run(srcAdapt, conAdapt, action: str, *args, **kwargs) -> None:
     serverCreds = sec.load(*args, **kwargs)
     # encrypt secret
     kwargs.update({"key": sec.encrpytKey})
-    encryptPath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
+    j = Joringel(*args, **kwargs)
+
+    encryptPath, _ = j._digest(*args, **kwargs)
+    print(f"{j.secrets = }")
     # upload to server
     scp = conAdapt.main(*args, **kwargs)
     # uploading secrets
     scp.upload(serverCreds, *args, **kwargs)
     # uploading startup params to ressources folder
     scp.upload(serverCreds, sts.startupParamsPath, os.path.dirname(sts.startupParamsPath), *args, **kwargs)
-    if os.path.exists(sts.appParamsPath):
+    with sts.temp_unprotected_secret(j, sts.appParamsFileName):
         scp.upload(serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs)
     return encryptPath
 

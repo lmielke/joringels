@@ -116,6 +116,26 @@ def temp_chdir(path: Path) -> None:
     finally:
         os.chdir(origin)
 
+@contextmanager
+def temp_unprotected_secret(j: object, entryName: str) -> None:
+    """
+        Temporarily exposes a secret in .ssp
+    """
+    fileName = entryName if entryName.endswith('.yml') else f"{entryName}.yml"
+    entryPath = os.path.join(encryptDir, fileName)
+    entry = j.secrets.get(entryName)
+    print(f"{entryPath = }")
+    print(f"{entry = }")
+    if entry is None:
+        print(f"Entry not found: {entryName}")
+    else:
+        try:
+            with open(entryPath, 'w') as f:
+                f.write(yaml.dump(entry))
+            yield
+        finally:
+            os.remove(entryPath)
+
 
 startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 try:
