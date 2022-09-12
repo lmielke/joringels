@@ -124,8 +124,6 @@ def temp_unprotected_secret(j: object, entryName: str) -> None:
     fileName = entryName if entryName.endswith('.yml') else f"{entryName}.yml"
     entryPath = os.path.join(encryptDir, fileName)
     entry = j.secrets.get(entryName)
-    print(f"{entryPath = }")
-    print(f"{entry = }")
     if entry is None:
         print(f"Entry not found: {entryName}")
     else:
