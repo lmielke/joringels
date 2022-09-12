@@ -25,7 +25,9 @@ def run(srcAdapt, conAdapt, action: str, *args, **kwargs) -> None:
     # uploading secrets
     scp.upload(serverCreds, *args, **kwargs)
     # uploading startup params to ressources folder
-    scp.upload(serverCreds, sts.startupParamsPath, sts.startupParamsPath, *args, **kwargs)
+    scp.upload(serverCreds, sts.startupParamsPath, os.path.dirname(sts.startupParamsPath), *args, **kwargs)
+    if os.path.exists(sts.appParamsPath):
+        scp.upload(serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs)
     return encryptPath
 
 

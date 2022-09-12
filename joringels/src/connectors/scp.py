@@ -23,7 +23,7 @@ class SCPPS:
             serverCreds["rmUserName"],
             serverCreds["rmHost"],
             localPath,
-            rmPath.replace(f"C:\\Users\\{getpass.getuser()}", "~"),
+            rmPath.replace(f"C:\\Users\\{getpass.getuser()}", "~").replace(os.sep, '/'),
             serverCreds["rmKey"],
         ]
         p = subprocess.Popen(cmds, stdout=sys.stdout)

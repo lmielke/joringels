@@ -1,7 +1,7 @@
 # settings.py
 
 # settings.py
-import os, sys, yaml
+import os, sys, time, yaml
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -95,6 +95,7 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
     finally:
         if os.path.exists(tempPath):
             os.rename(tempPath, currPath)
+            time.sleep(1)
 
 
 @contextmanager

@@ -23,9 +23,10 @@ if ($args[4] -eq $null){
 else{
     $rmKey = $args[4]
 }
+
 $rmKey = ConvertTo-SecureString -String $rmKey -AsPlainText -Force
 
 Write-Host "`r`nCreds: $username, key: $rmKey" -ForegroundColor green
-$Credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $rmKey
+$credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $rmKey
 Set-SCPItem  -Credential $credential -ComputerName $hostIp -Path $locPath -Destination $rmPath
 Write-Host "`tUpload successful" -ForegroundColor green
