@@ -7,7 +7,7 @@ $username = $args[0]
 $hostIp = $args[1]
 $locPath = $args[2]
 $rmPath = $args[3]
-
+$rmKey = $args[4]
 
 if ($args.Length -lt 4){
     Write-Host "`nMissing parameter" -ForegroundColor red
@@ -17,11 +17,8 @@ if ($args.Length -lt 4){
 }
 
 Write-Host "`tNow uploading to $username@$hostIp, files: $locPath -> $rmPath" -ForegroundColor yellow
-if ($args[4] -eq $null){
+if ($rmKey -eq $null){
     $rmKey = Read-Host -Prompt "pwd $username@$hostIp"
-}
-else{
-    $rmKey = $args[4]
 }
 
 $rmKey = ConvertTo-SecureString -String $rmKey -AsPlainText -Force

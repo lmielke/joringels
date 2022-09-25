@@ -60,6 +60,7 @@ class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
         self.safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME")
+        self.safeName = self.safeName.upper()
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False

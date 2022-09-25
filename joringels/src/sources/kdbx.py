@@ -12,7 +12,7 @@ import joringels.src.settings as sts
 
 # :)L0veMi11i0n$
 class KeePassSecrets:
-    def __init__(self, action, *args, safeName, verbose, key=None,**kwargs):
+    def __init__(self, action, *args, safeName, verbose=0, key=None,**kwargs):
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
@@ -23,6 +23,7 @@ class KeePassSecrets:
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
+            print(f"{self.targets = }")
 
     def _check_kPath(self, *args, source, **kwargs):
         kPath = sts.appParams.get("kPath", source)

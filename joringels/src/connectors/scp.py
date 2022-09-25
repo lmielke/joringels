@@ -10,7 +10,7 @@ class SCPPS:
     def __init__(self, *args, **kwargs):
         pass
 
-    def upload(self, serverCreds, localPath=None, rmPath=None, *args, safeName, **kwargs):
+    def upload(self, serverCreds:dict, localPath:str=None, rmPath:str=None, *args, safeName:str, **kwargs):
         localPath = localPath if localPath is not None else sts.prep_path(safeName)
         rmPath = rmPath if rmPath is not None else serverCreds["rmPath"]
         if os.name == "nt":

@@ -29,6 +29,17 @@ def mk_args():
         default=None,
         help="provide a source for new key, i.e. os",
     )
+    # currently not used but should be used in upload instead of host
+    parser.add_argument(
+        "-pr",
+        "--projectName",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="target to be uploaded (i.e. asgard), use 'all' to upload to all targets",
+    )
 
     parser.add_argument(
         "-ip",

@@ -1,27 +1,40 @@
 # upload.py
+
+
+# NOTE: this file has been retired and is now included in upload_all (renamed to upload)
+# remove file
+
 import os
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
 import importlib
 
 
-def run(srcAdapt, conAdapt, action: str, *args, host, **kwargs) -> None:
+def run(srcAdapt, conAdapt, action: str, *args, **kwargs) -> None:
     """
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     imports secrets from source, stores it in .ssp and then uploads it to remote host
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels upload_all -n digiserver -src kdbx -con scp
+    run like: joringels upload -n digiserver -src kdbx -con scp
     """
     # get secret
     sec = srcAdapt.main(*args, **kwargs)
-    for target in sec.targets:
-        serverCreds = sec.load(*args, host=target, **kwargs)
-        # encrypt secret
-        kwargs.update({"key": sec.encrpytKey})
-        encryptPath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
-        # upload to server
-        conAdapt.main(*args, **kwargs).upload(serverCreds, *args, **kwargs)
+
+    serverCreds = sec.load(*args, **kwargs)
+    # encrypt secret
+    kwargs.update({"key": sec.encrpytKey})
+    j = Joringel(*args, **kwargs)
+
+    encryptPath, _ = j._digest(*args, **kwargs)
+    # upload to server
+    scp = conAdapt.main(*args, **kwargs)
+    # uploading secrets
+    scp.upload(serverCreds, *args, **kwargs)
+    # uploading startup params to ressources folder
+    scp.upload(serverCreds, sts.startupParamsPath, os.path.dirname(sts.startupParamsPath), *args, **kwargs)
+    with sts.temp_unprotected_secret(j, sts.appParamsFileName):
+        scp.upload(serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs)
     return encryptPath
 
 

@@ -47,7 +47,8 @@ def prep_path(checkPath: str, filePrefix=None) -> str:
 
 
 def mk_encrypt_path(safeName: str) -> str:
-    encrpytPath = os.path.join(encryptDir, f"{safeName}.yml").replace(".yml.yml", ".yml")
+    encrpytPath = os.path.join(encryptDir, f"{safeName.lower()}.yml")
+    encrpytPath = encrpytPath.replace(".yml.yml", ".yml")
     return encrpytPath
 
 
@@ -85,7 +86,7 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
     temporaryly renames files in .ssp for upload to bypass files
     """
     # rename fileName by adding prefix
-    fileName = f"{safeName}.yml"
+    fileName = f"{safeName.lower()}.yml"
     currPath = os.path.join(encryptDir, fileName)
     tempPath = os.path.join(encryptDir, f"{prefix}{fileName}")
     try:

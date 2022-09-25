@@ -32,7 +32,7 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(self, encryptPath, *args, safeName="", key, retain=False, verbose=0, **kwargs):
+    def __init__(self, encryptPath, *args, key, retain=False, verbose=0, **kwargs):
         self.verbose = verbose
         self.decrypted = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
