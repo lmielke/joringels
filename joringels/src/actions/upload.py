@@ -5,7 +5,7 @@ import joringels.src.settings as sts
 import importlib
 
 
-def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=None, retain=True, **kwargs) -> None:
+def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=None, retain=True, delay=1, **kwargs) -> None:
     """
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     imports secrets from source, stores it in .ssp and then uploads it to remote host
@@ -16,6 +16,8 @@ def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=No
     # get secret
     assert projectName is not None, f"Specify -pr projectName or -pr all"
     sec = srcAdapt.main(*args, **kwargs)
+    print(f"sleeping for {delay} seconds...")
+    time.sleep(delay)
     for target, targetPath in sec.targets.items():
         if projectName != 'all' and not (projectName in target or projectName in targetPath):
             print(f"Not uploading {target, targetPath} is not {projectName}")
@@ -26,10 +28,7 @@ def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=No
         j = Joringel(*args, **kwargs)
         encryptPath, _ = j._digest(*args, retain=retain, **kwargs)
         # upload to server
-        # upload to server
         print(f"Uploading {projectName}: {encryptPath}")
-        print(f"{kwargs = }")
-        time.sleep(5)
         scp = conAdapt.main(*args, **kwargs)
         # uploading secrets
         scp.upload(serverCreds, *args, **kwargs)
