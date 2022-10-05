@@ -49,7 +49,6 @@ class KeePassSecrets:
         safe_params = attachments.get(sts.safeParamsFileName)
         self.joringelsParams = attachments.get(sts.appParamsFileName)
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
-        safe_params["entries"].append('/'.join(self.dataSafe.path))
         entries = safe_params["entries"]
         return targets, entries
 
@@ -109,8 +108,7 @@ class KeePassSecrets:
     def _update_joringels_params(self, *args, **kwargs):
         self.joringelsParams['DATASAFEKEY'] = self.encrpytKey
         self.joringelsParams['DATASAFENAME'] = self.safeName.upper()
-        self.joringelsParams.update(yaml.safe_load(self.secrets[self.safeName]['username']))
-        del self.secrets[self.safeName]
+        self.joringelsParams['DATAKEY'] = self.dataSafe.username
 
     def show(self, host, *args, **kwargs) -> None:
         """
