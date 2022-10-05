@@ -25,5 +25,5 @@ $rmKey = ConvertTo-SecureString -String $rmKey -AsPlainText -Force
 
 Write-Host "`r`nCreds: $username, key: $rmKey" -ForegroundColor green
 $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $rmKey
-Set-SCPItem  -Credential $credential -ComputerName $hostIp -Path $locPath -Destination $rmPath
+Set-SCPItem  -Credential $credential -ComputerName $hostIp -Path $locPath -Destination $rmPath -Force
 Write-Host "`tUpload successful" -ForegroundColor green

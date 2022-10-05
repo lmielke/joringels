@@ -26,7 +26,7 @@ def generateSalt32Byte():
 
 def text_encrypt(plaintext, password=None):
     if password is None:
-        password = os.environ.get("JORINGELS")
+        password = os.environ.get("DATAKEY")
     passwordBytes = password.encode("ascii")
     salt = generateSalt32Byte()
     PBKDF2_ITERATIONS = 15000
@@ -43,7 +43,7 @@ def text_encrypt(plaintext, password=None):
 
 def text_decrypt(ciphertextBase64, password=None):
     if password is None:
-        password = os.environ.get("JORINGELS")
+        password = os.environ.get("DATAKEY")
     passwordBytes = password.encode("ascii")
     data = ciphertextBase64.split(":")
     salt = base64Decoding(data[0])

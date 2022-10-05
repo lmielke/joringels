@@ -18,7 +18,7 @@
 - NOTE: Joringels assumes, that your source and target VMs are un-compromized.
 - NOTE: ONLY serve secrets via http inside a protected local network
 
-# Important def info
+# Important develoment info
 - Currently kdbx (password-manager) is the only supported secret source
 - scp is used as connector for secrets file transfer to server
 
@@ -26,7 +26,7 @@
 
 ## 1 What joringels does
 - efficiently manage your secrets while maintaining it in a save location i.e. kdbx
-- create dataSafes (bundles of secrets) using combined entries in your secret source
+- create dataSafes (bundles of secrets) using combined entries in your source (i.e. kdbx)
 - serve dataSafes secrets to a single network
     - source ~/.ssp directory serves secrets to a single client
     - source encrypted http connection serves secrets to multiple clients simultaneously

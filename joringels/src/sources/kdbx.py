@@ -14,10 +14,10 @@ import joringels.src.settings as sts
 class KeePassSecrets:
     def __init__(self, action, *args, safeName, verbose=0, key=None,**kwargs):
         self.verbose = verbose
-        self.groups, self.safeName = {}, safeName
+        self.groups, self.safeName = {}, safeName.lower()
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
         self.kPath = self._check_kPath(*args, **kwargs)
-        self.creds = Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
+        self.creds = key if key is not None else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         self.session = keePass(self.kPath, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.groupName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
@@ -49,6 +49,7 @@ class KeePassSecrets:
         safe_params = attachments.get(sts.safeParamsFileName)
         self.joringelsParams = attachments.get(sts.appParamsFileName)
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
+        safe_params["entries"].append('/'.join(self.dataSafe.path))
         entries = safe_params["entries"]
         return targets, entries
 
@@ -60,7 +61,6 @@ class KeePassSecrets:
             if entry is None:
                 print(f"keepass._extract_entries, entry not found: {entry}")
             self.secrets[entry.title] = {
-                "key": self.encrpytKey,
                 "title": entry.title,
                 "username": entry.username,
                 "password": entry.password,
@@ -101,9 +101,16 @@ class KeePassSecrets:
         target = self.targets.get(host, None)
         self._mk_server_params(target, host, *args, **kwargs)
         self._mk_secrets(*args, **kwargs)
+        self._update_joringels_params(*args, **kwargs)
         self.secrets[sts.appParamsFileName] = self.joringelsParams
         self._write_secs(*args, **kwargs)
         return self.serverCreds
+
+    def _update_joringels_params(self, *args, **kwargs):
+        self.joringelsParams['DATASAFEKEY'] = self.encrpytKey
+        self.joringelsParams['DATASAFENAME'] = self.safeName.upper()
+        self.joringelsParams.update(yaml.safe_load(self.secrets[self.safeName]['username']))
+        del self.secrets[self.safeName]
 
     def show(self, host, *args, **kwargs) -> None:
         """

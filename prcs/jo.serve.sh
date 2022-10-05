@@ -11,7 +11,6 @@ CYAN="\[\033[0;36m\]"         # Cyan
 WHITE="\[\033[0;37m\]"        # White
 NC='\033[0m' # No Color
 
-
 source /etc/environment
 cd /home/$USERNAME/python_venvs/libs/joringels
 pipenv run jo serve -n digiserver -rt

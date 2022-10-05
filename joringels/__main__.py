@@ -32,7 +32,7 @@ def runable(*args, action, **kwargs):
     imports action as a package and executes it
     returns the runable result
     """
-    return importlib.import_module(f"{sts.actionImport}.{action}")
+    return importlib.import_module(f"joringels.src.actions.{action}")
 
 
 def main(*args, **kwargs):
