@@ -10,7 +10,15 @@ class SCPPS:
     def __init__(self, *args, **kwargs):
         pass
 
-    def upload(self, serverCreds:dict, localPath:str=None, rmPath:str=None, *args, safeName:str, **kwargs):
+    def upload(
+        self,
+        serverCreds: dict,
+        localPath: str = None,
+        rmPath: str = None,
+        *args,
+        safeName: str,
+        **kwargs,
+    ):
         localPath = localPath if localPath is not None else sts.prep_path(safeName)
         rmPath = rmPath if rmPath is not None else serverCreds["rmPath"]
         if os.name == "nt":
@@ -23,7 +31,7 @@ class SCPPS:
             serverCreds["rmUserName"],
             serverCreds["rmHost"],
             localPath,
-            rmPath.replace(f"C:\\Users\\{getpass.getuser()}", "~").replace(os.sep, '/'),
+            rmPath.replace(f"C:\\Users\\{getpass.getuser()}", "~").replace(os.sep, "/"),
             serverCreds["rmKey"],
         ]
         p = subprocess.Popen(cmds, stdout=sys.stdout)

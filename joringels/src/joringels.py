@@ -139,7 +139,7 @@ class Joringel:
         else:
             return None, None
         # secrets are decryped and returned
-        key = key if key is not None else os.environ.get('DATASAFEKEY')
+        key = key if key is not None else os.environ.get("DATASAFEKEY")
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())

@@ -5,7 +5,17 @@ import joringels.src.settings as sts
 import importlib
 
 
-def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=None, retain=True, delay=1, **kwargs) -> None:
+def run(
+    srcAdapt,
+    conAdapt,
+    action: str = None,
+    *args,
+    projectName: str,
+    host: str = None,
+    retain=True,
+    delay=1,
+    **kwargs,
+) -> None:
     """
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     imports secrets from source, stores it in .ssp and then uploads it to remote host
@@ -19,7 +29,7 @@ def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=No
     print(f"sleeping for {delay} seconds...")
     time.sleep(delay)
     for target, targetPath in sec.targets.items():
-        if projectName != 'all' and not (projectName in target or projectName in targetPath):
+        if projectName != "all" and not (projectName in target or projectName in targetPath):
             print(f"Not uploading {target, targetPath} is not {projectName}")
             continue
         serverCreds = sec.load(*args, host=target, **kwargs)
@@ -33,13 +43,21 @@ def run(srcAdapt, conAdapt, action:str=None, *args, projectName:str, host:str=No
         # uploading secrets
         scp.upload(serverCreds, *args, **kwargs)
         # uploading startup params to ressources folder
-        scp.upload(serverCreds, sts.startupParamsPath, os.path.dirname(sts.startupParamsPath), *args, **kwargs)
+        scp.upload(
+            serverCreds,
+            sts.startupParamsPath,
+            os.path.dirname(sts.startupParamsPath),
+            *args,
+            **kwargs,
+        )
         with sts.temp_unprotected_secret(j, sts.appParamsFileName):
-            scp.upload(serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs)
+            scp.upload(
+                serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs
+            )
     return encryptPath
 
 
-def main(*args, source:str, connector:str, safeName:str, **kwargs) -> None:
+def main(*args, source: str, connector: str, safeName: str, **kwargs) -> None:
     """
     imports source and connector from src and con argument
     then runs upload process using imported source an connector

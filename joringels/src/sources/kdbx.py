@@ -12,12 +12,16 @@ import joringels.src.settings as sts
 
 # :)L0veMi11i0n$
 class KeePassSecrets:
-    def __init__(self, action, *args, safeName, verbose=0, key=None,**kwargs):
+    def __init__(self, action, *args, safeName, verbose=0, key=None, **kwargs):
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName.lower()
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
         self.kPath = self._check_kPath(*args, **kwargs)
-        self.creds = key if key is not None else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
+        self.creds = (
+            key
+            if key is not None
+            else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
+        )
         self.session = keePass(self.kPath, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.groupName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
@@ -95,7 +99,8 @@ class KeePassSecrets:
             f.write(yaml.dump(self.secrets))
 
     def load(self, *args, host=None, **kwargs) -> None:
-        if self.verbose >= 2: self.show(self, host, *args, **kwargs)
+        if self.verbose >= 2:
+            self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
         self._mk_server_params(target, host, *args, **kwargs)
@@ -106,9 +111,9 @@ class KeePassSecrets:
         return self.serverCreds
 
     def _update_joringels_params(self, *args, **kwargs):
-        self.joringelsParams['DATASAFEKEY'] = self.encrpytKey
-        self.joringelsParams['DATASAFENAME'] = self.safeName.upper()
-        self.joringelsParams['DATAKEY'] = self.dataSafe.username
+        self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
+        self.joringelsParams["DATASAFENAME"] = self.safeName.upper()
+        self.joringelsParams["DATAKEY"] = self.dataSafe.username
 
     def show(self, host, *args, **kwargs) -> None:
         """

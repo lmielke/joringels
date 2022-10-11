@@ -26,7 +26,7 @@ class Creds:
     def get(self, key, *args, safeName=None, **kwargs):
         if key == "os":
             msg = f"\tUsing $env:key {safeName}"
-            key = os.environ['DATASAFEKEY']
+            key = os.environ["DATASAFEKEY"]
             print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
         return key
 

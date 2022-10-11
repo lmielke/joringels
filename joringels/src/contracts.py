@@ -43,35 +43,38 @@ def error_upload_all(action, *args, host, **kwargs):
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         exit()
 
+
 def error_check_params(*args, action, source, connector, **kwargs):
     # check actions
-    actionsPath = os.path.join(sts.settingsPath, 'actions')
-    actions = [p[:-3] for p in os.listdir(actionsPath) if p.endswith('.py') and p != '__init__.py']
+    actionsPath = os.path.join(sts.settingsPath, "actions")
+    actions = [p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"]
     if not action in actions:
         msg = f"\ninvalid action '{action}'! Available actions: {actions}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
     else:
-        kwargs['action'] = action
+        kwargs["action"] = action
 
     # check source
-    actionsPath = os.path.join(sts.settingsPath, 'connectors')
-    connectors = [p[:-3] for p in os.listdir(actionsPath) if p.endswith('.py') and p != '__init__.py']
+    actionsPath = os.path.join(sts.settingsPath, "connectors")
+    connectors = [
+        p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"
+    ]
     if not connector in connectors:
         msg = f"\ninvalid connector '{connector}'! Available connectors: {connectors}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
     else:
-        kwargs['connector'] = connector
+        kwargs["connector"] = connector
 
     # check source
-    actionsPath = os.path.join(sts.settingsPath, 'sources')
-    sources = [p[:-3] for p in os.listdir(actionsPath) if p.endswith('.py') and p != '__init__.py']
+    actionsPath = os.path.join(sts.settingsPath, "sources")
+    sources = [p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"]
     if not any([source.endswith(src) for src in sources]):
         msg = f"\ninvalid source '{source}'! Available sources: {sources}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
     else:
-        kwargs['source'] = source
+        kwargs["source"] = source
 
     return kwargs
