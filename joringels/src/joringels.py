@@ -59,13 +59,12 @@ from joringels.src.api_handler import API
 
 
 class Joringel:
-    def __init__(self, *args, safeName=None, secrets=None, connector=None, verbose=0, **kwargs):
+    def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
-        self.connector = connector
         self.API = API(*args, **kwargs)
 
 
@@ -126,17 +125,17 @@ class Joringel:
         return h.encryptPath, self.secrets
 
     def _memorize(self, *args, safeName:str, secrets:dict, **kwargs):
+        # secret might refer to application rest parameters, which is handled by self.API
+        if secrets.get('contentType') == 'application/json':
+            self.API.initialize(*args, secrets=secrets, safeName=self.safeName, **kwargs)
+            self.contentType = secrets.get('contentType')
+            self.host = secrets.get('host')
+            self.port = secrets.get('port')
         # secrets will be encrypted
         self.secrets = dict_encrypt(dict_values_encrypt(
                                                         secrets,
                                                         os.environ.get("DATAKEY")), 
                                     os.environ.get("DATASAFEKEY"))
-        
-        # secret might refer to application rest parameters, which is handled by self.API
-        if self.connector == 'application':
-            self.API.initialize(*args, secrets=secrets, safeName=self.safeName, **kwargs)
-            self.host = secrets.get('host')
-            self.port = secrets.get('port')
         return self.secrets
 
 

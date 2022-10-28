@@ -45,7 +45,6 @@ class API:
             # import_module without package parameter. Hence provide full path like:
             # oamailer.actions.send
             modules[safeName][ix] = {'module': import_module(api['import'])}
-        print(f"{modules = }")
         return modules
 
     def run_api(self, api, payload, *args, safeName, **kwargs):

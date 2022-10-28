@@ -11,6 +11,7 @@ def unalias_path(workPath: str) -> str:
     """
     repplaces path aliasse such as . ~ with path text
     """
+    if not any([e in workPath for e in ['.', '~', '%']]): return workPath
     workPath = workPath.replace(r"%USERPROFILE%", "~")
     workPath = workPath.replace("~", os.path.expanduser("~"))
     if workPath.startswith(".."):
@@ -41,16 +42,16 @@ dataSavePort = 7000
 entriesRoot = "python_venvs"
 
 #### do NOT change params below unless you know what your doing :) ####
-def prep_path(checkPath: str, filePrefix=None) -> str:
-    checkPath = unalias_path(checkPath)
-    checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
-    if os.path.isfile(checkPath):
-        return checkPath
+def prep_path(workPath: str, filePrefix=None) -> str:
+    workPath = unalias_path(workPath)
+    workPath = workPath if workPath.endswith(fext) else f"{workPath}{fext}"
+    if os.path.isfile(workPath):
+        return workPath
     if filePrefix:
-        checkPath = f"{filePrefix}_{checkPath}"
-    checkPath = os.path.join(encryptDir, checkPath)
-    checkPath = checkPath if checkPath.endswith(fext) else f"{checkPath}{fext}"
-    return checkPath
+        workPath = f"{filePrefix}_{workPath}"
+    workPath = os.path.join(encryptDir, workPath)
+    workPath = workPath if workPath.endswith(fext) else f"{workPath}{fext}"
+    return workPath
 
 
 def mk_encrypt_path(safeName: str) -> str:
@@ -77,14 +78,18 @@ testDataPath = os.path.join(testPath, "data")
 os_sep = lambda x: os.path.abspath(x)
 
 
-def file_or_files(checkPath: str, *args, **kwargs) -> list:
-    checkPath = prep_path(checkPath)
-    if os.path.isdir(checkPath):
-        fileNames = os.listdir(checkPath)
-    elif os.path.isfile(checkPath):
-        checkPath, fileName = os.path.split(checkPath)
+def file_or_files(workPath: str, *args, **kwargs) -> list:
+    """ takes a name and checks if its a fileName or dirName
+        then returns all files belongin to that file, dir
+        i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
+    """
+    workPath = prep_path(workPath)
+    if os.path.isdir(workPath):
+        fileNames = os.listdir(workPath)
+    elif os.path.isfile(workPath):
+        workPath, fileName = os.path.split(workPath)
         fileNames = [fileName]
-    return checkPath, fileNames
+    return workPath, fileNames
 
 
 @contextmanager

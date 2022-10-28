@@ -64,7 +64,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
     connectors = [
         p[:-3] for p in os.listdir(connectorPath) if p.endswith(".py") and p != "__init__.py"
     ]
-    if not connector in connectors and not connector == 'application':
+    if not connector in connectors:
         msg = f"\ninvalid connector '{connector}'! Available connectors: {connectors}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None

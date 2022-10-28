@@ -13,13 +13,13 @@ class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, safeName=None, connector=None, **kwargs):
+    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, safeName=None, contentType=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
         ###Hint Secrets
         ___
-        ###Asks Joringle Flower for a secret
+        ###Asks Joringle Flower for a secrets
 
         ########################### START TEST ###########################
         # INPUTS
@@ -40,35 +40,36 @@ class Jorinde:
         port = sts.appParams.get("port") if port is None else port
         host = sts.dataSafeIp if host is None else soc.resolve(host=host)
         try:
-            if connector == 'application':
+            if contentType == 'application':
                 if not type(entryName) == dict:
                     raise Exception(f"payloaed must be dictionary: {entryName}")
                 url = f"http://{host}:{port}/{text_encrypt(safeName, os.environ.get('DATASAFEKEY'))}"
                 payload = dict_encrypt(dict_values_encrypt(entryName))
                 # POST request
-                resp = requests.post(url, headers={'Content-Type': f'{safeName}/json'}, data=payload)
+                resp = requests.post(url, headers={'Content-Type': f'{contentType}/json'}, data=payload)
             else:
+                entryName = str(entryName) if entryName is not None else None
                 entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
                 url = f"http://{host}:{port}/{entry}"
                 # GET request
-                resp = requests.get(url, headers={'Content-Type': f'{safeName}/json'})
+                resp = requests.get(url, headers={'Content-Type': f'{contentType}/json'})
 
             # prepare respons
             if resp.status_code == 200:
-                secret = dict_values_decrypt(dict_decrypt(resp.text))
+                secrets = dict_values_decrypt(dict_decrypt(resp.text))
             else:
-                secret = {"ERROR": resp.text}
+                secrets = {"ERROR": resp.text}
         except Exception as e:
-            secret = {"_fetch ERROR": e}
+            secrets = {"_fetch ERROR": e}
         # return result
-        if connector != 'application':
-            return secret.get(entryName)
-        elif connector != 'application' and not secret.get(entryName):
-            msg = f"No secret found named: {entryName}!"
+        if contentType != 'application' and not secrets.get(str(entryName)):
+            msg = f"No secrets found named: {entryName}!"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
+        elif contentType != 'application':
+            return secrets.get(entryName)
         else:
-            return secret
+            return secrets
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()

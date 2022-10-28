@@ -1,6 +1,7 @@
 # testdata for api_handler.yml
 host: localhost
 port: 7007
+contentType: application/json
 
 0:
   # NOTE: below import is used like importlib.import_module(api['import'], projectName)
