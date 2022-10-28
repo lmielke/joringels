@@ -1,6 +1,6 @@
 # defaults used for startup sequence
 decPrefix: decrypted_
-secretsPort: 7000
+port: 7000
 validator: text_is_valid
 secureHosts:
 - WHILE-AI-1

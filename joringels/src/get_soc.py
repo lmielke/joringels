@@ -21,8 +21,20 @@ def get_allowed_clients(*args, **kwargs):
         allowedClients.append(get_ip())
     return allowedClients
 
+def resolve(*args, host, **kwargs):
+    if host == 'localhost':
+        host = get_ip()
+    return host
+
+def host_info_extended(jor, *args, **kwargs):
+    if jor.connector == 'application':
+        AF_INET = (resolve(host=jor.host), jor.port)
+    else:
+        AF_INET = host_info(*args, **kwargs)
+    return AF_INET
+
 
 def host_info(*args, host=False, port=False, **kwargs):
     host = host if host else get_ip()
-    port = port if port else sts.appParams.get("secretsPort")
+    port = port if port else sts.appParams.get("port")
     return host, port

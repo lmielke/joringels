@@ -14,6 +14,7 @@ NC='\033[0m' # No Color
 
 ACTION=$1
 APPNAME=$2
+CONNECTOR=$3
 source /etc/environment
 
 # get application parameter
@@ -22,13 +23,11 @@ APPPATH=`(jq -r ".$APPNAME|.[1]" $AVAILABLEREPOS)`
 
 
 # set datasafe
-if [ -z "${APPNAME}" ]
+if [ "${CONNECTOR}" -eq 'application' ]
 then
-    # get server parameter
-    CONNECTOR='kdbx'
+    TEMPSAFENAME=$DATASAFENAME
 else
     TEMPSAFENAME=$APPNAME
-    CONNECTOR='application'
     # host and port come from api_endpoints/params.yml
 fi
 

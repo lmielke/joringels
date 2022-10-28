@@ -1,12 +1,11 @@
 # flower.py
-import json, re, time, yaml
+import json, re, time, yaml, cgi
 from urllib.parse import unquote
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import joringels.src.settings as sts
 import joringels.src.logger as logger
 import joringels.src.get_soc as soc
 from datetime import datetime as dt
-from joringels.src.encryption_dict_handler import text_encrypt
 import joringels.src.auth_checker as auth_checker
 
 
@@ -28,34 +27,64 @@ class MagicFlower(BaseHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
-        safeItem = unquote(self.path.strip("/"))
-        allowedClients = self.agent.secrets.get(sts.appParamsFileName).get("allowedClients")
+        requestedItem = unquote(self.path.strip("/"))
+        allowedClients = sts.appParams.get("allowedClients")
         if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
-        elif safeItem == "ping":
+        if requestedItem == "ping":
             returnCode = 200
             responseTime = re.sub(r"([:. ])", r"-", str(dt.now()))
-            response = bytes(json.dumps(f"OK {responseTime}"), "utf-8")
+            response = bytes(json.dumps(f"OK {responseTime}\n"), "utf-8")
 
-        elif not self.agent.secrets.get(safeItem):
-            returnCode, msg = 404, f"\nfrom {self.client_address[0]}, Not found! {safeItem}"
+        else:
+            found = self.agent._from_memory(requestedItem, None)
+            if found is None:
+                returnCode, msg = 404, f"\nfrom {self.client_address[0]}, Not found! {requestedItem}"
+                logger.log(__name__, f"{returnCode}: {msg}")
+                time.sleep(5)
+                self.send_error(returnCode, message=msg)
+
+            else:
+                returnCode = 200
+                response = bytes(json.dumps(found), "utf-8")
+
+        if returnCode in [200]:
+            self.send_response(returnCode)
+            self.send_header("Content-type", f"{requestedItem}:json")
+            self.send_header("Content-Disposition", "testVal")
+            self.end_headers()
+            self.wfile.write(response)
+
+    def do_POST(self):
+        requestedItem = unquote(self.path.strip("/"))
+        ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        allowedClients = sts.appParams.get("allowedClients")
+        if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
+            returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
             logger.log(__name__, f"{returnCode}: {msg}")
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
+        body = self.rfile.read(int(self.headers.get('Content-Length'))).decode('utf-8')
+        # call to application
+        response = self.agent._invoke_application(body, safeName=requestedItem)
+        
+        if response is None:
+            returnCode, msg = 404, f"{self.client_address[0]}, Not found! {requestedItem}"
+            logger.log(__name__, f"{returnCode}: {msg}")
+            time.sleep(5)
+            self.send_error(returnCode, message=msg)
         else:
-            found = self.agent.secrets.get(safeItem, None)
-            encrypted = {k: text_encrypt(yaml.dump(vs)) for k, vs in found.items()}
             returnCode = 200
-            response = bytes(json.dumps(encrypted), "utf-8")
+            response = bytes(json.dumps(response), "utf-8")
 
         if returnCode in [200]:
             self.send_response(returnCode)
-            self.send_header("Content-type", f"{safeItem}:json")
+            self.send_header("Content-type", f"{requestedItem}/json")
             self.send_header("Content-Disposition", "testVal")
             self.end_headers()
             self.wfile.write(response)

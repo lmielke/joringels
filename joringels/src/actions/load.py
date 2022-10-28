@@ -23,10 +23,10 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     return filePath
 
 
-def main(*args, source: str, connector: str, **kwargs) -> None:
+def main(*args, source: str, **kwargs) -> None:
     """
-    imports source and connector from src and con argument
-    then runs load process using imported source an connector
+    imports source from src argument
+    then runs load process using imported source
     """
     # sometimes windows adds a ; to env variables
     source = source.strip(";")

@@ -18,15 +18,16 @@ def local(*args, entryName, **kwargs) -> dict:
         if not j.authorized:
             raise Exception(f"Not authorized!")
     except Exception as e:
-        # print(f"fetch.local: {e}")
+        print(f"fetch.local: {e}")
         return None
     return j.secrets[entryName]
 
 
-def alloc(*args, **kwargs):
-    if secret := local(*args, **kwargs):
-        return secret
-    elif secret := remote(*args, **kwargs):
+def alloc(*args, host=None, **kwargs):
+    if host == None: 
+        if secret := local(*args, **kwargs):
+            return secret
+    if secret := remote(*args, host=host, **kwargs):
         return secret
     else:
         return None
@@ -38,4 +39,5 @@ def main(*args, entryName, **kwargs) -> None:
     then runs upload process using imported source an connector
     """
     assert entryName is not None, f"missing value for '-e entryName'"
-    return alloc(*args, entryName=entryName, **kwargs)
+    secret = alloc(*args, entryName=entryName, **kwargs)
+    return f"{secret}"

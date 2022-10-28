@@ -34,7 +34,7 @@ class Handler:
 
     def __init__(self, encryptPath, *args, key, retain=False, verbose=0, **kwargs):
         self.verbose = verbose
-        self.decrypted = None
+        self.decryptedExists = None
         self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
         self.key = key
         self.retain = retain
@@ -53,7 +53,7 @@ class Handler:
         """
         self.data_cleanup(self.decryptPath, "enc")
         encryptSuccess = None
-        if self.decrypted:
+        if self.decryptedExists:
             encryptSuccess = self.file_encrypt(*args, **kwargs)
         self.exit_cleanup(encryptSuccess, *args, **kwargs)
 
@@ -84,9 +84,9 @@ class Handler:
                 print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             raise FileNotFoundError
         elif os.path.isfile(decryptPath):
-            self.decrypted = True
+            self.decryptedExists = True
         else:
-            self.decrypted = False
+            self.decryptedExists = False
         return encryptPath, decryptPath
 
     def file_encrypt(self, *args, **kwargs):
@@ -113,7 +113,7 @@ class Handler:
             return False
 
     def file_decrypt(self, *args, **kwargs) -> bool:
-        if self.decrypted:
+        if self.decryptedExists:
             return None
         """
             reads a encrypted file from self.encryptPath and decrypts its content,
@@ -142,13 +142,15 @@ class Handler:
         isValid allowes to confirm, that decryption result is readable
         """
         try:
+            isValid, validator = True, 'text_is_valid'
             with open(filePath, "r+") as f:
-                text = f.read()
-                if (not self.decrypted) or data == "enc":
-                    text = (text.strip() + sts.appParams.get("validator")).replace(
-                        2 * sts.appParams.get("validator"), ""
-                    )
-                isValid = text.endswith(sts.appParams.get("validator"))
+                text = f.read().strip()
+                if data == 'enc':
+                    text = text.replace(validator, '')
+                    text = text + validator
+                elif data == 'dec':
+                    isValid = text.strip().endswith(validator)
+                    text = text.replace(validator, '')
                 for k, v in tokenizers.items():
                     text = text.replace(k, v) if data == "enc" else text.replace(v, k)
                 f.seek(0)
@@ -158,15 +160,13 @@ class Handler:
             # validate cleanup results
             if fileSize := str(len(text)).zfill(16) == 0:
                 raise Exception(f"{data}: fileSize: {fileSize}")
-            if data == "dec" and isValid:
+            if not isValid:
                 raise Exception(f"{data}: isValid: {isValid}")
-            if data == "enc" and not isValid:
-                raise Exception(f"{data}: isValid: {isValid}")
-            self.decrypted = True
+            self.decryptedExists = True
         except UnicodeDecodeError as e:
             if self.verbose:
                 print(f"Decryption Failed: {e}")
-            self.decrypted = False
+            self.decryptedExists = False
         except Exception as e:
             print(f"data_cleanup Error with data {data}: {e}")
-            self.decrypted = False
+            self.decryptedExists = False

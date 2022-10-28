@@ -41,7 +41,7 @@ MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings T
 
 """
 
-import yaml, os, re
+import yaml, os, re, sys, time
 from datetime import datetime as dt
 import colorama as color
 
@@ -52,18 +52,22 @@ import joringels.src.settings as sts
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
+from joringels.src.encryption_dict_handler import text_decrypt, text_encrypt, dict_encrypt, dict_decrypt, dict_values_decrypt, dict_values_encrypt
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
+from joringels.src.api_handler import API
 
 
 class Joringel:
-    def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
+    def __init__(self, *args, safeName=None, secrets=None, connector=None, verbose=0, **kwargs):
         self.verbose = verbose
-        self.safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME")
-        self.safeName = self.safeName.upper()
+        self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
+        self.connector = connector
+        self.API = API(*args, **kwargs)
+
 
     def _chkey(self, *args, key, newKey=None, **kwargs):
         """<br><br>
@@ -73,23 +77,10 @@ class Joringel:
         ___
         ###Decrypts a file using self.key and Encrypts it using -k newKey
 
-        ########################### START TEST ###########################
-        # INPUTS NOTE: currently not tested !!!
-        key: newKey
-        self.safeName: ~/python_venvs/packages/joringels/joringels/src/test/test_ch_self_key.txt
-
-        # FUNCTION
-        pyCall: instance.chkey(allYes=True, **kwargs)
-        shell_Call: python modulePath/joringels.py chkey -f self.safeName -k key -y
-
-        # RETURN
-        returns: True
-
-        ########################### END TEST ###########################
 
         """
         # confimr key change authorization
-        key = Creds(*args, **kwargs).set("old dataSafe key: ", *args, **kwargs)
+        key = Creds(*args, **kwargs).set("old safeName key: ", *args, **kwargs)
         encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
         msg = f"\tContinuing will change all keys for: \t{encryptPath}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
@@ -119,20 +110,6 @@ class Joringel:
         ___
         ###Reads encrypted file and decrypts it after reading
 
-        ########################### START TEST ###########################
-        # INPUTS
-        key: testkey
-        self.safeName: "~/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
-
-        # FUNCTION
-        pyCall: instance._digest(**kwargs)
-        shellCall: None
-
-        # RETURN encypted file, test checks if file can be read
-        returns: {'pyCall': 'pyCallTestString'}
-
-        ########################### END TEST ###########################
-
         """
         if auth_checker.authorize_host():
             self.authorized = True
@@ -143,9 +120,47 @@ class Joringel:
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
                 self.secrets = yaml.safe_load(f.read())
+        self.secrets = {int(k) if type(k) is int else k: vs for k, vs in self.secrets.items()}
         self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
         sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         return h.encryptPath, self.secrets
+
+    def _memorize(self, *args, safeName:str, secrets:dict, **kwargs):
+        # secrets will be encrypted
+        self.secrets = dict_encrypt(dict_values_encrypt(
+                                                        secrets,
+                                                        os.environ.get("DATAKEY")), 
+                                    os.environ.get("DATASAFEKEY"))
+        
+        # secret might refer to application rest parameters, which is handled by self.API
+        if self.connector == 'application':
+            self.API.initialize_apis(*args, secrets=secrets, safeName=self.safeName, **kwargs)
+            self.host = secrets.get('host')
+            self.port = secrets.get('port')
+        return self.secrets
+
+
+
+    def _from_memory(self, entry:str, *args, **kwargs) -> str:
+        entry = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
+        return dict_encrypt({entry: dict_decrypt(self.secrets).get(entry)})
+
+    def _invoke_application(self, entry:str, safeName:str, *args, **kwargs) -> str:
+        entry = dict_values_decrypt(dict_decrypt(entry))
+        safeName = text_decrypt(safeName, os.environ.get("DATASAFEKEY"))
+        # entry = json.loads(text_decrypt(entry, os.environ.get("DATAKEY")).replace("'", '"'))
+        response = self.API.run_api(
+                                    entry['api'], entry['payload'], *args, 
+                                    safeName=safeName, **kwargs
+                                    )
+        return dict_encrypt(dict_values_encrypt(response))
+
+    def clean(self, encrypted, *args, **kwargs):
+        decrypted = {}
+        for k, vals in encrypted.items():
+            if vals is None: continue
+            decrypted[k] = yaml.safe_load(text_decrypt(vals, os.environ.get("DATAKEY")))
+        return decrypted
 
     def _serve(self, *args, **kwargs):
         """<br><br>
@@ -170,9 +185,12 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
+        AF_INET = soc.host_info_extended(self, *args, **kwargs)
+
         handler = magic.MagicFlower(self)
+        
         if self.secrets:
-            magic.HTTPServer(soc.host_info(*args, **kwargs), handler).serve_forever()
+            magic.HTTPServer(AF_INET, handler).serve_forever()
         # myServer.server_close()
 
     def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:

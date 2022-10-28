@@ -1,11 +1,105 @@
-# Joringels manages your secrets across multiple VMs.
+# Joringels manages your rest api access points to remote applications.
 
 ### run in Shell
+jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)
 ```
-    jo $action [-n safeName] -e entryName # actions: load, upload, fetch, serve
-    on windows: curl "http://$env:DATASAFEIP:7000/entryName"
-    on linux: curl "http://$DATASAFEIP:7000/entryName"
+    # Examples
+    jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
+    jo fetch -e _joringel.yml
+
 ```
+## Installation
+```
+    pipenv install joringels
+    # now follow setup steps further down
+
+```
+
+# API Endpoint use
+## Example mail application oamailer on port 7007:
+
+### 1. API INIT
+```
+    # Upload aip-endpoint
+    jo load -n oamailer -src application
+    
+    # Serve aip-endpoint
+    jo serve -n oamailer -rt -p 7007 -con application
+
+    # Test availability aip-endpoint
+    jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007
+    jo fetch -e 0 -n oamailer -ip 192.168.0.174 -p 7007
+
+```
+
+### 2. API CALL
+```python
+    # jo.py 09_05_2022__17_35_20
+    # python C:\Users\lars\python_venvs\utils\experimental\09_05_2022__17_35_20_jo.py
+
+    import os, sys
+    from joringels.src.actions import invoke
+    print(sys.executable)
+
+    # runs a remote server micro-service
+    payload = {   
+            'api': 0,
+            'payload':{
+                    'sendTo': 'larsmielke2@gmail.com', 
+                    'subject': f"hello from jo.py {__file__}",
+                    'text': f"Hello World!,\nThis is a testmail from {os.environ['COMPUTERNAME']}"},
+            }
+
+    # define oamailer parmeter
+    kwargs = {
+            'safeName': 'oamailer',
+            'connector': 'application',
+            'entryName': payload,
+            'host': 'localhost',
+            'port': 7007,
+    }
+    print(f"jo.file: {kwargs = }")
+    params = invoke.remote(**kwargs, retain=True)
+```
+
+
+### create a API access Point inside oamailer package (yaml file)
+```yml
+    # appPath is needed for app import
+    # possible actions to be performed with default parameters
+    # steps
+    # jo load -pr oamailer -src application -con '...\oamailer\joringels\params.yml'
+    
+    projectName: oamailer
+    contentType: application/oamailer
+    projectDir: ~/python_venvs/modules/oamailer
+    port: 7007
+    # define one numeric entry for every api (0: send, 1: read ...)
+    0:
+      
+      # NOTE: below import is used like importlib.import_module(api['import'], projectName)
+      #       so prjectName.import should result in oamailer.actions.send
+      
+      import: .actions.send
+      action: send
+      response: null
+
+    1:
+      import: .actions.read
+        ...
+```
+### load the yaml file to joringels
+```
+    jo load -pr oamailer -src application -con '...\oamailer\joringels\params.yml'
+```
+
+### serve your api access point
+```
+    jo serve -n oamailer -rt -p 7007 -pr oamailer
+
+```
+
+
 
 ### use in Python
 ```
@@ -84,7 +178,7 @@
     decPrefix: decrypted_
     kPath: fullPath to your .kdbx file
     lastUpdate: 2022-06-06-11-22-21-842103
-    secretsPort: 7000
+    port: 7000
     validator: text_is_valid
     # name of allowed develoment systems
     secureHosts:
@@ -141,7 +235,7 @@
 ```
     # defaults used for startup sequence
     decPrefix: decrypted_
-    secretsPort: pick a port
+    port: pick a port
     validator: text_is_valid
     secureHosts:
     - Computername1

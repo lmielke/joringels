@@ -6,14 +6,14 @@ import os, requests, yaml
 from copy import deepcopy
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
-from joringels.src.encryption_dict_handler import text_decrypt
+from joringels.src.encryption_dict_handler import text_decrypt, text_encrypt, dict_decrypt, dict_encrypt, dict_values_decrypt, dict_values_encrypt
 
 
 class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, **kwargs):
+    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, safeName=None, connector=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -37,25 +37,38 @@ class Jorinde:
         ########################### END TEST ###########################
 
         """
-        port = sts.appParams.get("secretsPort") if port is None else port
-        host = sts.dataSafeIp if host is None else host
-        resp = requests.get(f"http://{host}:{port}/{entryName}")
+        port = sts.appParams.get("port") if port is None else port
+        host = sts.dataSafeIp if host is None else soc.resolve(host=host)
         try:
+            if connector == 'application':
+                if not type(entryName) == dict:
+                    raise Exception(f"payloaed must be dictionary: {entryName}")
+                url = f"http://{host}:{port}/{text_encrypt(safeName, os.environ.get('DATASAFEKEY'))}"
+                payload = dict_encrypt(dict_values_encrypt(entryName))
+                # POST request
+                resp = requests.post(url, headers={'Content-Type': f'{safeName}/json'}, data=payload)
+            else:
+                entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
+                url = f"http://{host}:{port}/{entry}"
+                # GET request
+                resp = requests.get(url, headers={'Content-Type': f'{safeName}/json'})
+
+            # prepare respons
             if resp.status_code == 200:
-                secret = yaml.safe_load(resp.text)
-                secret = self.clean(secret)
+                secret = dict_values_decrypt(dict_decrypt(resp.text))
             else:
                 secret = {"ERROR": resp.text}
         except Exception as e:
-            secret = {"ERROR": e}
-        return secret
-
-    def clean(self, encrypted, *args, **kwargs):
-        decrypted = {}
-        for k, ciphertextBase64 in encrypted.items():
-            decryptedtext = text_decrypt(ciphertextBase64)
-            decrypted[k] = yaml.safe_load(decryptedtext)
-        return decrypted
+            secret = {"_fetch ERROR": e}
+        # return result
+        if connector != 'application':
+            return secret.get(entryName)
+        elif connector != 'application' and not secret.get(entryName):
+            msg = f"No secret found named: {entryName}!"
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            return None
+        else:
+            return secret
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()

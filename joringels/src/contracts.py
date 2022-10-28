@@ -10,7 +10,6 @@ def checks(*args, **kwargs):
     kwargs = error_check_params(*args, **kwargs)
     error_upload_all(*args, **kwargs)
     kwargs = warn_deletion(*args, **kwargs)
-    kwargs["source"] = sts.unalias_path(kwargs["source"])
     return kwargs
 
 
@@ -38,7 +37,7 @@ def warn_deletion(*args, retain, hard, **kwargs):
 
 
 def error_upload_all(action, *args, host, **kwargs):
-    if action != "fetch" and host is not None:
+    if action not in ['fetch', 'invoke', 'serve'] and host is not None:
         msg = f"Your -ip, host contains {host}. It must be empty to use load_all!"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         exit()
@@ -56,25 +55,29 @@ def error_check_params(*args, action, source, connector, **kwargs):
         kwargs["action"] = action
 
     # check source
-    actionsPath = os.path.join(sts.settingsPath, "connectors")
+    if source == 'application':
+        pass
+
+
+    # checking connectors
+    connectorPath = os.path.join(sts.settingsPath, "connectors")
     connectors = [
-        p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"
+        p[:-3] for p in os.listdir(connectorPath) if p.endswith(".py") and p != "__init__.py"
     ]
-    if not connector in connectors:
+    if not connector in connectors and not connector == 'application':
         msg = f"\ninvalid connector '{connector}'! Available connectors: {connectors}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
-    else:
-        kwargs["connector"] = connector
-
+    kwargs["connector"] = connector
     # check source
-    actionsPath = os.path.join(sts.settingsPath, "sources")
-    sources = [p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"]
-    if not any([source.endswith(src) for src in sources]):
+    sourcesPath = os.path.join(sts.settingsPath, "sources")
+    sources = [p[:-3] for p in os.listdir(sourcesPath) if p.endswith(".py") and p != "__init__.py"]
+    if not any([source.endswith(src) for src in sources]) and (source != 'application'):
         msg = f"\ninvalid source '{source}'! Available sources: {sources}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
+    elif source.endswith('.kdbx'):
+        kwargs["source"] = sts.unalias_path(source)
     else:
         kwargs["source"] = source
-
     return kwargs

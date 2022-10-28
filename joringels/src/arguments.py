@@ -38,7 +38,7 @@ def mk_args():
         const=None,
         type=str,
         default=None,
-        help="target to be uploaded (i.e. asgard), use 'all' to upload to all targets",
+        help="project (asgard, ...) to be targeted by actions (i.e. upload, serve_app)",
     )
 
     parser.add_argument(

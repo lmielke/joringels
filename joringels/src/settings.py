@@ -6,12 +6,19 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
-def unalias_path(path: str) -> str:
-    path = path.replace(r"%USERPROFILE%", "~")
-    path = path.replace("~", os.path.expanduser("~"))
-    if path.startswith("."):
-        path = os.path.join(os.getcwd(), path[2:]).replace("/", os.sep)
-    return path
+
+def unalias_path(workPath: str) -> str:
+    """
+    repplaces path aliasse such as . ~ with path text
+    """
+    workPath = workPath.replace(r"%USERPROFILE%", "~")
+    workPath = workPath.replace("~", os.path.expanduser("~"))
+    if workPath.startswith(".."):
+        workPath = os.path.join(os.path.dirname(os.getcwd()), workPath[3:])
+    elif workPath.startswith("."):
+        workPath = os.path.join(os.getcwd(), workPath[2:])
+    workPath = os.path.normpath(os.path.abspath(workPath))
+    return workPath
 
 
 fext = ".yml"
@@ -146,3 +153,42 @@ except FileNotFoundError:
     with open(startupParamsPath, "r") as f:
         appParams = yaml.safe_load(f)
     appParamsLoaded = False
+
+
+# api endpoints settings
+
+
+"""
+available apps json looks like this
+    {
+        "oamailer":  [
+                        "gitlab.com/yourgitUsername",
+                        "~/python_venvs/modules/oamailer"
+                    ],
+        "kingslanding":  [
+                             "gitlab.com/yourgitUsername",
+                             "~/python_venvs/kingslanding"
+                         ]
+    }
+"""
+available_appsPath = "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json"
+
+
+# api_endpoint.yml contains the api parameters
+# File Example
+"""
+    projectName: oamailer
+    port: 7007
+
+    0:
+      import: .actions.send
+      action: send
+      response: null
+
+"""
+api_endpoints_path = lambda projectDir, projectName: os.path.join(
+                                                                projectDir,
+                                                                projectName,
+                                                                'api_endpoints',
+                                                                'params.yml'
+                                                                )
