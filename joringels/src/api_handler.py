@@ -11,19 +11,42 @@ class API:
         self.modules = {}
         self.apis = {}
 
-    def initialize_apis(self, *args, secrets:dict, safeName:str, **kwargs):
-        # import oamailer.actions.send
+    def initialize(self, *args, secrets:dict, **kwargs) -> None:
         self.projectParams = secrets.get(sts.appParamsFileName)
-        self.safeName = safeName
-        self.apis[safeName] = {k: vs for k, vs in secrets.items() if type(k) == int}
-        self._import_api_modules(*args, secrets=secrets, safeName=safeName, **kwargs)
-
-    def _import_api_modules(self, *args, secrets:dict, safeName:str, **kwargs):
-        sys.path.append(secrets['apiEndpointDir'])
         self.apiEndpointDir = secrets['apiEndpointDir']
-        self.modules[safeName] = self.modules.get(safeName, {})
-        for ix, api in self.apis[safeName].copy().items():
-            self.modules[safeName][ix] = {'module': import_module(api['import'], self.safeName)}
+        self.apis.update(self._initialize_apis(*args, secrets=secrets, **kwargs))
+        self.modules.update(self._import_api_modules(*args, secrets=secrets, **kwargs))
+
+    def _initialize_apis(self, *args, secrets:dict, safeName:str, **kwargs) -> None:
+        """ fills self.apis with all api entries in secrets (entries with numeric key)
+            als calls _import_api_modules fill self.modules with imported modules
+            result looks like: {
+                                0: {'action': 'send', 'import': 'oamailer.actions.send', ...},
+                                1: ...
+                                }
+        """
+        apis = {}
+        apis[safeName] = {k: vs for k, vs in secrets.items() if type(k) == int}
+        return apis
+
+    def _import_api_modules(self, *args, secrets:dict, safeName:str, **kwargs) -> None:
+        """ fills self.modules with imported modules from api import string
+            self.modules is used to keep imported modules and avoid import on demand
+            result looks like: {
+                    0: {'module': <module 'oamailer.actions.send' from ...},
+                    1: ...
+                    }
+        """
+        sys.path.append(self.apiEndpointDir)
+
+        modules = {}
+        modules[safeName] = modules.get(safeName, {})
+        for ix, api in self.apis[safeName].items():
+            # import_module without package parameter. Hence provide full path like:
+            # oamailer.actions.send
+            modules[safeName][ix] = {'module': import_module(api['import'])}
+        print(f"{modules = }")
+        return modules
 
     def run_api(self, api, payload, *args, safeName, **kwargs):
         r = getattr(

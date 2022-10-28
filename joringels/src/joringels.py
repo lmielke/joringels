@@ -134,7 +134,7 @@ class Joringel:
         
         # secret might refer to application rest parameters, which is handled by self.API
         if self.connector == 'application':
-            self.API.initialize_apis(*args, secrets=secrets, safeName=self.safeName, **kwargs)
+            self.API.initialize(*args, secrets=secrets, safeName=self.safeName, **kwargs)
             self.host = secrets.get('host')
             self.port = secrets.get('port')
         return self.secrets

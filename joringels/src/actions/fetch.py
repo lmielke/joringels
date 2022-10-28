@@ -1,5 +1,5 @@
 # serve.py
-import os, yaml
+import os
 from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
@@ -39,5 +39,6 @@ def main(*args, entryName, **kwargs) -> None:
     then runs upload process using imported source an connector
     """
     assert entryName is not None, f"missing value for '-e entryName'"
+    if entryName.isnumeric(): entryName = int(entryName)
     secret = alloc(*args, entryName=entryName, **kwargs)
     return f"{secret}"

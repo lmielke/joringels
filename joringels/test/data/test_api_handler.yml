@@ -1,0 +1,10 @@
+# testdata for api_handler.yml
+host: localhost
+port: 7007
+
+0:
+  # NOTE: below import is used like importlib.import_module(api['import'], projectName)
+  #       so prjectName.import should result in oamailer.actions.send
+  import: oamailer.actions.send
+  action: send
+  response: null
