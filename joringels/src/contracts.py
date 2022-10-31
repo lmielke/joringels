@@ -7,11 +7,23 @@ color.init()
 
 
 def checks(*args, **kwargs):
+    check_serve(*args, **kwargs)
     kwargs = error_check_params(*args, **kwargs)
     error_upload_all(*args, **kwargs)
     kwargs = warn_deletion(*args, **kwargs)
     return kwargs
 
+
+def check_serve(*args, host=None, port=None, connector=None, **kwargs):
+    errors = {}
+    if host is not None:
+        errors['host'] = f"serve host must be provided in api params file but is {host}"
+
+    if port is not None and port != 7000:
+        errors['port'] = f"serve port must only be provided in api params file but is {port}"
+    if connector == 'application' and errors:
+        msg = f"{color.Fore.RED}contracts.check_serve.ERROR, {errors}{color.Style.RESET_ALL}"
+        raise Exception(msg)
 
 def warn_deletion(*args, retain, hard, **kwargs):
     if kwargs["action"] == "serve":
@@ -64,6 +76,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
     connectors = [
         p[:-3] for p in os.listdir(connectorPath) if p.endswith(".py") and p != "__init__.py"
     ]
+    connectors.append('application')
     if not connector in connectors:
         msg = f"\ninvalid connector '{connector}'! Available connectors: {connectors}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")

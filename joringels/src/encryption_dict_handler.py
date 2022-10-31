@@ -19,7 +19,6 @@ def base64Encoding(input):
 def base64Decoding(input):
     return base64.decodebytes(input.encode("ascii"))
 
-
 def generateSalt32Byte():
     return get_random_bytes(32)
 
@@ -43,6 +42,7 @@ def dict_decrypt(encrypted:str, password:str=os.environ.get("DATASAFEKEY")) -> d
     expected = hashlib.md5(json.dumps(decrypted, ensure_ascii=False).encode("utf-8")).hexdigest()
     if expected != checksum:
         decrypted = None
+    decrypted = {int(k) if k.isnumeric() else k: vs for k, vs in decrypted.items()}
     return decrypted
 
 def text_encrypt(plaintext, password:str=None):

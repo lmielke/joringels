@@ -9,6 +9,7 @@ def run(*args, **kwargs) -> None:
     j = Joringel(*args, **kwargs)
     j._digest(*args, **kwargs)
     j._memorize(*args, secrets=j.secrets, **kwargs)
+    j._initialize_api_endpoint(*args, secrets=j.secrets, **kwargs)
     j._serve(*args, **kwargs)
 
 

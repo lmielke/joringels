@@ -30,6 +30,9 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007
     jo fetch -e 0 -n oamailer -ip 192.168.0.174 -p 7007
 
+    # Run api-endpoint
+    jo invoke 
+
 ```
 
 ### 2. API CALL

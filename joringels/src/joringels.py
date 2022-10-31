@@ -59,6 +59,8 @@ from joringels.src.api_handler import API
 
 
 class Joringel:
+    sessions = {}
+
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
@@ -124,13 +126,20 @@ class Joringel:
         sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         return h.encryptPath, self.secrets
 
+    def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, **kwargs):
+        self.API.initialize(
+                                *args, 
+                                secrets=dict_values_decrypt(dict_decrypt(secrets)), 
+                                safeName=self.safeName,
+                                **kwargs
+                            )
+    
     def _memorize(self, *args, safeName:str, secrets:dict, **kwargs):
         # secret might refer to application rest parameters, which is handled by self.API
-        if secrets.get('contentType') == 'application/json':
-            self.API.initialize(*args, secrets=secrets, safeName=self.safeName, **kwargs)
-            self.contentType = secrets.get('contentType')
-            self.host = secrets.get('host')
-            self.port = secrets.get('port')
+        if secrets.get('kwargs'):
+            self.contentType = secrets.get('kwargs').get('contentType')
+            self.host = secrets.get('kwargs').get('host')
+            self.port = secrets.get('kwargs').get('port')
         # secrets will be encrypted
         self.secrets = dict_encrypt(dict_values_encrypt(
                                                         secrets,
@@ -189,6 +198,8 @@ class Joringel:
         handler = magic.MagicFlower(self)
         
         if self.secrets:
+            self.sessions[self.safeName] = AF_INET
+            print(f"{self.sessions = }")
             magic.HTTPServer(AF_INET, handler).serve_forever()
         # myServer.server_close()
 

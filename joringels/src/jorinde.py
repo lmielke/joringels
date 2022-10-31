@@ -40,19 +40,19 @@ class Jorinde:
         port = sts.appParams.get("port") if port is None else port
         host = sts.dataSafeIp if host is None else soc.resolve(host=host)
         try:
-            if contentType == 'application':
+            if contentType.startswith('application'):
                 if not type(entryName) == dict:
                     raise Exception(f"payloaed must be dictionary: {entryName}")
                 url = f"http://{host}:{port}/{text_encrypt(safeName, os.environ.get('DATASAFEKEY'))}"
                 payload = dict_encrypt(dict_values_encrypt(entryName))
                 # POST request
-                resp = requests.post(url, headers={'Content-Type': f'{contentType}/json'}, data=payload)
+                resp = requests.post(url, headers={'Content-Type': f'{contentType}'}, data=payload)
             else:
                 entryName = str(entryName) if entryName is not None else None
                 entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
                 url = f"http://{host}:{port}/{entry}"
                 # GET request
-                resp = requests.get(url, headers={'Content-Type': f'{contentType}/json'})
+                resp = requests.get(url, headers={'Content-Type': f'{contentType}'})
 
             # prepare respons
             if resp.status_code == 200:
@@ -62,11 +62,11 @@ class Jorinde:
         except Exception as e:
             secrets = {"_fetch ERROR": e}
         # return result
-        if contentType != 'application' and not secrets.get(str(entryName)):
+        if not contentType.startswith('application') and not secrets.get(str(entryName)):
             msg = f"No secrets found named: {entryName}!"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
-        elif contentType != 'application':
+        elif not contentType.startswith('application'):
             return secrets.get(entryName)
         else:
             return secrets
