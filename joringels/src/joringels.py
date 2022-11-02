@@ -126,17 +126,18 @@ class Joringel:
         sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         return h.encryptPath, self.secrets
 
-    def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, **kwargs):
-        self.API.initialize(
-                                *args, 
-                                secrets=dict_values_decrypt(dict_decrypt(secrets)), 
-                                safeName=self.safeName,
-                                **kwargs
+    def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
+        if connector.startswith('application'):
+            self.API.initialize(
+                                    *args, 
+                                    secrets=dict_values_decrypt(dict_decrypt(secrets)), 
+                                    safeName=self.safeName,
+                                    **kwargs
                             )
     
-    def _memorize(self, *args, safeName:str, secrets:dict, **kwargs):
+    def _memorize(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
         # secret might refer to application rest parameters, which is handled by self.API
-        if secrets.get('kwargs'):
+        if connector.startswith('application'):
             self.contentType = secrets.get('kwargs').get('contentType')
             self.host = secrets.get('kwargs').get('host')
             self.port = secrets.get('kwargs').get('port')
@@ -146,8 +147,6 @@ class Joringel:
                                                         os.environ.get("DATAKEY")), 
                                     os.environ.get("DATASAFEKEY"))
         return self.secrets
-
-
 
     def _from_memory(self, entry:str, *args, **kwargs) -> str:
         entry = text_decrypt(entry, os.environ.get("DATASAFEKEY"))

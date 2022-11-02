@@ -13,7 +13,7 @@ class Jorinde:
     def __init__(self, *args, **kwargs):
         pass
 
-    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, safeName=None, contentType=None, **kwargs):
+    def _fetch(self, *args, key=False, entryName=False, host=None, port=None, safeName=None, contentType='query/json', **kwargs):
         """<br><br>
 
         *Last update: 2020-11-09*
@@ -48,7 +48,7 @@ class Jorinde:
                 # POST request
                 resp = requests.post(url, headers={'Content-Type': f'{contentType}'}, data=payload)
             else:
-                entryName = str(entryName) if entryName is not None else None
+                # entryName = str(entryName) if entryName is not None else None
                 entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
                 url = f"http://{host}:{port}/{entry}"
                 # GET request
@@ -62,8 +62,7 @@ class Jorinde:
         except Exception as e:
             secrets = {"_fetch ERROR": e}
         # return result
-        if not contentType.startswith('application') and not secrets.get(str(entryName)):
-            msg = f"No secrets found named: {entryName}!"
+        if not contentType.startswith('application') and not secrets.get(entryName):
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif not contentType.startswith('application'):

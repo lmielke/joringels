@@ -33,7 +33,7 @@ class UnitTest(unittest.TestCase):
         testData = self.testData
         testData['apiEndpointDir'] = 'C:\\Users\\lars\\python_venvs\\modules\\oamailer'
         j = Joringel(*args, **kwargs)
-        j._memorize(*args, safeName='oamailer', secrets=self.testData, **kwargs)
+        j._memorize(*args, safeName='oamailer', secrets=self.testData, connector='application/json', **kwargs)
         self.assertEqual(j.host, self.testData['kwargs'].get('host'))
         self.assertEqual(j.port, self.testData['kwargs'].get('port'))
         self.assertEqual(j.contentType, self.testData['kwargs'].get('contentType'))

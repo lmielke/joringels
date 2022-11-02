@@ -58,7 +58,7 @@ def error_upload_all(action, *args, host, **kwargs):
 def error_check_params(*args, action, source, connector, **kwargs):
     # check actions
     actionsPath = os.path.join(sts.settingsPath, "actions")
-    actions = [p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py"]
+    actions = [p[:-3] for p in os.listdir(actionsPath) if p.endswith(".py") and p != "__init__.py" and p != 'tempfile.py']
     if not action in actions:
         msg = f"\ninvalid action '{action}'! Available actions: {actions}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
