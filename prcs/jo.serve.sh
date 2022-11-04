@@ -17,7 +17,7 @@ CONNECTOR=$2
 source /etc/environment
 
 # get application parameter
-APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
+# APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
 # apiEndpointsPath=$apiEndpointDir/$SAFENAME/api_endpoints/params.yml
 
 
@@ -32,5 +32,5 @@ APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
 #     # host and port come from api_endpoints/params.yml
 # fi
 
-cd $APPPATH
-pipenv run jo serve -n $TEMPSAFENAME -con $CONNECTOR -rt
+cd $JORINGELSPATH
+pipenv run jo serve -n $SAFENAME -con $CONNECTOR -rt

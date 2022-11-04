@@ -150,7 +150,12 @@ class Joringel:
 
     def _from_memory(self, entry:str, *args, **kwargs) -> str:
         entry = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
-        return dict_encrypt({entry: dict_decrypt(self.secrets).get(entry)})
+        found = dict_decrypt(self.secrets).get(entry)
+        if found is None:
+            return None
+        else:
+            return dict_encrypt({entry: found})
+
 
     def _invoke_application(self, entry:str, safeName:str, *args, **kwargs) -> str:
         entry = dict_values_decrypt(dict_decrypt(entry))
@@ -160,7 +165,10 @@ class Joringel:
                                     entry['api'], entry['payload'], *args, 
                                     safeName=safeName, **kwargs
                                     )
-        return dict_encrypt(dict_values_encrypt(response))
+        if response is None:
+            return None
+        else:
+            return dict_encrypt(dict_values_encrypt(response))
 
     def clean(self, encrypted, *args, **kwargs):
         decrypted = {}

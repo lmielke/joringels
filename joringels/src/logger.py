@@ -23,7 +23,6 @@ def mk_logger(logDir, fileName, loggerName, *args, **kwargs):
 
 def log(name, msg, *args, verbose=0, **kwargs):
     timeStamp = re.sub(r"([:. ])", r"-", str(dt.now()))
-    if verbose >= 1:
-        print(msg)
+    if verbose >= 1: print(f"logger.log.msg: {msg}")
     log = mk_logger(sts.logDir, f"{timeStamp}_{name}.log", name)
     log.info(msg)
