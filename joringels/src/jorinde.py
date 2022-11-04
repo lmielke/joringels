@@ -63,6 +63,7 @@ class Jorinde:
             secrets = {"_fetch ERROR": e}
         # return result
         if not contentType.startswith('application') and not secrets.get(entryName):
+            msg = f"Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif not contentType.startswith('application'):

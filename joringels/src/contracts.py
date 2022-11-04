@@ -73,10 +73,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
 
     # checking connectors
     connectorPath = os.path.join(sts.settingsPath, "connectors")
-    connectors = [
-        p[:-3] for p in os.listdir(connectorPath) if p.endswith(".py") and p != "__init__.py"
-    ]
-    connectors.append('application')
+    connectors = {'scp', 'application', 'joringels'}
     if not connector in connectors:
         msg = f"\ninvalid connector '{connector}'! Available connectors: {connectors}"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")

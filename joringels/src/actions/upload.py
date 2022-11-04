@@ -54,6 +54,11 @@ def run(
             scp.upload(
                 serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs
             )
+    if not encryptPath:
+        import colorama as color
+        color.init()
+        msg = f"jo upload: No upload parameter found. Check your datasafe params!"
+        print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
     return encryptPath
 
 

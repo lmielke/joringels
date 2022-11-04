@@ -12,25 +12,25 @@ WHITE="\[\033[0;37m\]"        # White
 NC='\033[0m' # No Color
 
 
-ACTION=$1
-APPNAME=$2
+SAFENAME=$1
+CONNECTOR=$2
 source /etc/environment
 
 # get application parameter
-APPPATH=`(jq -r ".$APPNAME|.[1]" $AVAILABLEREPOS)`
-# apiEndpointsPath=$apiEndpointDir/$APPNAME/api_endpoints/params.yml
+APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
+# apiEndpointsPath=$apiEndpointDir/$SAFENAME/api_endpoints/params.yml
 
 
-# set datasafe
-if [ -z "${APPNAME}" ]
-then
-    # get server parameter
-    CONNECTOR='kdbx'
-else
-    TEMPSAFENAME=$APPNAME
-    CONNECTOR='application'
-    # host and port come from api_endpoints/params.yml
-fi
+# # set datasafe
+# if [ "$SAFENAME" == "digiserver" ]
+# then
+#     # get server parameter
+#     CONNECTOR='joringels'
+# else
+#     TEMPSAFENAME=$SAFENAME
+#     CONNECTOR='application'
+#     # host and port come from api_endpoints/params.yml
+# fi
 
 cd $APPPATH
-pipenv run jo $ACTION -n $TEMPSAFENAME -con $CONNECTOR -rt
+pipenv run jo serve -n $TEMPSAFENAME -con $CONNECTOR -rt
