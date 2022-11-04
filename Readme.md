@@ -23,8 +23,8 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     # Upload aip-endpoint
     jo load -n oamailer -src application
     
-    # Serve aip-endpoint
-    jo serve -n oamailer -rt -p 7007 -con application
+    # Serve aip-endpoint NOTE: -p port parameter is not accepted
+    jo serve -n oamailer -con application -rt
 
     # Test availability aip-endpoint
     jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007

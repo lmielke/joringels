@@ -26,14 +26,16 @@ def resolve(*args, host, **kwargs):
         host = get_ip()
     elif host.isnumeric():
         domain, host = os.environ.get('NETWORK'), int(host)
-        if domain.startswith('WHILE') and host in range(10):
+        if domain.startswith(sts.devHost) and host in range(10):
             host = socket.gethostbyname(f"{domain}{host}")
-    elif host.startswith('WHILE') and host[-1].isnumeric():
+    elif host.startswith(sts.devHost) and host[-1].isnumeric():
         host = socket.gethostbyname(f"{host}")
+    elif host.startswith('joringels'):
+        host = sts.serveHost.get(host, host)
     return host
 
-def host_info_extended(jor, *args, **kwargs):
-    if hasattr(jor, 'contentType'):
+def host_info_extended(jor, *args, connector, **kwargs):
+    if connector.startswith('application'):
         AF_INET = (resolve(host=jor.host), jor.port)
     else:
         AF_INET = host_info(*args, **kwargs)

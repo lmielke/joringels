@@ -13,24 +13,25 @@ NC='\033[0m' # No Color
 
 
 SAFENAME=$1
-CONNECTOR=$2
+PROJECTNAME=$2
 source /etc/environment
 
 # get application parameter
-# APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
 # apiEndpointsPath=$apiEndpointDir/$SAFENAME/api_endpoints/params.yml
 
 
-# # set datasafe
-# if [ "$SAFENAME" == "digiserver" ]
-# then
-#     # get server parameter
-#     CONNECTOR='joringels'
-# else
-#     TEMPSAFENAME=$SAFENAME
-#     CONNECTOR='application'
-#     # host and port come from api_endpoints/params.yml
-# fi
+# set datasafe
+if [ "$PROJECTNAME" == "joringels" ]
+then
+    # get server parameter
+    APPPATH=$JORINGELSPATH
+    CONNECTOR=$PROJECTNAME
+else
+    APPPATH=`(jq -r ".$SAFENAME|.[1]" $AVAILABLEREPOS)`
+    CONNECTOR='application'
+    SAFENAME=$PROJECTNAME
+    # host and port come from api_endpoints/params.yml
+fi
 
-cd $JORINGELSPATH
+cd $APPPATH
 pipenv run jo serve -n $SAFENAME -con $CONNECTOR -rt

@@ -197,3 +197,9 @@ api_endpoints_path = lambda projectDir, projectName: os.path.join(
                                                                 'api_endpoints',
                                                                 'params.yml'
                                                                 )
+
+########### HOST PARMETER ############
+# dev computer names
+devHost = 'WHILE-'
+# serve host or microservice, needed by get_soc.py for host resolve
+serveHost = {'joringels': '64.227.67.207'}
