@@ -9,7 +9,7 @@ import unittest
 # C:\Users\lars\python_venvs\libs\joringels\joringels\test\test_api_handler.py
 # test package imports
 import joringels.src.settings as sts
-from joringels.src.api_handler import API as API
+from joringels.src.api_handler import ApiHandler
 
 # print(f"\n__file__: {__file__}")
 
@@ -30,13 +30,15 @@ class UnitTest(unittest.TestCase):
             return yaml.safe_load(f)
 
     def test__initialize_apis(self, *args, name='_initialize_apis', **kwargs):
-        instance = API(*args, **kwargs)
+        instance = ApiHandler(*args, **kwargs)
         expected = {'oamailer': {0: {
                                         'import': 'oamailer.actions.send', 
                                         'action': 'send', 
                                         'response': None}}
                                 }
-        out = instance._initialize_apis(*args, secrets=self.testData, safeName='oamailer', **kwargs)
+        data = self.testData[sts.apiParamsFileName]
+        data['oamailer'] = {str(k): vs for k, vs in data['oamailer'].items()}
+        out = instance._initialize_apis(*args, apis=data, connector='oamailer', **kwargs)
         self.assertEqual(expected, out)
 
     def test__import_api_modules(self, *args, name='_import_api_modules', **kwargs):
@@ -45,7 +47,7 @@ class UnitTest(unittest.TestCase):
             uses joringels executable I only test, that joringels
             attempts to import the correct module. (oamailer with google_auth_authlib)
         """
-        instance = API(*args, **kwargs)
+        instance = ApiHandler(*args, **kwargs)
         # path to import module
         instance.apiEndpointDir = r"C:/Users/lars/python_venvs/modules/oamailer"
         # api to import the module for with import statement and action

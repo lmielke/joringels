@@ -1,6 +1,6 @@
 # get_soc.py -> import joringels.src.get_soc as soc
 
-import os, socket
+import os, requests, socket
 import joringels.src.settings as sts
 
 
@@ -9,6 +9,11 @@ def get_ip():
     s.connect(("8.8.8.8", 80))
     socName = s.getsockname()[0]
     return socName
+
+def get_external_ip():
+    r = requests.get('https://api.ipify.org')
+    if r.status_code == 200:
+        return r.text
 
 
 def get_hostname():
@@ -34,9 +39,9 @@ def resolve(*args, host, **kwargs):
         host = sts.serveHost.get(host, host)
     return host
 
-def host_info_extended(jor, *args, connector, **kwargs):
-    if connector.startswith('application'):
-        AF_INET = (resolve(host=jor.host), jor.port)
+def host_info_extended(jo, *args, connector, **kwargs):
+    if connector != 'joringels':
+        AF_INET = (resolve(host=jo.host), jo.port)
     else:
         AF_INET = host_info(*args, **kwargs)
     return AF_INET

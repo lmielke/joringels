@@ -16,7 +16,6 @@ def temp_secret(*args, secretsFilePath:str, creds:dict, **kwargs) -> None:
         creds: joringels params to get secret
                 {entryName: secretToWrite}
     """
-
     fType = os.path.splitext(secretsFilePath)[-1]
     try:
         secrets = fetch.alloc(**creds, retain=True)

@@ -104,8 +104,8 @@ def mk_args():
         nargs="?",
         const=None,
         type=str,
-        default="scp",
-        help="upload connector i.e. powershell scp",
+        default="joringels",
+        help="upload connector i.e. powershell joringels",
     )
 
     parser.add_argument(

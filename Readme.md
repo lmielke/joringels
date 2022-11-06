@@ -20,11 +20,11 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
 
 ### 1. API INIT
 ```
-    # Upload aip-endpoint
+    # Upload aip-endpoint (change to loadloc script)
     jo load -n oamailer -src application
     
     # Serve aip-endpoint NOTE: -p port parameter is not accepted
-    jo serve -n oamailer -con application -rt
+    jo serve -n digiserver -con oamailer -rt
 
     # Test availability aip-endpoint
     jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007
@@ -36,6 +36,9 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
 ```
 
 ### 2. API CALL
+API uses the joringels.src.actions.invoke module to call the API. This is then pushed
+to jorinde.py, which creates the post request to the target machine.
+
 ```python
     # jo.py 09_05_2022__17_35_20
     # python C:\Users\lars\python_venvs\utils\experimental\09_05_2022__17_35_20_jo.py
@@ -48,21 +51,21 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     payload = {   
             'api': 0,
             'payload':{
-                    'sendTo': 'larsmielke2@gmail.com', 
+                    'sendTo': 'mysamplemail@gmail.com', 
                     'subject': f"hello from jo.py {__file__}",
                     'text': f"Hello World!,\nThis is a testmail from {os.environ['COMPUTERNAME']}"},
             }
 
     # define oamailer parmeter
     kwargs = {
-            'safeName': 'oamailer',
+            'apiName': 'oamailer',
             'connector': 'application',
-            'entryName': payload,
+            'data': payload,
             'host': 'localhost',
             'port': 7007,
     }
     print(f"jo.file: {kwargs = }")
-    params = invoke.remote(**kwargs, retain=True)
+    params = invoke.api(**kwargs, retain=True)
 ```
 
 

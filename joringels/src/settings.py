@@ -1,7 +1,7 @@
 # settings.py
 
 # settings.py
-import os, sys, time, yaml
+import json, os, sys, time, yaml
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -31,6 +31,7 @@ groupName = "joringels_data_safes"
 safeParamsFileName = f"safe_params{fext}"
 # name of general file containing program params such as allowed hosts ect.
 appParamsFileName = f"_joringels{fext}"
+apiParamsFileName = f"_apis{fext}"
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
@@ -203,3 +204,15 @@ api_endpoints_path = lambda projectDir, projectName: os.path.join(
 devHost = 'WHILE-'
 # serve host or microservice, needed by get_soc.py for host resolve
 serveHost = {'joringels': '64.227.67.207'}
+
+def get_api_enpoint_dir(connector, *args, **kwargs):
+    with open(unalias_path(available_appsPath), "r") as apps:
+        available_apps = json.load(apps)
+    app = available_apps.get(connector)
+    if not app:
+        raise Exception(f"no app found in available_apps.yml named {connector}")
+    else:
+        return (
+                api_endpoints_path(unalias_path(app[1]), connector),
+                unalias_path(app[1])
+                )

@@ -31,7 +31,7 @@ class UnitTest(unittest.TestCase):
             return yaml.safe_load(f)
 
     def test_temp_secret(self, *args, **kwargs):
-        expected = 'DIGISERVER'
+        expected = 'digiserver'
         # filePth has to be full path to tempfile.yml or .json
         filePath = os.path.join(sts.testDataPath, 'temp_secret.yml')
         with tempfile.temp_secret(

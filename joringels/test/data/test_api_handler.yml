@@ -1,12 +1,13 @@
 # testdata for api_handler.yml
-kwargs:
-  host: localhost
-  port: 7007
-  contentType: application/json
-
-0:
-  # NOTE: below import is used like importlib.import_module(api['import'], projectName)
-  #       so prjectName.import should result in oamailer.actions.send
-  import: oamailer.actions.send
-  action: send
-  response: null
+_apis.yml:
+  oamailer:
+    PORT: 7007
+    DATASAFESERVER: joringels
+    HOST: 0.0.0.0
+    contentType: application/json
+    0:
+      # NOTE: below import is used like importlib.import_module(api['import'], projectName)
+      #       so prjectName.import should result in oamailer.actions.send
+      import: oamailer.actions.send
+      action: send
+      response: null

@@ -1,6 +1,7 @@
 # upload.py
 import os, time
 from joringels.src.joringels import Joringel
+from joringels.src.actions import tempfile
 import joringels.src.settings as sts
 import importlib
 
@@ -43,16 +44,19 @@ def run(
         # uploading secrets
         scp.upload(serverCreds, *args, **kwargs)
         # uploading startup params to ressources folder
-        scp.upload(
-            serverCreds,
-            sts.startupParamsPath,
-            os.path.dirname(sts.startupParamsPath),
-            *args,
-            **kwargs,
-        )
-        with sts.temp_unprotected_secret(j, sts.appParamsFileName):
-            scp.upload(
-                serverCreds, sts.appParamsPath, os.path.dirname(sts.appParamsPath), *args, **kwargs
+        # scp.upload(
+        #     serverCreds,
+        #     sts.startupParamsPath,
+        #     os.path.dirname(sts.startupParamsPath),
+        #     *args,
+        #     **kwargs,
+        # )
+        with tempfile(j, sts.appParamsFileName.replace(sts.fext, '.json')):
+            scp.upload( 
+                        serverCreds,
+                        sts.appParamsPath.replace(sts.fext, '.json'),
+                        os.path.dirname(sts.appParamsPath), *args,
+                        **kwargs,
             )
     if not encryptPath:
         import colorama as color

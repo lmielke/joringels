@@ -27,7 +27,7 @@ class KeePassSecrets:
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
-            print(f"{self.targets = }")
+            # print(f"{self.targets = }")
 
     def _check_kPath(self, *args, source, **kwargs):
         kPath = sts.appParams.get("kPath", source)
@@ -44,17 +44,32 @@ class KeePassSecrets:
         return kPath
 
     def _get_safe_params(self, *args, **kwargs) -> list:
+        """ 
+            reads entries and gets attachments from the datasafe
+
+        """
         if self.dataSafe is None:
             msg = f"keepass._get_safe_params with data_safe not found: {self.safeName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None, None
         self.encrpytKey = self.dataSafe.password
-        attachments = self._get_attachments(self.dataSafe)
-        safe_params = attachments.get(sts.safeParamsFileName)
-        self.joringelsParams = attachments.get(sts.appParamsFileName)
+        attachs = self._get_attachments(self.dataSafe)
+        safe_params = attachs.get(sts.safeParamsFileName)
+        self.joringelsParams = attachs.get(sts.appParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
         return targets, entries
+
+    def _handle_attachments(self, entry, *args, **kwargs):
+        if entry.attachments:
+            attachs = self._get_attachments(entry, *args, **kwargs)
+            for a_filename, attach in attachs.items():
+                if a_filename == sts.appParamsFileName:
+                    self.joringelsParams.update(attach)
+                elif a_filename == sts.apiParamsFileName:
+                    self.secrets[a_filename] = attach
+                else:
+                    self.secrets[entry.title][a_filename] = attach
 
     def _mk_secrets(self, *args, **kwargs):
         for entryPath in self.entries:
@@ -69,9 +84,8 @@ class KeePassSecrets:
                 "password": entry.password,
                 "url": entry.url,
             }
-            if entry.attachments:
-                self.secrets[entry.title].update(self._get_attachments(entry, *args, **kwargs))
-
+            self._handle_attachments(entry, *args, **kwargs)
+    
     def _mk_server_params(self, target, host, *args, **kwargs):
         group = self.session.find_groups(path=target)
         entry = self.session.find_entries(title=host, group=group, first=True)
@@ -105,14 +119,14 @@ class KeePassSecrets:
         target = self.targets.get(host, None)
         self._mk_server_params(target, host, *args, **kwargs)
         self._mk_secrets(*args, **kwargs)
-        self._update_joringels_params(*args, **kwargs)
+        self._update_datasafe_params(*args, **kwargs)
         self.secrets[sts.appParamsFileName] = self.joringelsParams
         self._write_secs(*args, **kwargs)
         return self.serverCreds
 
-    def _update_joringels_params(self, *args, **kwargs):
+    def _update_datasafe_params(self, *args, **kwargs):
         self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
-        self.joringelsParams["DATASAFENAME"] = self.safeName.upper()
+        self.joringelsParams["DATASAFENAME"] = self.safeName
         self.joringelsParams["DATAKEY"] = self.dataSafe.username
 
     def show(self, host, *args, **kwargs) -> None:

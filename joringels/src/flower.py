@@ -70,9 +70,9 @@ class MagicFlower(BaseHTTPRequestHandler):
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
-        body = self.rfile.read(int(self.headers.get('Content-Length'))).decode('utf-8')
+        payload = self.rfile.read(int(self.headers.get('Content-Length'))).decode('utf-8')
         # call to application
-        response = self.agent._invoke_application(body, safeName=requestedItem)
+        response = self.agent._invoke_application(payload, requestedItem)
         
         if response is None:
             returnCode, msg = 404, f"{self.client_address[0]}, Not found! {requestedItem}"

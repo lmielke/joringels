@@ -26,7 +26,7 @@ def dict_values_encrypt(encrypted, password:str=os.environ.get("DATAKEY")):
     return ({k: text_encrypt(json.dumps(vs), password) for k, vs in encrypted.items()} )
 
 def dict_values_decrypt(decrypted, password:str=os.environ.get("DATAKEY")):
-    return ({k: json.loads(text_decrypt(vs, password)) for k, vs in decrypted.items()} )
+    return ({k: json.loads(str(text_decrypt(vs, password))) for k, vs in decrypted.items()} )
 
 def dict_encrypt(decrypted, password:str=os.environ.get("DATASAFEKEY")):
     """ 
