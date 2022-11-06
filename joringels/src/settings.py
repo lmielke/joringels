@@ -152,7 +152,7 @@ def temp_unprotected_secret(j: object, entryName: str) -> None:
 
 startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 try:
-    with open(appParamsPath, "r") as f:
+    with open(appParamsPath.replace(fext, '.json'), "r") as f:
         appParams = yaml.safe_load(f)
         appParamsLoaded = True
 except FileNotFoundError:
@@ -202,8 +202,6 @@ api_endpoints_path = lambda projectDir, projectName: os.path.join(
 ########### HOST PARMETER ############
 # dev computer names
 devHost = 'WHILE-'
-# serve host or microservice, needed by get_soc.py for host resolve
-serveHost = {'joringels': '64.227.67.207'}
 
 def get_api_enpoint_dir(connector, *args, **kwargs):
     with open(unalias_path(available_appsPath), "r") as apps:

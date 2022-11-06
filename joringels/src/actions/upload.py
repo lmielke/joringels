@@ -43,21 +43,9 @@ def run(
         scp = conAdapt.main(*args, **kwargs)
         # uploading secrets
         scp.upload(serverCreds, *args, **kwargs)
-        # uploading startup params to ressources folder
-        # scp.upload(
-        #     serverCreds,
-        #     sts.startupParamsPath,
-        #     os.path.dirname(sts.startupParamsPath),
-        #     *args,
-        #     **kwargs,
-        # )
-        with tempfile(j, sts.appParamsFileName.replace(sts.fext, '.json')):
-            scp.upload( 
-                        serverCreds,
-                        sts.appParamsPath.replace(sts.fext, '.json'),
-                        os.path.dirname(sts.appParamsPath), *args,
-                        **kwargs,
-            )
+        # uploading _joringels.yml file
+        joringels_params_upload(j, scp, serverCreds, *args, **kwargs)
+
     if not encryptPath:
         import colorama as color
         color.init()
@@ -65,6 +53,19 @@ def run(
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
     return encryptPath
 
+def joringels_params_upload(j, scp, serverCreds, *args, **kwargs):
+    # uploading startup params to ressources folder
+    fileName = sts.appParamsFileName.replace(sts.fext, '.json')
+    filePath = os.path.join(sts.encryptDir, fileName)
+    with tempfile.temp_secret(j, *args, secretsFilePath=filePath, 
+                                    entryName=sts.appParamsFileName, **kwargs) as s:
+        scp.upload( 
+                    serverCreds,
+                    filePath,
+                    os.path.dirname(filePath),
+                    *args,
+                    **kwargs,
+        )
 
 def main(*args, source: str, connector: str, safeName: str, **kwargs) -> None:
     """

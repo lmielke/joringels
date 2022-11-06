@@ -36,7 +36,7 @@ def resolve(*args, host, **kwargs):
     elif host.startswith(sts.devHost) and host[-1].isnumeric():
         host = socket.gethostbyname(f"{host}")
     elif host.startswith('joringels'):
-        host = sts.serveHost.get(host, host)
+        host = os.environ['DATASAFEIP']
     return host
 
 def host_info_extended(jo, *args, connector, **kwargs):
