@@ -41,13 +41,14 @@ def resolve(host, *args, **kwargs):
         host = os.environ['DATASAFEIP']
     return host
 
-def host_info_extended(secrets, *args, action, connector, host=None, port=None, **kwargs):
-    if action in ['serve', 'show']:
-        if connector in ['joringels']:
-            host = host if host else get_ip()
-            port = port if port else sts.defaultPort
-        else:
-            host = secrets[sts.apiParamsFileName][connector].get('HOST')
-            port = secrets[sts.apiParamsFileName][connector].get('PORT')
+def host_info_extended(secrets, *args, connector, host=None, port=None, **kwargs):
+    if connector in ['joringels']:
+        host = host if host else get_ip()
+        port = port if port else sts.defaultPort
+    elif connector:
+        host = secrets[sts.apiParamsFileName][connector].get('HOST')
+        port = secrets[sts.apiParamsFileName][connector].get('PORT')
+    else:
+        pass
     host = resolve(host)
     return host, port

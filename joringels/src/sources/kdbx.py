@@ -147,6 +147,8 @@ class KeePassSecrets:
             for api in self.secrets[sts.apiParamsFileName]:
                 self.joringelsParams["allowedClients"].append(ip_address)
                 self.joringelsParams["secureHosts"].append(ip_address)
+        else:
+            print(f"{ip_address = }")
 
 
 
