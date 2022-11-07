@@ -132,6 +132,8 @@ class Joringel:
         if self.secrets.get(sts.apiParamsFileName):
             if self.secrets[sts.apiParamsFileName].get(connector):
                 self.api = connector
+        self.host, self.port = soc.host_info_extended(self.secrets, *args, 
+                                                        connector=connector, **kwargs)
             
 
     def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
@@ -145,8 +147,6 @@ class Joringel:
                             )
     
     def _memorize(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
-        self.host, self.port = soc.host_info_extended(secrets, *args, 
-                                                        connector=connector, **kwargs)
         # secrets will be encrypted
         self.secrets = dict_encrypt(dict_values_encrypt(
                                                         secrets,

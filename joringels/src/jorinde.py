@@ -37,10 +37,10 @@ class Jorinde:
         ########################### END TEST ###########################
 
         """
+        print(f"Jorinde: {connector = }")
+        print(f"Jorinde: {kwargs = }")
         port = sts.appParams.get("port") if port is None else port
-        print(f"{host = }")
         host = os.environ.get("DATASAFEIP") if host is None else soc.resolve(host=host)
-        print(f"{host = }")
         try:
             if connector != 'joringels':
                 if not type(entryName) == dict:
