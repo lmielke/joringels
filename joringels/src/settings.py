@@ -85,6 +85,7 @@ def file_or_files(workPath: str, *args, **kwargs) -> list:
         i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
     """
     workPath = prep_path(workPath)
+    print(f"{workPath = }")
     if os.path.isdir(workPath):
         fileNames = os.listdir(workPath)
     elif os.path.isfile(workPath):
@@ -132,22 +133,31 @@ def temp_chdir(path: Path) -> None:
 
 
 @contextmanager
-def temp_unprotected_secret(j: object, entryName: str) -> None:
+def temp_secret(j, *args, secretsFilePath:str, entryName:str, **kwargs) -> None:
     """
-    Temporarily exposes a secret in .ssp
+        temporaryly renames files in .ssp for upload to bypass files
+        secretsFilePath: full path to secretsfile.json
+        creds: joringels params to get secret
+                {entryName: secretToWrite}
     """
-    fileName = entryName if entryName.endswith(".yml") else f"{entryName}.yml"
-    entryPath = os.path.join(encryptDir, fileName)
-    entry = j.secrets.get(entryName)
-    if entry is None:
-        print(f"Entry not found: {entryName}")
-    else:
-        try:
-            with open(entryPath, "w") as f:
-                f.write(yaml.dump(entry))
-            yield
-        finally:
-            os.remove(entryPath)
+    fType = os.path.splitext(secretsFilePath)[-1]
+    try:
+        secrets = j.secrets.get(entryName)
+        with open(secretsFilePath, "w") as f:
+            if fType == '.json':
+                json.dump(secrets, f)
+            elif fType == '.yml':
+                yaml.dump(secrets, f)
+            else:
+                raise Exception(f"Invalid file extension: {fType}, use [.json, .yml]")
+        while not os.path.exists(secretsFilePath):
+            continue
+        yield
+    except Exception as e:
+        print(f"oamailer.secrets_loader Exception: {e}")
+    finally:
+        if os.path.exists(secretsFilePath):
+            os.remove(secretsFilePath)
 
 
 startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)

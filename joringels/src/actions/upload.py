@@ -1,7 +1,6 @@
 # upload.py
 import os, time
 from joringels.src.joringels import Joringel
-from joringels.src.actions import tempfile
 import joringels.src.settings as sts
 import importlib
 
@@ -57,7 +56,7 @@ def joringels_params_upload(j, scp, serverCreds, *args, **kwargs):
     # uploading startup params to ressources folder
     fileName = sts.appParamsFileName.replace(sts.fext, '.json')
     filePath = os.path.join(sts.encryptDir, fileName)
-    with tempfile.temp_secret(j, *args, secretsFilePath=filePath, 
+    with sts.temp_secret(j, *args, secretsFilePath=filePath, 
                                     entryName=sts.appParamsFileName, **kwargs) as s:
         scp.upload( 
                     serverCreds,

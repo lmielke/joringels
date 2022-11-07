@@ -128,7 +128,6 @@ class Joringel:
     def _prep_secrets(self, *args, connector:str=None, **kwargs):
         self.secrets = {int(k) if type(k) is int else k: vs for k, vs in self.secrets.items()}
         self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
-        self.secrets[sts.appParamsFileName]["allowedClients"].append(soc.get_external_ip())
         sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         if self.secrets.get(sts.apiParamsFileName):
             if self.secrets[sts.apiParamsFileName].get(connector):

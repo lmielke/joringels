@@ -9,16 +9,17 @@ from joringels.src.actions import fetch
 
 
 @contextmanager
-def temp_secret(j, *args, secretsFilePath:str, entryName:str, **kwargs) -> None:
+def temp_secret(*args, secretsFilePath:str, creds:dict, **kwargs) -> None:
     """
         temporaryly renames files in .ssp for upload to bypass files
         secretsFilePath: full path to secretsfile.json
         creds: joringels params to get secret
                 {entryName: secretToWrite}
     """
+
     fType = os.path.splitext(secretsFilePath)[-1]
     try:
-        secrets = j.secrets.get(entryName)
+        secrets = fetch.alloc(**creds, retain=True)
         with open(secretsFilePath, "w") as f:
             if fType == '.json':
                 json.dump(secrets, f)

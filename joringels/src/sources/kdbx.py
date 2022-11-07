@@ -3,9 +3,10 @@
 from datetime import datetime as dt
 from pykeepass import PyKeePass as keePass
 import os, re, yaml
-import colorama as color
 from joringels.src.get_creds import Creds
+import joringels.src.get_soc as soc
 
+import colorama as color
 color.init()
 
 import joringels.src.settings as sts
@@ -35,7 +36,7 @@ class KeePassSecrets:
             kPath = os.path.expanduser(os.environ.get("secrets", kPath))
         if not os.path.isfile(kPath):
             msg = (
-                f"kPath is not a file: {kPath}! "
+                f"KDBX.ERROR: kPath is not a file: {kPath}! "
                 f"If sts.appParams['kPath'] is not existing, provide a full "
                 f"path/to/file.kdbx !"
             )
@@ -49,9 +50,13 @@ class KeePassSecrets:
 
         """
         if self.dataSafe is None:
-            msg = f"keepass._get_safe_params with data_safe not found: {self.safeName}"
-            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
-            return None, None
+            msg = (
+                    f"{color.Fore.RED}"
+                    f"KDBX.ERROR: s._get_safe_params with safeName not found: {self.safeName}"
+                    f"{color.Style.RESET_ALL}"
+                )
+            print(msg)
+            exit()
         self.encrpytKey = self.dataSafe.password
         attachs = self._get_attachments(self.dataSafe)
         safe_params = attachs.get(sts.safeParamsFileName)
@@ -71,13 +76,15 @@ class KeePassSecrets:
                 else:
                     self.secrets[entry.title][a_filename] = attach
 
-    def _mk_secrets(self, *args, **kwargs):
+    def _get_entries(self, *args, **kwargs):
         for entryPath in self.entries:
             groupPath, entryName = os.path.split(entryPath)
             group = self.session.find_groups(path=groupPath)
             entry = self.session.find_entries(title=entryName, group=group, first=True)
             if entry is None:
-                print(f"keepass._extract_entries, entry not found: {entry}")
+                msg = f"KDBX.ERROR:_get_entries, entry not found: {group}/{entryName}"
+                print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
+                exit()
             self.secrets[entry.title] = {
                 "title": entry.title,
                 "username": entry.username,
@@ -118,7 +125,7 @@ class KeePassSecrets:
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
         self._mk_server_params(target, host, *args, **kwargs)
-        self._mk_secrets(*args, **kwargs)
+        self._get_entries(*args, **kwargs)
         self._update_datasafe_params(*args, **kwargs)
         self.secrets[sts.appParamsFileName] = self.joringelsParams
         self._write_secs(*args, **kwargs)
@@ -128,6 +135,7 @@ class KeePassSecrets:
         self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
         self.joringelsParams["DATASAFENAME"] = self.safeName
         self.joringelsParams["DATAKEY"] = self.dataSafe.username
+        self.joringelsParams["allowedClients"].append(soc.get_external_ip())
 
     def show(self, host, *args, **kwargs) -> None:
         """

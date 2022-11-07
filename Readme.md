@@ -1,5 +1,9 @@
 # Joringels manages your rest api access points to remote applications.
 
+## up next
+Topics to be implemented:
+- integrate .kdbx file in ressources
+
 ### run in Shell
 jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)
 ```
