@@ -44,6 +44,7 @@ def main(*args, **kwargs):
 
     # kwargs are vakidated against enforced contract
     kwargs = contracts.checks(*args, **kwargs)
+    print(f"__main__{kwargs = }")
     return runable(*args, **kwargs).main(*args, **kwargs)
 
 

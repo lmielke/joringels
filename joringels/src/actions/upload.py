@@ -8,8 +8,8 @@ import importlib
 def run(
     srcAdapt,
     conAdapt,
-    action: str = None,
     *args,
+    action,
     projectName: str,
     host: str = None,
     retain=True,
@@ -36,7 +36,7 @@ def run(
         # encrypt secret
         kwargs.update({"key": sec.encrpytKey})
         j = Joringel(*args, **kwargs)
-        encryptPath, _ = j._digest(*args, retain=retain, **kwargs)
+        encryptPath, _ = j._digest(*args, action=action, retain=retain, **kwargs)
         # upload to server
         print(f"Uploading {projectName}: {encryptPath}")
         scp = conAdapt.main(*args, **kwargs)
@@ -71,6 +71,7 @@ def main(*args, source: str, connector: str, safeName: str, **kwargs) -> None:
     imports source and connector from src and con argument
     then runs upload process using imported source an connector
     """
+    kwargs['action'] = kwargs.get('action', 'upload')
     isPath = os.path.isfile(source)
     srcAdapt = importlib.import_module(
         f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}"

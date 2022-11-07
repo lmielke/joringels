@@ -75,7 +75,7 @@ class Handler:
         if secretsFileName.startswith(sts.decPrefix):
             decFileName = secretsFileName
             secretsFileName = secretsFileName.replace(sts.decPrefix, "")
-        decFileName = f"{sts.appParams.get('decPrefix')}{secretsFileName}"
+        decFileName = f"{sts.decPrefix}{secretsFileName}"
         decryptPath = os.path.join(secretsDir, decFileName)
         encryptPath = os.path.join(secretsDir, secretsFileName)
         if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):

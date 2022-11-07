@@ -131,7 +131,7 @@ class KeePassSecrets:
         self._write_secs(*args, **kwargs)
         return self.serverCreds
 
-    def _update_datasafe_params(self, *args, **kwargs):
+    def _update_datasafe_params(self, *args, ip_address:str=None, **kwargs):
         self.joringelsParams["DATASAFENAME"] = self.safeName
         self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
         self.joringelsParams["DATAKEY"] = self.dataSafe.username
@@ -142,6 +142,12 @@ class KeePassSecrets:
             
         self.joringelsParams["allowedClients"].append(self.joringelsParams["DATASAFEIP"])
         self.joringelsParams["secureHosts"].append(self.joringelsParams["DATASAFEIP"])
+
+        if ip_address is not None:
+            for api in self.secrets[sts.apiParamsFileName]:
+                self.joringelsParams["allowedClients"].append(ip_address)
+                self.joringelsParams["secureHosts"].append(ip_address)
+
 
 
     def show(self, host, *args, **kwargs) -> None:

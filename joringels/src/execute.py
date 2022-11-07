@@ -29,7 +29,7 @@ class Processes:
         self.method(*args, **kwargs).upload(filePath, serverCreds, *args, **kwargs)
 
     def _mk_paths(self, *args, safeName, **kwargs) -> str:
-        fileName = f"{sts.appParams.get('decPrefix')}{safeName}.yml"
+        fileName = f"{sts.decPrefix}{safeName}.yml"
         filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
         return filePath
 

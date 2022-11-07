@@ -189,7 +189,11 @@ available apps json looks like this
                          ]
     }
 """
-available_appsPath = "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json"
+available_appsPaths = {
+                        "nt": "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json",
+                        "posix": "~/os_setup/droplet/configs/available_apps.json",
+
+}
 
 
 # api_endpoint.yml contains the api parameters
@@ -216,7 +220,7 @@ api_endpoints_path = lambda projectDir, projectName: os.path.join(
 devHost = 'WHILE-'
 
 def get_api_enpoint_dir(connector, *args, **kwargs):
-    with open(unalias_path(available_appsPath), "r") as apps:
+    with open(unalias_path(available_appsPaths.get(os.name)), "r") as apps:
         available_apps = json.load(apps)
     app = available_apps.get(connector)
     if not app:

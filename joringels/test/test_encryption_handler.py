@@ -34,7 +34,7 @@ class UnitTest(unittest.TestCase):
     def mk_test_data(cls, fileDir, fileName="test_secrets", *args, **kwargs):
         if not os.path.isdir(fileDir):
             os.makedirs(fileDir)
-        testFileName = f"{sts.appParams.get('decPrefix')}{fileName}.yml"
+        testFileName = f"{sts.decPrefix}{fileName}.yml"
         testData = {"Joringel": "Jorinde"}
         with open(os.path.join(fileDir, testFileName), "w") as f:
             f.write(yaml.dump(testData))

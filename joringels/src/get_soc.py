@@ -27,7 +27,9 @@ def get_allowed_clients(*args, **kwargs):
     return allowedClients
 
 def resolve(host, *args, **kwargs):
-    if host == 'localhost':
+    if host is None:
+        return host
+    elif host == 'localhost':
         host = get_ip()
     elif host.isnumeric():
         domain, host = os.environ.get('NETWORK'), int(host)

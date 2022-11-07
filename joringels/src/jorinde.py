@@ -37,8 +37,6 @@ class Jorinde:
         ########################### END TEST ###########################
 
         """
-        print(f"Jorinde: {connector = }")
-        print(f"Jorinde: {kwargs = }")
         port = sts.appParams.get("port") if port is None else port
         host = os.environ.get("DATASAFEIP") if host is None else soc.resolve(host=host)
         try:
