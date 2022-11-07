@@ -26,7 +26,7 @@ def get_allowed_clients(*args, **kwargs):
         allowedClients.append(get_ip())
     return allowedClients
 
-def resolve(*args, host, **kwargs):
+def resolve(host, *args, **kwargs):
     if host == 'localhost':
         host = get_ip()
     elif host.isnumeric():
@@ -39,15 +39,13 @@ def resolve(*args, host, **kwargs):
         host = os.environ['DATASAFEIP']
     return host
 
-def host_info_extended(jo, *args, connector, **kwargs):
+def host_info_extended(secrets, *args, connector, host=None, port=None, **kwargs):
+    print(f"{kwargs = }")
     if connector != 'joringels':
-        AF_INET = (resolve(host=jo.host), jo.port)
+        host = secrets[sts.apiParamsFileName][connector].get('HOST')
+        port = secrets[sts.apiParamsFileName][connector].get('PORT')
     else:
-        AF_INET = host_info(*args, **kwargs)
-    return AF_INET
-
-
-def host_info(*args, host=False, port=False, **kwargs):
-    host = host if host else get_ip()
-    port = port if port else sts.appParams.get("port")
+        host = host if host else get_ip()
+        port = port if port else sts.defaultPort
+    host = resolve(host)
     return host, port

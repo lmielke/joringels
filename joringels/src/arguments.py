@@ -58,9 +58,9 @@ def mk_args():
         "--port",
         required=False,
         nargs="?",
-        const=7000,
+        const=None,
         type=int,
-        default=7000,
+        default=None,
         help="port to get secrets from",
     )
 

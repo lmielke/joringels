@@ -4,6 +4,7 @@
 import json, os, sys, time, yaml
 from contextlib import contextmanager
 from pathlib import Path
+import joringels.src.get_soc as soc
 
 
 
@@ -39,9 +40,10 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 kps_sep = "/"
 # default ip to fetch dataSafe from
 dataSafeIp = os.environ.get("DATASAFEIP")
-dataSavePort = 7000
-entriesRoot = "python_venvs"
-
+defaultPort = 7000
+entriesRoot = 'python_venvs'
+decPrefix = 'decrypted_'
+validator = 'text_is_valid'
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(workPath: str, filePrefix=None) -> str:
     workPath = unalias_path(workPath)
@@ -162,13 +164,13 @@ def temp_secret(j, *args, secretsFilePath:str, entryName:str, **kwargs) -> None:
 
 startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 try:
+    appParams = {}
     with open(appParamsPath.replace(fext, '.json'), "r") as f:
-        appParams = yaml.safe_load(f)
-        appParamsLoaded = True
+        appParams.update(yaml.safe_load(f))
 except FileNotFoundError:
-    with open(startupParamsPath, "r") as f:
-        appParams = yaml.safe_load(f)
-    appParamsLoaded = False
+    appParams["secureHosts"] = [soc.get_ip()]
+    appParams["allowedClients"] = [soc.get_ip()]
+    appParams["port"] = defaultPort
 
 
 # api endpoints settings

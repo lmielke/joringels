@@ -111,7 +111,7 @@ class KeePassSecrets:
         return attachs
 
     def _write_secs(self, *args, safeName, filePrefix=None, **kwargs):
-        filePrefix = filePrefix if filePrefix else sts.appParams.get("decPrefix")
+        filePrefix = filePrefix if filePrefix else sts.decPrefix
         fileName = f"{filePrefix}{safeName}.yml"
         filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
 
@@ -132,10 +132,17 @@ class KeePassSecrets:
         return self.serverCreds
 
     def _update_datasafe_params(self, *args, **kwargs):
-        self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
         self.joringelsParams["DATASAFENAME"] = self.safeName
+        self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
         self.joringelsParams["DATAKEY"] = self.dataSafe.username
-        self.joringelsParams["allowedClients"].append(soc.get_external_ip())
+        try:
+            self.joringelsParams["allowedClients"].append(soc.get_external_ip())
+        except:
+            self.joringelsParams["allowedClients"].append(os.environ.get('external_ip'))
+            
+        self.joringelsParams["allowedClients"].append(self.joringelsParams["DATASAFEIP"])
+        self.joringelsParams["secureHosts"].append(self.joringelsParams["DATASAFEIP"])
+
 
     def show(self, host, *args, **kwargs) -> None:
         """

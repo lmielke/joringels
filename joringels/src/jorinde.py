@@ -38,7 +38,9 @@ class Jorinde:
 
         """
         port = sts.appParams.get("port") if port is None else port
-        host = sts.dataSafeIp if host is None else soc.resolve(host=host)
+        print(f"{host = }")
+        host = os.environ.get("DATASAFEIP") if host is None else soc.resolve(host=host)
+        print(f"{host = }")
         try:
             if connector != 'joringels':
                 if not type(entryName) == dict:

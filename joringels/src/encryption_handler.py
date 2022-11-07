@@ -72,9 +72,9 @@ class Handler:
 
         """
         secretsDir, secretsFileName = os.path.split(secretPath)
-        if secretsFileName.startswith(sts.appParams.get("decPrefix")):
+        if secretsFileName.startswith(sts.decPrefix):
             decFileName = secretsFileName
-            secretsFileName = secretsFileName.replace(sts.appParams.get("decPrefix"), "")
+            secretsFileName = secretsFileName.replace(sts.decPrefix, "")
         decFileName = f"{sts.appParams.get('decPrefix')}{secretsFileName}"
         decryptPath = os.path.join(secretsDir, decFileName)
         encryptPath = os.path.join(secretsDir, secretsFileName)

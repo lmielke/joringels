@@ -145,11 +145,8 @@ class Joringel:
                             )
     
     def _memorize(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
-        # secret might refer to application rest parameters, which is handled by self.apiHand
-        if connector != 'joringels':
-            self.serverName = secrets[sts.apiParamsFileName][connector].get('SERVERNAME')
-            self.host = secrets[sts.apiParamsFileName][connector].get('HOST')
-            self.port = secrets[sts.apiParamsFileName][connector].get('PORT')
+        self.host, self.port = soc.host_info_extended(secrets, *args, 
+                                                        connector=connector, **kwargs)
         # secrets will be encrypted
         self.secrets = dict_encrypt(dict_values_encrypt(
                                                         secrets,
@@ -214,23 +211,19 @@ class Joringel:
         ########################### END TEST ###########################
 
         """
-        AF_INET = soc.host_info_extended(self, *args, **kwargs)
+        self.AF_INET = (self.host, self.port)
 
         handler = magic.MagicFlower(self)
-        
         if self.secrets:
-            self.sessions[self.safeName] = AF_INET
+            self.sessions[self.safeName] = self.AF_INET
             if self.verbose: print(f"Joringels._serve: {self.sessions = }")
-            magic.HTTPServer(AF_INET, handler).serve_forever()
+            magic.HTTPServer(self.AF_INET, handler).serve_forever()
         # myServer.server_close()
 
     def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:
         sts.appParams.update(secrets.get(sts.appParamsFileName, {}))
         with open(sts.appParamsPath.replace(sts.fext, '.json'), 'w+') as f:
             json.dump(sts.appParams, f)
-        sts.appParamsLoaded == True
-        # del self.secrets[sts.appParamsFileName]
-
 
 def main(*args, **kwargs):
     j = Joringel(*args, **kwargs)

@@ -18,7 +18,7 @@ class MagicFlower(BaseHTTPRequestHandler):
             f"{timeStamp}_{__name__}.log",
             __name__,
         )
-        self.host, self.port = soc.host_info(**kwargs)
+        self.host, self.port = agent.AF_INET
         msg = f"\nNow serving http://{self.host}:{self.port}/ping"
         logger.log(__name__, msg, *args, verbose=agent.verbose, **kwargs)
 

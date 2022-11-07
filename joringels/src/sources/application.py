@@ -40,7 +40,7 @@ class Applcation:
 
 
     def _write_joringels_params(self, *args, safeName, filePrefix=None, **kwargs):
-        filePrefix = filePrefix if filePrefix else sts.appParams.get("decPrefix")
+        filePrefix = filePrefix if filePrefix else sts.decPrefix
         fileName = f"{filePrefix}{safeName}.yml"
         filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
 
