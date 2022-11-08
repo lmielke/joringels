@@ -16,7 +16,7 @@ def local(*args, entryName, **kwargs) -> dict:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
         if not j.authorized:
-            raise Exception(f"Not authorized!")
+            raise Exception(f"fetch.local, Not authorized!")
     except Exception as e:
         print(f"fetch.local: {e}")
         return None
@@ -28,7 +28,7 @@ def alloc(*args, host=None, **kwargs):
         if secret := local(*args, **kwargs):
             return secret
         elif host == 'loc':
-            print(f"Entry not found locally: {secret = }")
+            print(f"fetch.alloc, Entry not found locally: {secret = }")
             return None
     if secret := remote(*args, host=host, **kwargs):
         return secret
