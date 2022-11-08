@@ -18,7 +18,7 @@ def local(*args, entryName, **kwargs) -> dict:
         if not j.authorized:
             raise Exception(f"Not authorized!")
     except Exception as e:
-        # print(f"fetch.local: {e}")
+        print(f"fetch.local: {e}")
         return None
     return j.secrets[entryName]
 
