@@ -16,7 +16,6 @@ def temp_secret(*args, secretsFilePath:str, creds:dict, **kwargs) -> None:
         creds: joringels params to get secret
                 {entryName: secretToWrite}
     """
-
     fType = os.path.splitext(secretsFilePath)[-1]
     try:
         secrets = fetch.alloc(**creds, retain=True)
@@ -31,7 +30,7 @@ def temp_secret(*args, secretsFilePath:str, creds:dict, **kwargs) -> None:
             continue
         yield
     except Exception as e:
-        print(f"oamailer.secrets_loader Exception: {e}")
+        print(f"joringels.tempfile.temp_secret Exception: {e}")
     finally:
         if os.path.exists(secretsFilePath):
             os.remove(secretsFilePath)

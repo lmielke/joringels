@@ -29,10 +29,12 @@ fext = ".yml"
 groupName = "joringels_data_safes"
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
-safeParamsFileName = f"safe_params{fext}"
-# name of general file containing program params such as allowed hosts ect.
-appParamsFileName = f"_joringels{fext}"
-apiParamsFileName = f"_apis{fext}"
+
+# files with specific parameter essential for joringels to work properly
+safeParamsFileName = f"safe_params"
+appParamsFileName = f"_joringels"
+apiParamsFileName = f"_apis"
+
 # in kdbx each cluster has a entry which contais cluster parameter i.e. init password
 clusters_params = 'clusters_params'
 # local directory for storing en/decrpytd files and managing your secrets

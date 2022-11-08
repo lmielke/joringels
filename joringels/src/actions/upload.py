@@ -1,4 +1,5 @@
 # upload.py
+# jo upload -n timesheet_testing -src kdbx -con scp -pr all
 import os, time
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
@@ -19,7 +20,11 @@ def run(
     imports secrets from source, stores it in .ssp and then uploads it to remote host
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels upload_all -n digiserver -src kdbx -con scp
+
+    jo upload -n timesheet_testing -src kdbx -con scp -pr joringels
+    jo upload -n timesheet_testing -src kdbx -con scp -pr all
+
+
     """
     # get secret
     checks(*args, projectName=projectName, **kwargs)

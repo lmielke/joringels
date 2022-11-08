@@ -24,7 +24,7 @@ def local(*args, entryName, **kwargs) -> dict:
 
 
 def alloc(*args, host=None, **kwargs):
-    if host == 'loc': 
+    if host == 'loc' or host is None: 
         if secret := local(*args, **kwargs):
             return secret
         elif host == 'loc':

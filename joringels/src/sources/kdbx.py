@@ -63,6 +63,7 @@ class KeePassSecrets:
         self.encrpytKey = self.dataSafe.password
         attachs = self._get_attachments(self.dataSafe)
         safe_params = attachs.get(sts.safeParamsFileName)
+        print(f"{safe_params = }")
         # self.joringelsParams = attachs.get(sts.appParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
@@ -99,7 +100,7 @@ class KeePassSecrets:
         attachs = {}
         for a in entry.attachments:
             try:
-                attachs[a.filename] = yaml.safe_load(a.data)
+                attachs[os.path.splitext(a.filename)[0]] = yaml.safe_load(a.data)
             except Exception as e:
                 print(f"keepass._get_attachments: {e}")
         return attachs

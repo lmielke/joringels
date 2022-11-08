@@ -13,13 +13,13 @@ from joringels.src.actions import tempfile
 
 # print(f"\n__file__: {__file__}")
 
-
+# jo upload -n timesheet_testing -src kdbx -con scp -pr all
 class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         # cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.creds = {'entryName': sts.appParamsFileName, 'safeName': 'digiserver'}
+        cls.creds = {'entryName': sts.clusters_params, 'safeName': 'timesheet_testing'}
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -31,7 +31,7 @@ class UnitTest(unittest.TestCase):
             return yaml.safe_load(f)
 
     def test_temp_secret(self, *args, **kwargs):
-        expected = 'digiserver'
+        expected = ['_apis', '_joringels']
         # filePth has to be full path to tempfile.yml or .json
         filePath = os.path.join(sts.testDataPath, 'temp_secret.yml')
         with tempfile.temp_secret(
@@ -41,7 +41,7 @@ class UnitTest(unittest.TestCase):
                                     **kwargs
                                     ) as t:
             with open(filePath, 'r') as f:
-                content = yaml.safe_load(f).get('DATASAFENAME')
+                content = list(yaml.safe_load(f).keys())[:2]
         self.assertEqual(content, expected)
         
 

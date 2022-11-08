@@ -7,7 +7,7 @@ kwargs:
 
 secrets:
   clusters_params:
-    _apis.yml:
+    _apis:
       oamailer:
         PORT: 7007
         DATASAFESERVER: joringels
@@ -17,7 +17,7 @@ secrets:
           action: send
           import: oamailer.actions.send
           response: null
-    _joringels.yml:
+    _joringels:
       DATASAFEIP: 188.166.13.188
       JORINGELSSERVER: 0.0.0.0
       allowedClients:
@@ -43,7 +43,7 @@ secrets:
     url: null
     username: null
   digi_postgres_login:
-    db_params.yml:
+    db_params:
       host: db-postgresql-fra1-78786-do-user-3693534-0.a.db.ondigitalocean.com
       port: '25060'
     password: AVNS_WKfZDp5yCG3FXJRdzCF
@@ -97,7 +97,7 @@ secrets:
     username: gitlab-runner
   timesheet_testing:
     password: 58039C1E5E9EF20D2D52F0A9D17E931A
-    safe_params.yml:
+    safe_params:
       entries:
       - python_venvs/000_provider/products/timesheet/clusters/clusters_params
       - python_venvs/000_provider/products/timesheet/testing
