@@ -127,14 +127,13 @@ class Joringel:
 
     def _prep_secrets(self, *args, connector:str=None, **kwargs):
         self.secrets = {int(k) if type(k) is int else k: vs for k, vs in self.secrets.items()}
-        self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
-        sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
+        # self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
+        # sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
         if self.secrets.get(sts.apiParamsFileName):
             if self.secrets[sts.apiParamsFileName].get(connector):
                 self.api = connector
         self.host, self.port = soc.host_info_extended(self.secrets, *args, 
                                                         connector=connector, **kwargs)
-            
 
     def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
         if connector != 'joringels':

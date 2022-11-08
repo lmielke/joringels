@@ -46,8 +46,8 @@ def host_info_extended(secrets, *args, connector, host=None, port=None, **kwargs
         host = host if host else get_ip()
         port = port if port else sts.defaultPort
     elif connector:
-        host = secrets[sts.apiParamsFileName][connector].get('HOST')
-        port = secrets[sts.apiParamsFileName][connector].get('PORT')
+        host = secrets[sts.clusters_params][sts.apiParamsFileName][connector].get('HOST')
+        port = secrets[sts.clusters_params][sts.apiParamsFileName][connector].get('PORT')
     else:
         pass
     host = resolve(host)

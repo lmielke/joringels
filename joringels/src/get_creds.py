@@ -36,3 +36,10 @@ class Creds:
         while confirmKey != key:
             confirmKey = gp(prompt=f"re-type key to continue: ", stream=None)
         return True
+
+    def resolve_key(self, key, *args, **kwargs):
+        if key is None or key == 'os':
+            key = os.environ["DATASAFEKEY"]
+        elif key == 'init':
+            key = os.environ['INSTALLPASS']
+        return key

@@ -14,6 +14,7 @@ import joringels.src.settings as sts
 # :)L0veMi11i0n$
 class KeePassSecrets:
     def __init__(self, action, *args, safeName, verbose=0, key=None, **kwargs):
+        print(f"__init__: {kwargs = }")
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName.lower()
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
@@ -21,11 +22,13 @@ class KeePassSecrets:
         self.creds = (
             key
             if key is not None
-            else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
+            else ':)L0veMi11i0n$'
+            # else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
         self.session = keePass(self.kPath, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.groupName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
+        self.dataSafePath = '/'.join(self.dataSafe.path)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
             # print(f"{self.targets = }")
@@ -60,46 +63,37 @@ class KeePassSecrets:
         self.encrpytKey = self.dataSafe.password
         attachs = self._get_attachments(self.dataSafe)
         safe_params = attachs.get(sts.safeParamsFileName)
-        self.joringelsParams = attachs.get(sts.appParamsFileName, {})
+        # self.joringelsParams = attachs.get(sts.appParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
+        entries.append(self.dataSafePath)
         return targets, entries
 
-    def _handle_attachments(self, entry, *args, **kwargs):
-        if entry.attachments:
-            attachs = self._get_attachments(entry, *args, **kwargs)
-            for a_filename, attach in attachs.items():
-                if a_filename == sts.appParamsFileName:
-                    self.joringelsParams.update(attach)
-                elif a_filename == sts.apiParamsFileName:
-                    self.secrets[a_filename] = attach
-                else:
-                    self.secrets[entry.title][a_filename] = attach
-
-    def _get_entries(self, *args, **kwargs):
-        for entryPath in self.entries:
+    def _get_entries_params(self, entries, *args, **kwargs):
+        for entryPath in entries:
+            self.verbose: print(f"{entryPath = }")
             groupPath, entryName = os.path.split(entryPath)
-            group = self.session.find_groups(path=groupPath)
-            entry = self.session.find_entries(title=entryName, group=group, first=True)
-            if entry is None:
-                msg = f"KDBX.ERROR:_get_entries, entry not found: {group}/{entryName}"
-                print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
-                exit()
-            self.secrets[entry.title] = {
-                "title": entry.title,
-                "username": entry.username,
-                "password": entry.password,
-                "url": entry.url,
-            }
-            self._handle_attachments(entry, *args, **kwargs)
-    
-    def _mk_server_params(self, target, host, *args, **kwargs):
-        group = self.session.find_groups(path=target)
-        entry = self.session.find_entries(title=host, group=group, first=True)
-        self.serverCreds["rmUserName"] = entry.username
-        self.serverCreds["rmKey"] = entry.password
-        self.serverCreds["rmHost"] = entry.url
-        self.serverCreds["rmPath"] = sts.encryptDir
+            self.verbose: print(f"{groupPath = }, {entryName = }")
+            entry = self.session.find_entries(
+                                            title=entryName, 
+                                            group=self.session.find_groups(path=groupPath), 
+                                            first=True
+                                            )
+            self.secrets[entry.title] = self._get_entry_params(entry, *args, **kwargs)
+            self.secrets[entry.title].update(self._get_attachments(entry, *args, **kwargs))
+
+    def _get_entry_params(self, entry, *args, **kwargs):
+        if entry is None:
+            msg = f"KDBX.ERROR:_get_entries_params, entry not found: {entry}"
+            print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
+            exit()
+        entryParams = {
+                        "title": entry.title,
+                        "username": entry.username,
+                        "password": entry.password,
+                        "url": entry.url,
+                    }
+        return entryParams
 
     def _get_attachments(self, entry, *args, **kwargs):
         attachs = {}
@@ -124,32 +118,10 @@ class KeePassSecrets:
             self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
-        self._mk_server_params(target, host, *args, **kwargs)
-        self._get_entries(*args, **kwargs)
-        self._update_datasafe_params(*args, **kwargs)
-        self.secrets[sts.appParamsFileName] = self.joringelsParams
+        self._get_entries_params(self.entries, *args, **kwargs)
+        self._get_entries_params(self.targets, *args, **kwargs)
         self._write_secs(*args, **kwargs)
-        return self.serverCreds
-
-    def _update_datasafe_params(self, *args, ip_address:str=None, **kwargs):
-        self.joringelsParams["DATASAFENAME"] = self.safeName
-        self.joringelsParams["DATASAFEKEY"] = self.encrpytKey
-        self.joringelsParams["DATAKEY"] = self.dataSafe.username
-        try:
-            self.joringelsParams["allowedClients"].append(soc.get_external_ip())
-        except:
-            self.joringelsParams["allowedClients"].append(os.environ.get('external_ip'))
-            
-        self.joringelsParams["allowedClients"].append(self.joringelsParams["DATASAFEIP"])
-        self.joringelsParams["secureHosts"].append(self.joringelsParams["DATASAFEIP"])
-
-        if ip_address is not None:
-            for api in self.secrets[sts.apiParamsFileName]:
-                self.joringelsParams["allowedClients"].append(ip_address)
-                self.joringelsParams["secureHosts"].append(ip_address)
-        else:
-            print(f"{ip_address = }")
-
+        return self.dataSafePath
 
 
     def show(self, host, *args, **kwargs) -> None:

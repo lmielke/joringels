@@ -10,30 +10,18 @@ class SCPPS:
     def __init__(self, *args, **kwargs):
         pass
 
-    def upload(
-        self,
-        serverCreds: dict,
-        localPath: str = None,
-        rmPath: str = None,
-        *args,
-        safeName: str,
-        **kwargs,
-    ):
-        localPath = localPath if localPath is not None else sts.prep_path(safeName)
-        rmPath = rmPath if rmPath is not None else serverCreds["rmPath"]
-        if os.name == "nt":
-            bash = "powershell.exe"
-            script = os.path.join(sts.settingsPath, "connectors", "scp.ps1")
-
+    def upload(self, localPath:str, rmPath:str=None, *args, url:str, username:str, password:str=None, **kwargs):
+        localPath = localPath.replace(os.sep, '/')
+        rmPath = os.path.dirname(localPath.replace(f"C:/Users/{getpass.getuser()}", "~"))
         cmds = [
-            bash,
-            script,
-            serverCreds["rmUserName"],
-            serverCreds["rmHost"],
-            localPath,
-            rmPath.replace(f"C:\\Users\\{getpass.getuser()}", "~").replace(os.sep, "/"),
-            serverCreds["rmKey"],
-        ]
+                    "powershell.exe",
+                    os.path.join(sts.settingsPath, "connectors", "scp.ps1"),
+                    url,
+                    localPath,
+                    rmPath,
+                    username,
+                    password,
+                ]
         p = subprocess.Popen(cmds, stdout=sys.stdout)
         p.communicate()
 

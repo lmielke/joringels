@@ -8,8 +8,8 @@ def local(*args, **kwargs) -> None:
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
-        if not j.authorized:
-            raise Exception(f"Not authorized!")
+        # if not j.authorized:
+        #     raise Exception(f"Not authorized!")
     except Exception as e:
         print(f"show.local: {e}")
         return None

@@ -19,7 +19,7 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         # cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.creds = {'entryName': appParamsFileName, 'safeName': 'digiserver'}
+        cls.creds = {'entryName': sts.appParamsFileName, 'safeName': 'digiserver'}
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):

@@ -33,6 +33,8 @@ safeParamsFileName = f"safe_params{fext}"
 # name of general file containing program params such as allowed hosts ect.
 appParamsFileName = f"_joringels{fext}"
 apiParamsFileName = f"_apis{fext}"
+# in kdbx each cluster has a entry which contais cluster parameter i.e. init password
+clusters_params = 'clusters_params'
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
@@ -111,8 +113,10 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
         yield
     finally:
         if os.path.exists(tempPath):
+            if os.path.exists(currPath): os.remove(currPath)
+            time.sleep(.1)
             os.rename(tempPath, currPath)
-            time.sleep(1)
+            time.sleep(.1)
 
 
 @contextmanager
