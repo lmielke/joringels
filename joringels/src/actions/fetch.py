@@ -24,9 +24,12 @@ def local(*args, entryName, **kwargs) -> dict:
 
 
 def alloc(*args, host=None, **kwargs):
-    if host == None: 
+    if host == 'loc': 
         if secret := local(*args, **kwargs):
             return secret
+        elif host == 'loc':
+            print(f"Entry not found locally: {secret = }")
+            return None
     if secret := remote(*args, host=host, **kwargs):
         return secret
     else:
