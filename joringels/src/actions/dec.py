@@ -4,8 +4,10 @@ from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
 
-def local(*args, **kwargs) -> None:
+def local(*args, key, **kwargs) -> None:
     try:
+        print(f"{key = }")
+        kwargs['key'] = key
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
         # if not j.authorized:
