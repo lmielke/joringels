@@ -11,49 +11,41 @@ color.init()
 
 import joringels.src.settings as sts
 
-# :)L0veMi11i0n$
+# jo load -n digiserver -pd wobbles -c testing -src kdbx
 class KeePassSecrets:
-    def __init__(self, action, *args, safeName, productName:str=None, verbose=0, key=None, **kwargs):
-        print(f"__init__: {kwargs = }")
+    def __init__(self, action, *args, safeName, verbose=0, key=None, **kwargs):
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName.lower()
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
-        self.kPath = self._check_kPath(*args, **kwargs)
+        # self.kPath = self._check_kPath(*args, **kwargs)
         self.creds = (
             key
             if key is not None
-            else ':)L0veMi11i0n$'
-            # else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
+            else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
-        self.session = keePass(self.kPath, self.creds)
+        self.session = keePass(sts.unalias_path(os.environ.get('secrets')), self.creds)
         self.dataSafes = self.session.find_groups(name=sts.dataSafeGroup, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if not self.dataSafe:
             msg = f"KDBX.ERROR: No dataSafe found with name: {safeName} in {self.dataSafes}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             exit()
-        self.productName = productName
-        if self.productName is not None:
-            self.products = self.session.find_groups(name=sts.clusterGroup, first=True)
-            self.product = self.session.find_entries(title=productName, group=self.products, first=True)
         self.dataSafePath = '/'.join(self.dataSafe.path)
+        self.cluster = self.get_cluster(*args, **kwargs)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
             # print(f"{self.targets = }")
 
-    def _check_kPath(self, *args, source, **kwargs):
-        kPath = sts.appParams.get("kPath", source)
-        if not os.path.isfile(kPath):
-            kPath = os.path.expanduser(os.environ.get("secrets", kPath))
-        if not os.path.isfile(kPath):
-            msg = (
-                f"KDBX.ERROR: kPath is not a file: {kPath}! "
-                f"If sts.appParams['kPath'] is not existing, provide a full "
-                f"path/to/file.kdbx !"
-            )
-            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
-            exit()
-        return kPath
+    def get_cluster(self, *args, clusterName:str=None, productName:str=None, **kwargs):
+        self.clusterName = clusterName
+        if self.clusterName is not None:
+            clusters = self.session.find_groups(name=productName, first=True)
+            cluster = self.session.find_entries(title=clusterName, group=clusters, first=True)
+            if cluster is None:
+                msg = f"KDBX.ERROR: No cluster named: {clusterName} in {productName}"
+                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                exit()
+        return cluster
 
     def _get_safe_params(self, *args, **kwargs) -> list:
         """ 
@@ -75,8 +67,8 @@ class KeePassSecrets:
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
         entries.append(self.dataSafePath)
-        if self.productName is not None:
-            entries.append('/'.join(self.product.path))
+        if self.clusterName is not None:
+            entries.append('/'.join(self.cluster.path))
         return targets, entries
 
     def _get_entries_params(self, entries, *args, **kwargs):
@@ -97,7 +89,7 @@ class KeePassSecrets:
         if ip_address is not None:
             try:
                 # add_ip_addres is a recursive loop that falls back to here
-                self.add_ip_address(self.secrets[self.productName], ip_address)            
+                self.add_ip_address(self.secrets[self.clusterName], ip_address)            
             except:
                 pass
         return ip_address
@@ -150,13 +142,14 @@ class KeePassSecrets:
         with open(filePath, "w") as f:
             f.write(yaml.dump(self.secrets))
 
-    def load(self, *args, host=None, **kwargs) -> None:
+    def load(self, *args, host=None, productName:str=None, **kwargs) -> None:
         if self.verbose >= 2:
             self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
         self._get_entries_params(self.entries, *args, **kwargs)
         self._get_entries_params(self.targets, *args, **kwargs)
+        if productName is not None: self.secrets['PRODUCTNAME'] = productName
         self.get_ip_address(*args, **kwargs)
         self._write_secs(*args, **kwargs)
         return self.dataSafePath

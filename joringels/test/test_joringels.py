@@ -38,7 +38,7 @@ class UnitTest(unittest.TestCase):
         j = Joringel(*args, **kwargs)
         encrypted = j._memorize(    
                                 *args,
-                                safeName='timesheet_testing',
+                                safeName='digiserver',
                                 secrets=self.testData,
                                 connector='oamailer', **kwargs
                                 )

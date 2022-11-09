@@ -1,12 +1,12 @@
 # testdata for api_handler.yml
 kwargs:
   projectName: all
-  safeName: timesheet_testing
+  safeName: digiserver
   source: kdbx
   connector: scp
 
 secrets:
-  clusters_params:
+  cluster_params:
     _apis:
       oamailer:
         PORT: 7007
@@ -39,7 +39,7 @@ secrets:
       - WHILE-AI-4
       - 172.18.0.99
     password: 9944338499EAA042116A256DCC997304
-    title: clusters_params
+    title: cluster_params
     url: null
     username: null
   digi_postgres_login:
@@ -95,11 +95,11 @@ secrets:
     title: testing
     url: '{REF:P@I:F532B16F32C7004BA70296BE8A609E0B}'
     username: gitlab-runner
-  timesheet_testing:
+  digiserver:
     password: 58039C1E5E9EF20D2D52F0A9D17E931A
     safe_params:
       entries:
-      - python_venvs/000_provider/products/timesheet/clusters/clusters_params
+      - python_venvs/000_provider/products/timesheet/clusters/cluster_params
       - python_venvs/000_provider/products/timesheet/testing
       - python_venvs/000_provider/databases/digi_postgres_login
       - python_venvs/000_provider/cdns/home-cdn-space
@@ -109,6 +109,6 @@ secrets:
       targets:
       - python_venvs/000_provider/apps/joringels/joringels-pwd-user
       - python_venvs/000_provider/apps/oamailer/oamailer-pwd-user
-    title: timesheet_testing
+    title: digiserver
     url: null
     username: OSM5MQEmAZxi6ZZFYtnH

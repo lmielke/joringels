@@ -1,5 +1,5 @@
 # upload.py
-# jo upload -n timesheet_testing -src kdbx -con scp -pr all
+# jo upload -n digiserver -src kdbx -con scp -pr all
 import os, time
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
@@ -13,7 +13,6 @@ def run(
     action,
     projectName: str,
     host: str = None,
-    clusterName:str = None,
     **kwargs,
 ) -> None:
     """
@@ -22,8 +21,8 @@ def run(
     NOTE: this is only allowed on a local host computer
 
 
-    jo upload -n timesheet_testing -src kdbx -con scp -pr joringels
-    jo upload -n timesheet_testing -src kdbx -con scp -pr all
+    jo upload -n digiserver -src kdbx -con scp -pr joringels
+    jo upload -n digiserver -src kdbx -con scp -pr all
 
 
     """
@@ -31,7 +30,7 @@ def run(
     checks(*args, projectName=projectName, **kwargs)
     
     # decrypted_secret.yml
-    SEC = sourceAdapter.main(*args, clusterName=clusterName, **kwargs)
+    SEC = sourceAdapter.main(*args, **kwargs)
     dataSafePath = load_data_safe(SEC, *args, **kwargs)
     targets = get_targets(SEC.secrets, *args, projectName=projectName, **kwargs)
     kwargs.update({'key': change_key(SEC, *args, **kwargs)})
@@ -46,8 +45,8 @@ def run(
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
     return encryptPath
 
-def change_key(SEC, *args, productName, **kwargs):
-    return SEC.secrets.get(productName).get('password')
+def change_key(SEC, *args, clusterName, **kwargs):
+    return SEC.secrets.get(clusterName).get('password')
 
 def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwargs):
     for targetName, target in zip(*targets):

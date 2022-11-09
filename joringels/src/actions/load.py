@@ -13,8 +13,10 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     NOTE: this is only allowed on a local host computer
 
     run like: 
-    joringels load -n digiserver -src kdbx
-    jo load -n timesheet_testing -c timesheet_testing -src kdbx
+    jo load -n digiserver -pd wobbles -c testing -src kdbx
+    -n: safeName
+    -pd: productName (needed to locate correct cluster)
+    -c: clusterName to load secrets for
     
 
     """

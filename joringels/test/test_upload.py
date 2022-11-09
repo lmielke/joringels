@@ -19,7 +19,7 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.encryptPath = r'C:\Users\lars\.ssp\timesheet_testing.yml'
+        cls.encryptPath = r'C:\Users\lars\.ssp\digiserver.yml'
         # self.upload = upload.main(*args, **cls.testData['kwargs'])
 
     @classmethod

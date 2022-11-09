@@ -13,13 +13,14 @@ from joringels.src.actions import tempfile
 
 # print(f"\n__file__: {__file__}")
 
-# jo upload -n timesheet_testing -src kdbx -con scp -pr all
+# jo upload -n digiserver -src kdbx -con scp -pr all
 class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         # cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.creds = {'entryName': sts.clusters_params, 'safeName': 'timesheet_testing'}
+        cls.creds = {'clusterName': 'testing', 'productName': 'wobbles',
+                        'entryName': 'testing', 'safeName': 'digiserver'}
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -41,7 +42,7 @@ class UnitTest(unittest.TestCase):
                                     **kwargs
                                     ) as t:
             with open(filePath, 'r') as f:
-                content = list(yaml.safe_load(f).keys())[:2]
+                content = list(yaml.safe_load(f)[sts.cluster_params].keys())
         self.assertEqual(content, expected)
         
 

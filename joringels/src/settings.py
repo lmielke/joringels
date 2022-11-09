@@ -27,7 +27,6 @@ fext = ".yml"
 # kdbx parameters you might want to change
 # name of group in keeepass that stores entries for products i.e. wobbles
 # product entries contain the cluster parameter files.yml
-clusterGroup = "products"
 dataSafeGroup = "data_safes"
 allowedClients = 'allowedClients'
 secureHosts = 'secureHosts'
@@ -40,7 +39,7 @@ appParamsFileName = f"_joringels"
 apiParamsFileName = f"_apis"
 
 # in kdbx each cluster has a entry which contais cluster parameter i.e. init password
-clusters_params = 'clusters_params'
+cluster_params = 'cluster_params'
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
