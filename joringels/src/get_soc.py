@@ -10,10 +10,19 @@ def get_ip():
     socName = s.getsockname()[0]
     return socName
 
+def get_external_ip_from_env():
+    ip_address = os.environ.get('my_ip', None)
+    if ip_address is None:
+        ip_address = get_external_ip()
+    return ip_address
+
 def get_external_ip():
-    r = requests.get('https://api.ipify.org')
-    if r.status_code == 200:
-        return r.text
+    try:
+        r = requests.get('https://api.ipify.org')
+        if r.status_code == 200:
+            return r.text
+    except:
+        return None
 
 
 def get_hostname():
@@ -21,8 +30,8 @@ def get_hostname():
 
 
 def get_allowed_clients(*args, **kwargs):
-    allowedClients = sts.appParams.get("allowedClients")
-    if get_hostname() in sts.appParams.get("secureHosts"):
+    allowedClients = sts.appParams.get(sts.allowedClients)
+    if get_hostname() in sts.appParams.get(sts.secureHosts):
         allowedClients.append(get_ip())
     return allowedClients
 

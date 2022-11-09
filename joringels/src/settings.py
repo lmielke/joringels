@@ -25,9 +25,12 @@ def unalias_path(workPath: str) -> str:
 
 fext = ".yml"
 # kdbx parameters you might want to change
-# name of group you create in keeepass that stores dataSafe entries
+# name of group in keeepass that stores entries for products i.e. wobbles
+# product entries contain the cluster parameter files.yml
 clusterGroup = "products"
-groupName = "data_safes"
+dataSafeGroup = "data_safes"
+allowedClients = 'allowedClients'
+secureHosts = 'secureHosts'
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
 
@@ -175,8 +178,8 @@ try:
     with open(appParamsPath.replace(fext, '.json'), "r") as f:
         appParams.update(yaml.safe_load(f))
 except FileNotFoundError:
-    appParams["secureHosts"] = [soc.get_ip()]
-    appParams["allowedClients"] = [soc.get_ip()]
+    appParams[secureHosts] = [soc.get_ip()]
+    appParams[allowedClients] = [soc.get_ip()]
     appParams["port"] = defaultPort
 
 

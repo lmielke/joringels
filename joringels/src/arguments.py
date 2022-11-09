@@ -44,6 +44,18 @@ def mk_args():
 
     # currently not used but should be used in upload instead of host
     parser.add_argument(
+        "-pd",
+        "--productName",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="product to be managed i.e wobbles",
+    )
+
+    # currently not used but should be used in upload instead of host
+    parser.add_argument(
         "-c",
         "--clusterName",
         required=False,
@@ -51,7 +63,7 @@ def mk_args():
         const=None,
         type=str,
         default=None,
-        help="project cluster to be managed",
+        help="project cluster to be managed i.e. wobbles -> testing, prod, dev",
     )
 
     parser.add_argument(

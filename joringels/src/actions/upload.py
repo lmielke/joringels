@@ -34,7 +34,7 @@ def run(
     SEC = sourceAdapter.main(*args, clusterName=clusterName, **kwargs)
     dataSafePath = load_data_safe(SEC, *args, **kwargs)
     targets = get_targets(SEC.secrets, *args, projectName=projectName, **kwargs)
-    kwargs.update({"key": SEC.secrets.get(clusterName).get('password')})
+    kwargs.update({'key': change_key(SEC, *args, **kwargs)})
 
     j, encryptPath = encrypt_secrets(*args, action=action, **kwargs)
     upload_targets(j, conAdapt, targets, encryptPath, *args, projectName=projectName, **kwargs)
@@ -46,11 +46,14 @@ def run(
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
     return encryptPath
 
+def change_key(SEC, *args, productName, **kwargs):
+    return SEC.secrets.get(productName).get('password')
+
 def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwargs):
     for targetName, target in zip(*targets):
         # upload to server
         print(f"Uploading {targetName}: {target}")
-        SCP = conAdapt.main(*args, **kwargs)
+        SCP  = conAdapt.main(*args, **kwargs)
         SCP.upload(encryptPath, *args, **target)
 
 def encrypt_secrets(*args, **kwargs):

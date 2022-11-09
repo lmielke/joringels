@@ -20,7 +20,7 @@ def local(*args, entryName, **kwargs) -> dict:
     except Exception as e:
         print(f"fetch.local: {e}")
         return None
-    return j.secrets[entryName]
+    return j.secrets.get(entryName)
 
 
 def alloc(*args, host=None, **kwargs):

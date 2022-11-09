@@ -80,8 +80,7 @@ class Handler:
         encryptPath = os.path.join(secretsDir, secretsFileName)
         if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):
             msg = f"\nsecretPath not found: {secretPath}\n"
-            if self.verbose >= 2:
-                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             raise FileNotFoundError
         elif os.path.isfile(decryptPath):
             self.decryptedExists = True
