@@ -13,7 +13,7 @@ import joringels.src.settings as sts
 
 # :)L0veMi11i0n$
 class KeePassSecrets:
-    def __init__(self, action, *args, safeName, verbose=0, key=None, **kwargs):
+    def __init__(self, action, *args, safeName, clusterName:str=None, verbose=0, key=None, **kwargs):
         print(f"__init__: {kwargs = }")
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName.lower()
@@ -28,6 +28,10 @@ class KeePassSecrets:
         self.session = keePass(self.kPath, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.groupName, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
+        self.clusterName = clusterName
+        if self.clusterName is not None:
+            self.clusters = self.session.find_groups(name=sts.clusterGroup, first=True)
+            self.cluster = self.session.find_entries(title=clusterName, group=self.clusters, first=True)
         self.dataSafePath = '/'.join(self.dataSafe.path)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
@@ -63,11 +67,12 @@ class KeePassSecrets:
         self.encrpytKey = self.dataSafe.password
         attachs = self._get_attachments(self.dataSafe)
         safe_params = attachs.get(sts.safeParamsFileName)
-        print(f"{safe_params = }")
         # self.joringelsParams = attachs.get(sts.appParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
         entries.append(self.dataSafePath)
+        if self.clusterName is not None:
+            entries.append('/'.join(self.cluster.path))
         return targets, entries
 
     def _get_entries_params(self, entries, *args, **kwargs):

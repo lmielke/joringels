@@ -42,6 +42,18 @@ def mk_args():
         help="project (asgard, ...) to be targeted by actions (i.e. upload, serve_app)",
     )
 
+    # currently not used but should be used in upload instead of host
+    parser.add_argument(
+        "-c",
+        "--clusterName",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="project cluster to be managed",
+    )
+
     parser.add_argument(
         "-ip",
         "--host",

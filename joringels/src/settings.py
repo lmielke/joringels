@@ -26,7 +26,8 @@ def unalias_path(workPath: str) -> str:
 fext = ".yml"
 # kdbx parameters you might want to change
 # name of group you create in keeepass that stores dataSafe entries
-groupName = "joringels_data_safes"
+clusterGroup = "products"
+groupName = "data_safes"
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
 

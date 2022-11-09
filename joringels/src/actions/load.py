@@ -12,7 +12,11 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels load -n digiserver -src kdbx
+    run like: 
+    joringels load -n digiserver -src kdbx
+    jo load -n timesheet_testing -c timesheet_testing -src kdbx
+    
+
     """
     # get secret
     sec = srcAdapt.main(*args, **kwargs)

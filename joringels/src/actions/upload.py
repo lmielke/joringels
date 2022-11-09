@@ -13,6 +13,7 @@ def run(
     action,
     projectName: str,
     host: str = None,
+    clusterName:str = None,
     **kwargs,
 ) -> None:
     """
@@ -29,11 +30,11 @@ def run(
     # get secret
     checks(*args, projectName=projectName, **kwargs)
     
-    sec = sourceAdapter.main(*args, **kwargs)
     # decrypted_secret.yml
-    dataSafePath = load_data_safe(sec, *args, **kwargs)
-    targets = get_targets(sec.secrets, *args, projectName=projectName, **kwargs)
-    kwargs.update({"key": sec.secrets.get(sts.clusters_params).get('password')})
+    SEC = sourceAdapter.main(*args, clusterName=clusterName, **kwargs)
+    dataSafePath = load_data_safe(SEC, *args, **kwargs)
+    targets = get_targets(SEC.secrets, *args, projectName=projectName, **kwargs)
+    kwargs.update({"key": SEC.secrets.get(clusterName).get('password')})
 
     j, encryptPath = encrypt_secrets(*args, action=action, **kwargs)
     upload_targets(j, conAdapt, targets, encryptPath, *args, projectName=projectName, **kwargs)
@@ -49,8 +50,8 @@ def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwar
     for targetName, target in zip(*targets):
         # upload to server
         print(f"Uploading {targetName}: {target}")
-        scp = conAdapt.main(*args, **kwargs)
-        scp.upload(encryptPath, *args, **target)
+        SCP = conAdapt.main(*args, **kwargs)
+        SCP.upload(encryptPath, *args, **target)
 
 def encrypt_secrets(*args, **kwargs):
     j = Joringel(*args, **kwargs)
@@ -74,8 +75,8 @@ def get_targets(secrets, *args, projectName, safeName, **kwargs):
     targetNames = [tn.split('/')[-2] for tn in targetEntries]
     return targetNames, targets
 
-def load_data_safe(sec, *args, connector:str=None, **kwargs):
-    dataSafePath = sec.load(*args, connector='kdbx', **kwargs)
+def load_data_safe(SEC, *args, connector:str=None, **kwargs):
+    dataSafePath = SEC.load(*args, connector='kdbx', **kwargs)
     return dataSafePath
 
 def main(*args, source: str, connector: str, safeName: str, retain: bool=True, **kwargs) -> None:
