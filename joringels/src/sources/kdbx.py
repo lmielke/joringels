@@ -45,7 +45,9 @@ class KeePassSecrets:
                 msg = f"KDBX.ERROR: No cluster named: {clusterName} in {productName}"
                 print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
                 exit()
-        return cluster
+            return cluster
+        else:
+            return None
 
     def _get_safe_params(self, *args, **kwargs) -> list:
         """ 

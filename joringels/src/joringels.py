@@ -71,7 +71,7 @@ class Joringel:
         self.host, self.port = None, None
 
 
-    def _chkey(self, *args, key, newKey=None, **kwargs):
+    def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
         """<br><br>
 
         *Last update: 2020-11-16*
@@ -82,14 +82,17 @@ class Joringel:
 
         """
         # confimr key change authorization
-        key = Creds(*args, **kwargs).set(f"old {self.safeName} key: ", *args, **kwargs)
+        key = Creds(*args, **kwargs).set(f"old {self.safeName} key: ", *args, key=key, **kwargs)
         encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
-        msg = f"\tContinuing will change all keys for: \t{encryptPath}"
-        print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+        if len(fileNames) >= 2 and allYes is None:
+            msg = f"Confirm key changes for {fileNames} [Y or ENTER]: "
+            if not input(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}").upper() == 'Y':
+                msg = f"Key change interrupted by user intervention. "
+                print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
+                exit()
         # keys are changed for all files in fileNames
         newKey = Creds(*args, **kwargs).set(
-            "new key: ", *args, confirmed=False, key=newKey, **kwargs
-        )
+            "new key: ", *args, confirmed=False, key=newKey, **kwargs )
         # changing keys
         for fileName in fileNames:
             try:

@@ -11,19 +11,18 @@ class Creds:
         self.rules = None  # implement key rules here
 
     def set(self, msg="key", *args, force=True, confirmed=True, key=None, **kwargs):
-        key = self.get(key, *args, **kwargs)
+        key = self.get_os_key(key, *args, **kwargs)
         if not key:
-            key = None
             while not key:
                 key = gp(prompt=f"{msg.strip(': ')}: ", stream=None)
                 if force == False:
                     break
             while not confirmed:
                 confirmed = self._confirm_equals(key, *args, **kwargs)
-        key = self.get(key, *args, **kwargs)
+        key = self.get_os_key(key, *args, **kwargs)
         return key
 
-    def get(self, key, *args, safeName=None, **kwargs):
+    def get_os_key(self, key, *args, safeName=None, **kwargs):
         if key == "os":
             msg = f"\tUsing $env:key {safeName}"
             key = os.environ["DATASAFEKEY"]

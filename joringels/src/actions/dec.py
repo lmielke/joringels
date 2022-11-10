@@ -6,7 +6,6 @@ import joringels.src.settings as sts
 
 def local(*args, key, **kwargs) -> None:
     try:
-        print(f"{key = }")
         kwargs['key'] = key
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
