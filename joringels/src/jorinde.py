@@ -53,6 +53,7 @@ class Jorinde:
                 url = f"http://{host}:{port}/{entry}"
                 # GET request
                 resp = requests.get(url, headers={'Content-Type': f'{connector}'})
+                print(f"{resp.status_code = }")
 
             # prepare respons
             if resp.status_code == 200:
@@ -60,10 +61,10 @@ class Jorinde:
             else:
                 secrets = {"ERROR": resp.text}
         except Exception as e:
-            secrets = {"Jorinde._fetch ERROR": e}
+            secrets = {"Jorinde._fetch ERROR host: {host}, port: {port}": e}
         # return result
         if connector == 'joringels' and not secrets.get(entryName):
-            msg = f"Jorinde._fetch, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR host: {host}, port: {port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == 'joringels':
@@ -87,6 +88,6 @@ class Jorinde:
             with open(os.path.join(decDir, entryName), "w") as f:
                 f.write(yaml.dump(prs))
         os.remove(decPath)
-        msg = f"Jorinde._fetch, Saved entries to .ssp, NOTE: entries are unprotected !"
+        msg = f"Jorinde._fetch ERROR, Saved entries to .ssp, NOTE: entries are unprotected !"
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return True

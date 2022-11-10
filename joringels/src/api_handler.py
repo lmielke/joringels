@@ -7,18 +7,15 @@ import subprocess
 
 class ApiHandler:
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, verbose=0, **kwargs):
+        self.verbose = verbose
         self.modules = {}
         self.apis = {}
 
-    def initialize(self, *args, secrets:dict, **kwargs) -> None:
-        self.projectParams = secrets.get(sts.appParamsFileName)
-        self.apis.update(self._initialize_apis(
-                                                *args, 
-                                                apis=secrets[sts.apiParamsFileName],
-                                                **kwargs
-                                                ))
-        self.modules.update(self._import_api_modules(*args, secrets=secrets, **kwargs))
+    def initialize(self, *args, apis:dict, **kwargs) -> None:
+        if self.verbose: print(f"\njoringels.api_handler.initialize: {apis = }\n")
+        self.apis.update(self._initialize_apis(*args, apis=apis, **kwargs ))
+        self.modules.update(self._import_api_modules(*args, apis=apis, **kwargs))
 
     def _initialize_apis(self, *args, apis:dict, connector:str, **kwargs) -> None:
         """ fills self.apis with all api entries in apiActions (entries with numeric key)

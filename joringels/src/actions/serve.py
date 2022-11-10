@@ -1,5 +1,5 @@
 # serve.py
-
+# jo serve -n $DATASAFENAME -con $PROJECTNAME -rt
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
 import joringels.src.arguments as arguments

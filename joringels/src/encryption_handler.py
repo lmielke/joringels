@@ -79,7 +79,7 @@ class Handler:
         decryptPath = os.path.join(secretsDir, decFileName)
         encryptPath = os.path.join(secretsDir, secretsFileName)
         if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):
-            msg = f"\nsecretPath not found: {secretPath}\n"
+            msg = f"\njoringels.encryption_handler, secretPath not found: {secretPath}\n"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             raise FileNotFoundError
         elif os.path.isfile(decryptPath):

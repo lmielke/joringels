@@ -5,6 +5,7 @@ from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
 
 def local(*args, **kwargs) -> None:
+    print(f"joringels.show.local: {kwargs = }")
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)

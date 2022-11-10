@@ -62,14 +62,14 @@ class Joringel:
     sessions = {}
 
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
+        self.joringels_runntime = {'initial': re.sub(r"([: .])", r"-" , str(dt.now()))}
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
         self.encryptPath = sts.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
-        self.apiHand = ApiHandler(*args, **kwargs)
+        self.apiHand = ApiHandler(*args, verbose=verbose, **kwargs)
         self.host, self.port = None, None
-
 
     def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
         """<br><br>
@@ -116,11 +116,9 @@ class Joringel:
         ###Reads encrypted file and decrypts it after reading
 
         """
-        if auth_checker.authorize_host():
-            self.authorized = True
-        else:
-            return None, None
-        # secrets are decryped and returned
+        if not auth_checker.authorize_host(): return None, None
+        self.authorized = True
+        # secrets will decryped and returned
         key = key if key is not None else os.environ.get("DATASAFEKEY")
         with decryptor(self.encryptPath, key=key, **kwargs) as h:
             with open(h.decryptPath, "r") as f:
@@ -128,21 +126,48 @@ class Joringel:
         self._prep_secrets(*args, **kwargs)
         return h.encryptPath, self.secrets
 
-    def _prep_secrets(self, *args, connector:str=None, **kwargs):
-        self.secrets = {int(k) if type(k) is int else k: vs for k, vs in self.secrets.items()}
-        # self.secrets[sts.appParamsFileName]["lastUpdate"] = re.sub(r"([: .])", r"-", str(dt.now()))
-        # sts.appParams.update(self.secrets.get(sts.appParamsFileName, {}))
-        if self.secrets.get(sts.apiParamsFileName):
-            if self.secrets[sts.apiParamsFileName].get(connector):
-                self.api = connector
-        self.host, self.port = soc.host_info_extended(self.secrets, *args, 
+    def check_runntime(self, *args, **kwargs) -> None:
+        """
+            checks the runntime state and sets it to False if its undefined (at serve startup)
+            some behavior differs depending on runntime state
+            i.e. joringels runntime parameters are only set at startup
+        """
+        os.environ['joringels_runntime'] = os.environ.get('joringels_runntime', 'initial')
+        self.joringels_runntime = os.environ['joringels_runntime']
+
+    def _prep_secrets(self, *args, connector:str=None, clusterName:str=None, **kwargs):
+        if 'running' in self.joringels_runntime: return True
+        clusterName = clusterName if clusterName else 'dev'
+        # hanle all parameter settings and gettings
+        if self.secrets.get(clusterName):
+            clusterParams = self.secrets[clusterName][sts.cluster_params]
+        else:
+            return False
+        # if provided connector is present in secrets, then those paams are used latter
+        if clusterParams.get(sts.apiParamsFileName):
+            apiParams = self._handle_integer_keys(clusterParams[sts.apiParamsFileName])
+            clusterParams[sts.apiParamsFileName] = apiParams
+            self.host, self.port = soc.host_info_extended(apiParams, *args, 
                                                         connector=connector, **kwargs)
+            self.api = dict_encrypt(dict_values_encrypt(
+                                                        apiParams,
+                                                        os.environ.get("DATAKEY")), 
+                                    os.environ.get("DATASAFEKEY"))
+        # joringels basic runntime params like allowedHosts must be loaded from secrets
+        if clusterParams.get(sts.appParamsFileName):
+            sts.appParams.update(clusterParams[sts.appParamsFileName])
+        self.joringels_runntime.update({'running': re.sub(r"([: .])", r"-" , str(dt.now()))})
+        return True
+
+    def _handle_integer_keys(self, apiParams):
+        apiParams = {int(k) if type(k) is int else k: vs for k, vs in apiParams.items()}
+        return apiParams
 
     def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):
         if connector != 'joringels':
             self.apiHand.initialize(
                                     *args, 
-                                    secrets=dict_values_decrypt(dict_decrypt(secrets)), 
+                                    apis=dict_values_decrypt(dict_decrypt(self.api)), 
                                     safeName=self.safeName,
                                     connector=connector,
                                     **kwargs

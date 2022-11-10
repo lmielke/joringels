@@ -6,22 +6,18 @@ from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
 
 
-def api(*args, cluster:str, data:dict, **kwargs) -> dict:
-    kwargs.update(get_params(*args, cluster=cluster, **kwargs))
+def api(*args, data:dict, **kwargs) -> dict:
+    kwargs.update(get_params(*args, **kwargs))
     r = Jorinde(*args, **kwargs)
-    secret = r._fetch(*args, safeName=cluster, entryName=data, **kwargs)
-    return secret
+    response = r._fetch(*args, entryName=data, **kwargs)
+    return response
 
-def get_params(*args, cluster:str, host:str=None, port:int=None, connector:str, **kwargs) -> dict:
-    params = fetch.alloc(
-                            safeName=cluster, 
-                            entryName='_apis.yml', 
-                            connector=connector,
-                            retain=True,
-                            )
-    params['HOST'] = host if host is not None else params['SERVERNAME']
-    if port is not None: params['PORT'] = port
-    return params
+def get_params(*args, clusterName:str, connector:str, host:str=None, port:int=None, retain:str=None, **kwargs) -> dict:
+    params = fetch.alloc(*args, entryName=clusterName, clusterName=clusterName, retain=True, **kwargs )
+    params = params.get(sts.cluster_params).get(sts.apiParamsFileName).get(connector)
+    host = host if host is not None else params['APICALLHOST']
+    port = port if port is not None else params['PORT']
+    return {'host': host, 'port': port}
 
 def main(*args, data, **kwargs) -> None:
     """
