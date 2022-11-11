@@ -42,7 +42,7 @@ class Jorinde:
         try:
             if connector != 'joringels':
                 if not type(entryName) == dict:
-                    raise Exception(f"payloaed must be dictionary: {entryName}")
+                    raise Exception(f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}")
                 url = f"http://{host}:{port}/{text_encrypt(connector, os.environ.get('DATASAFEKEY'))}"
                 payload = dict_encrypt(dict_values_encrypt(entryName))
                 # POST request
@@ -51,20 +51,25 @@ class Jorinde:
                 # entryName = str(entryName) if entryName is not None else None
                 entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
                 url = f"http://{host}:{port}/{entry}"
+                print(f"{entry = }, {url = }")
                 # GET request
                 resp = requests.get(url, headers={'Content-Type': f'{connector}'})
-                print(f"{resp.status_code = }")
 
-            # prepare respons
+            # prepare response
             if resp.status_code == 200:
                 secrets = dict_values_decrypt(dict_decrypt(resp.text))
             else:
-                secrets = {"ERROR": resp.text}
+                secrets = f"ERROR {resp.status_code}: {resp.text}"
+            status_code = resp.status_code
         except Exception as e:
-            secrets = {"Jorinde._fetch ERROR host: {host}, port: {port}": e}
+            try:
+                status_code = resp.status_code
+            except:
+                status_code = '000 pre response EXCEPT'
+            secrets = {"Jorinde._fetch ERROR {status_code} host: {host}, port: {port}": e}
         # return result
         if connector == 'joringels' and not secrets.get(entryName):
-            msg = f"Jorinde._fetch ERROR host: {host}, port: {port}, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR {status_code} host: {host}, port: {port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == 'joringels':
