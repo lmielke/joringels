@@ -160,7 +160,7 @@ class Joringel:
         return True
 
     def _handle_integer_keys(self, apiParams):
-        apiParams = {int(k) if type(k) is int else k: vs for k, vs in apiParams.items()}
+        apiParams = {int(k) if str(k).isnumeric() else k: vs for k, vs in apiParams.items()}
         return apiParams
 
     def _initialize_api_endpoint(self, *args, safeName:str, secrets:dict, connector:str, **kwargs):

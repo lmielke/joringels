@@ -45,6 +45,13 @@ class UnitTest(unittest.TestCase):
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
 
+    def test__handle_integer_keys(self, *args, **kwargs):
+        data = {'1': 'one', 'two': 'two', 3: 'three'}
+        expected = [1, 'two', 3]
+        j = Joringel(*args, **kwargs)
+        corrected = j._handle_integer_keys(data)
+        self.assertEqual(list(corrected.keys()), expected)
+
 if __name__ == "__main__":
     unittest.main()
     print("done")
