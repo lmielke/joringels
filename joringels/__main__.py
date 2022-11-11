@@ -16,6 +16,8 @@
 
 
 """
+import os, sys
+sys.path.append(os.environ.get('TESTPATH'))
 
 import colorama as color
 
