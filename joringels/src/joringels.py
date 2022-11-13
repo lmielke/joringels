@@ -126,17 +126,8 @@ class Joringel:
         self._prep_secrets(*args, **kwargs)
         return h.encryptPath, self.secrets
 
-    def check_runntime(self, *args, **kwargs) -> None:
-        """
-            checks the runntime state and sets it to False if its undefined (at serve startup)
-            some behavior differs depending on runntime state
-            i.e. joringels runntime parameters are only set at startup
-        """
-        os.environ['joringels_runntime'] = os.environ.get('joringels_runntime', 'initial')
-        self.joringels_runntime = os.environ['joringels_runntime']
-
     def _prep_secrets(self, *args, connector:str=None, clusterName:str=None, **kwargs):
-        if 'running' in self.joringels_runntime: return True
+        if 'serving' in self.joringels_runntime: return True
         clusterName = clusterName if clusterName else 'dev'
         # hanle all parameter settings and gettings
         if self.secrets.get(clusterName):
@@ -156,7 +147,7 @@ class Joringel:
         # joringels basic runntime params like allowedHosts must be loaded from secrets
         if clusterParams.get(sts.appParamsFileName):
             sts.appParams.update(clusterParams[sts.appParamsFileName])
-        self.joringels_runntime.update({'running': re.sub(r"([: .])", r"-" , str(dt.now()))})
+        self.joringels_runntime.update({'serving': re.sub(r"([: .])", r"-" , str(dt.now()))})
         return True
 
     def _handle_integer_keys(self, apiParams):
@@ -182,8 +173,14 @@ class Joringel:
         return self.secrets
 
     def _from_memory(self, entry:str, *args, **kwargs) -> str:
-        entry = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
-        found = dict_decrypt(self.secrets).get(entry)
+        """
+            encrypted entry [key] is provided by the requesting application
+            via get request to optain its value. 
+            This entry is decrypted and then looked up in secrets.
+            If found, the value is selected, encrypted like {entryName, value} and returned.
+        """
+        entryName = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
+        found = dict_decrypt(self.secrets).get(entryName)
         if found is None:
             return None
         else:
