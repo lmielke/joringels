@@ -21,6 +21,7 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testData = cls.get_test_data(*args, **kwargs)
+        cls.password = "8B62D98CB4BCE07F896EC6F30A146E00"
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -44,6 +45,22 @@ class UnitTest(unittest.TestCase):
                                 )
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
+
+    def test__from_memory(self, *args, **kwargs):
+        # entry spells: _apis
+        validEntry = (
+                        f'o6Xf0DsT8I+rHnN0ohMLCNibazPyhctEgrCzyArw2PQ=:'
+                        f'ToRtnoI127Ld0au8MwVjBQ==:oJ0sr3gmq/sGkXDwUXmunQ=='
+                        )
+        # entry spells: Hello World!
+        inValidEntry = (f'x4Y92RtoC1Zh/JW3++iNdu62XK89zHr/2GE0hn8Ry+g=:'
+                        f'mUlKDMKRTmYk98wzUUFg9w==:yVKM1uhtWsoK3YfxRzlX3g==')
+        os.environ['DATASAFEKEY'] = self.password
+        j = Joringel(*args, **kwargs)
+        with open(os.path.join(sts.testDataPath, 'test_from_memory.txt'), 'r') as f:
+            j.secrets = f.read()
+        self.assertIsNotNone(j._from_memory(validEntry))
+        self.assertIsNone(j._from_memory(inValidEntry))
 
     def test__handle_integer_keys(self, *args, **kwargs):
         data = {'1': 'one', 'two': 'two', 3: 'three', '3.14': 'something'}
