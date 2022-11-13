@@ -21,7 +21,6 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.password = "8B62D98CB4BCE07F896EC6F30A146E00"
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -55,12 +54,12 @@ class UnitTest(unittest.TestCase):
         # entry spells: Hello World!
         inValidEntry = (f'x4Y92RtoC1Zh/JW3++iNdu62XK89zHr/2GE0hn8Ry+g=:'
                         f'mUlKDMKRTmYk98wzUUFg9w==:yVKM1uhtWsoK3YfxRzlX3g==')
-        os.environ['DATASAFEKEY'] = self.password
-        j = Joringel(*args, **kwargs)
-        with open(os.path.join(sts.testDataPath, 'test_from_memory.txt'), 'r') as f:
-            j.secrets = f.read()
-        self.assertIsNotNone(j._from_memory(validEntry))
-        self.assertIsNone(j._from_memory(inValidEntry))
+        with temp_password(pw="8B62D98CB4BCE07F896EC6F30A146E00") as t:        
+            j = Joringel(*args, **kwargs)
+            with open(os.path.join(sts.testDataPath, 'test_from_memory.txt'), 'r') as f:
+                j.secrets = f.read()
+            self.assertIsNotNone(j._from_memory(validEntry))
+            self.assertIsNone(j._from_memory(inValidEntry))
 
     def test__handle_integer_keys(self, *args, **kwargs):
         data = {'1': 'one', 'two': 'two', 3: 'three', '3.14': 'something'}
@@ -68,6 +67,18 @@ class UnitTest(unittest.TestCase):
         j = Joringel(*args, **kwargs)
         corrected = j._handle_integer_keys(data)
         self.assertEqual(list(corrected.keys()), expected)
+
+from contextlib import contextmanager
+
+
+@contextmanager
+def temp_password(*args, pw, **kwargs) -> None:
+    current = os.environ['DATASAFEKEY']
+    try:
+        os.environ['DATASAFEKEY'] = pw
+        yield
+    finally:
+        os.environ['DATASAFEKEY'] = current
 
 if __name__ == "__main__":
     unittest.main()
