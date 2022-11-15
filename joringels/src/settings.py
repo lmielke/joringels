@@ -42,6 +42,7 @@ providerHost = 'APICALLHOST'
 cluster_params = 'cluster_params'
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
+exportDir =  unalias_path("~/docker/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"

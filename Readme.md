@@ -10,6 +10,10 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     # Examples
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
     jo fetch -e _joringel.yml
+    # load to local docker export dir
+    jo upload -src kdbx -con docker -pr joringels -n digiserver -pd wobbles -c testing
+    # load to remote server
+    jo upload -src kdbx -con scp -pr joringels -n digiserver -pd wobbles -c testing
 
 ```
 ## Installation

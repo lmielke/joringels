@@ -1,5 +1,6 @@
 # upload.py
-# jo upload -n digiserver -src kdbx -con scp -pr all
+# jo upload -src kdbx -con scp -pr joringels -n digiserver -pd wobbles -c testing
+# jo upload -src kdbx -con docker -pr joringels -n digiserver -pd wobbles -c testing
 import os, time
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
@@ -19,10 +20,6 @@ def run(
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     imports secrets from source, stores it in .ssp and then uploads it to remote host
     NOTE: this is only allowed on a local host computer
-
-
-    jo upload -n digiserver -src kdbx -con scp -pr joringels
-    jo upload -n digiserver -src kdbx -con scp -pr all
 
 
     """
@@ -52,8 +49,10 @@ def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwar
     for targetName, target in zip(*targets):
         # upload to server
         print(f"Uploading {targetName}: {target}")
-        SCP  = conAdapt.main(*args, **kwargs)
-        SCP.upload(encryptPath, *args, **target)
+        LOAD  = conAdapt.main(*args, **kwargs)
+        LOAD.upload(encryptPath, *args, **target)
+        # if file is loaded to local docker folder, then docker handles targets
+        if hasattr(LOAD, 'singleSource'): break
 
 def encrypt_secrets(*args, **kwargs):
     j = Joringel(*args, **kwargs)
