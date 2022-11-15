@@ -184,7 +184,7 @@ class Joringel:
         if found is None:
             return None
         else:
-            return dict_encrypt({entry: found})
+            return dict_encrypt({entryName: found})
 
 
     def _invoke_application(self, entry:str, apiName:str, *args, **kwargs) -> str:
