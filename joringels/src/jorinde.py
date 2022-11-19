@@ -51,7 +51,6 @@ class Jorinde:
                 # entryName = str(entryName) if entryName is not None else None
                 entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
                 url = f"http://{host}:{port}/{entry}"
-                print(f"{entry = }, {url = }")
                 # GET request
                 resp = requests.get(url, headers={'Content-Type': f'{connector}'})
 

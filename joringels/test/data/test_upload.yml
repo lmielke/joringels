@@ -7,7 +7,7 @@ kwargs:
 
 secrets:
   cluster_params:
-    _apis:
+    services:
       oamailer:
         PORT: 7007
         DATASAFESERVER: joringels

@@ -15,7 +15,7 @@ def api(*args, data:dict, **kwargs) -> dict:
 def get_params(*args, clusterName:str, connector:str, host:str=None, port:int=None, retain:str=None, **kwargs) -> dict:
     params = fetch.alloc(*args, entryName=clusterName, clusterName=clusterName, retain=True, **kwargs )
     params = params.get(sts.cluster_params).get(sts.apiParamsFileName).get(connector)
-    host = host if host is not None else params['APICALLHOST']
+    host = host if host is not None else params[sts.providerHost]
     port = port if port is not None else params['PORT']
     return {'host': host, 'port': port}
 

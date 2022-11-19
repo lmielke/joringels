@@ -36,8 +36,8 @@ secureHosts = 'secureHosts'
 # files with specific parameter essential for joringels to work properly
 safeParamsFileName = f"safe_params"
 appParamsFileName = f"_joringels"
-apiParamsFileName = f"_apis"
-providerHost = 'APICALLHOST'
+apiParamsFileName = f"services"
+providerHost = 'ipv4_address'
 # in kdbx each cluster has a entry which contais cluster parameter i.e. init password
 cluster_params = 'cluster_params'
 # local directory for storing en/decrpytd files and managing your secrets

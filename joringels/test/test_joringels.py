@@ -32,7 +32,7 @@ class UnitTest(unittest.TestCase):
             return yaml.safe_load(f)
 
     def test__memorize(self, *args, **kwargs):
-        expected = ['_apis', 'apiEndpointDir']
+        expected = [sts.apiParamsFileName, 'apiEndpointDir']
         testData = self.testData
         testData['apiEndpointDir'] = 'C:\\Users\\lars\\python_venvs\\modules\\oamailer'
         j = Joringel(*args, **kwargs)
