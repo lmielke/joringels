@@ -51,11 +51,14 @@ def resolve(host, *args, **kwargs):
     return host
 
 def host_info_extended(apiParams, *args, connector, host=None, port=None, **kwargs):
-    if connector:
-        host = apiParams[connector].get('HOST')
-        port = apiParams[connector].get('PORT')
+    if os.name == 'posix':
+        # on a server host and port need to be read from service params
+        network = list(apiParams[connector].get('networks').keys())[0]
+        host = apiParams[connector].get('networks')[network].get('ipv4_address')
+        port = int(apiParams[connector].get('ports')[0].split(':')[0])
     else:
+        # on a client (local machine) host and port are provided or read directly
         host = host if host else get_ip()
-        port = port if port else sts.defaultPort
+        port = port if port else int(apiParams[connector].get('ports')[0].split(':')[0])
     host = resolve(host)
     return host, port

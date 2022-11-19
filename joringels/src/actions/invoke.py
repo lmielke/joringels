@@ -13,10 +13,11 @@ def api(*args, data:dict, **kwargs) -> dict:
     return response
 
 def get_params(*args, clusterName:str, connector:str, host:str=None, port:int=None, retain:str=None, **kwargs) -> dict:
-    params = fetch.alloc(*args, entryName=clusterName, clusterName=clusterName, retain=True, **kwargs )
+    # clustername is required here for joringels._prep_secrets to get cluster params
+    params = fetch.alloc(*args, entryName=clusterName, clusterName=clusterName, connector=connector, retain=True, **kwargs )
     params = params.get(sts.cluster_params).get(sts.apiParamsFileName).get(connector)
     host = host if host is not None else params[sts.providerHost]
-    port = port if port is not None else params['PORT']
+    port = port if port is not None else int(params.get('ports')[0].split(':')[0])
     return {'host': host, 'port': port}
 
 def main(*args, data, **kwargs) -> None:
