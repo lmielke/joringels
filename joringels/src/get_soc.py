@@ -35,22 +35,23 @@ def get_allowed_clients(*args, **kwargs):
         allowedClients.append(get_ip())
     return allowedClients
 
-def resolve(host, *args, **kwargs):
-    if host is None:
-        return host
-    elif host == 'localhost':
+def resolve(host, *args, connector:str=None, **kwargs):
+    if host == 'localhost':
         host = get_ip()
+    elif host is None and (connector == sts.appName or connector is None):
+        host = os.environ['DATASAFEIP']
+    elif host.startswith(sts.appName):
+        host = os.environ['DATASAFEIP']
+    elif host.startswith(sts.devHost) and host[-1].isnumeric():
+        host = socket.gethostbyname(f"{host}")
     elif host.isnumeric():
         domain, host = os.environ.get('NETWORK'), int(host)
         if domain.startswith(sts.devHost) and host in range(10):
             host = socket.gethostbyname(f"{domain}{host}")
-    elif host.startswith(sts.devHost) and host[-1].isnumeric():
-        host = socket.gethostbyname(f"{host}")
-    elif host.startswith('joringels'):
-        host = os.environ['DATASAFEIP']
     return host
 
-def host_info_extended(apiParams, *args, connector, host=None, port=None, **kwargs):
+def host_info_extended(apiParams, *args, connector:str=None, host=None, port=None, **kwargs):
+    if connector is None: connector = sts.appName
     if os.name == 'posix':
         # on a server host and port need to be read from service params
         network = list(apiParams[connector].get('networks').keys())[0]

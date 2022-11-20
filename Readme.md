@@ -2,7 +2,7 @@
 
 ## up next
 Topics to be implemented:
-- integrate .kdbx file in ressources
+-  invoke.py: host, port derivation is not in the correct module ! should be in get_soc.py
 
 ### run in Shell
 jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)

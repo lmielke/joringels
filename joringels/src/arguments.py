@@ -56,7 +56,7 @@ def mk_args():
 
     # currently not used but should be used in upload instead of host
     parser.add_argument(
-        "-c",
+        "-cn",
         "--clusterName",
         required=False,
         nargs=None,

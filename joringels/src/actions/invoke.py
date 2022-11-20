@@ -13,10 +13,21 @@ def api(*args, data:dict, **kwargs) -> dict:
     return response
 
 def get_params(*args, clusterName:str, connector:str, host:str=None, port:int=None, retain:str=None, **kwargs) -> dict:
-    # clustername is required here for joringels._prep_secrets to get cluster params
-    params = fetch.alloc(*args, entryName=clusterName, clusterName=clusterName, connector=connector, retain=True, **kwargs )
+    """ 
+        gets all invokation relevant parameters like passwords, port, host
+    """
+    params = fetch.alloc(*args, 
+                                entryName=clusterName, 
+                                # jo._prep_secrets needs cluster specific jo params
+                                clusterName=clusterName, 
+                                connector=connector, 
+                                retain=True,
+                                **kwargs )
     params = params.get(sts.cluster_params).get(sts.apiParamsFileName).get(connector)
-    host = host if host is not None else params[sts.providerHost]
+    # if client host is a dev PC then use localhost, else get secretsHost from secrets data
+    secretsHost = params['networks'][list(params['networks'].keys())[0]][sts.providerHost]
+    host = host if host is not None else 'localhost' if os.name == 'nt' else secretsHost
+    # port reads docker-compose host mapping and converts port num literal to int
     port = port if port is not None else int(params.get('ports')[0].split(':')[0])
     return {'host': host, 'port': port}
 

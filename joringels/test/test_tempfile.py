@@ -34,11 +34,13 @@ class UnitTest(unittest.TestCase):
     def test_temp_secret(self, *args, **kwargs):
         expected = [sts.apiParamsFileName, '_joringels']
         # filePth has to be full path to tempfile.yml or .json
+        # NOTE: file does not exist yet, and is created by temp_secret
         filePath = os.path.join(sts.testDataPath, 'temp_secret.yml')
         with tempfile.temp_secret(
                                     *args,
                                     secretsFilePath=filePath,
                                     creds=self.creds,
+                                    connector='joringels',
                                     **kwargs
                                     ) as t:
             with open(filePath, 'r') as f:

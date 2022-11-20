@@ -128,7 +128,7 @@ class Joringel:
 
     def _prep_secrets(self, *args, connector:str=None, clusterName:str=None, **kwargs):
         if 'serving' in self.joringels_runntime: return True
-        clusterName = clusterName if clusterName else 'dev'
+        clusterName = clusterName if clusterName else 'testing'
         # hanle all parameter settings and gettings
         if self.secrets.get(clusterName):
             clusterParams = self.secrets[clusterName][sts.cluster_params]
