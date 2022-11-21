@@ -10,8 +10,7 @@ import unittest
 # test package imports
 import joringels.src.settings as sts
 from joringels.src.joringels import Joringel
-from joringels.src.encryption_dict_handler import text_decrypt, text_encrypt, dict_encrypt, dict_decrypt, dict_values_decrypt, dict_values_encrypt
-
+from joringels.src.encryption_dict_handler import dict_decrypt
 
 # print(f"\n__file__: {__file__}")
 
@@ -67,6 +66,11 @@ class UnitTest(unittest.TestCase):
         j = Joringel(*args, **kwargs)
         corrected = j._handle_integer_keys(data)
         self.assertEqual(list(corrected.keys()), expected)
+
+    def test__get_recent_logfile(self, *args, **kwargs):
+        j = Joringel(*args, **kwargs)
+        text = j._get_recent_logfile()
+        self.assertIn('INFO log_unittest - run_unittest', text)
 
 from contextlib import contextmanager
 

@@ -1,10 +1,10 @@
 # get_soc.py -> import joringels.src.get_soc as soc
 
-import os, requests, socket
+import os, re, requests, socket
 import joringels.src.settings as sts
 
 
-def get_ip():
+def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     socName = s.getsockname()[0]
@@ -32,15 +32,23 @@ def get_hostname():
 def get_allowed_clients(*args, **kwargs):
     allowedClients = sts.appParams.get(sts.allowedClients)
     if get_hostname() in sts.appParams.get(sts.secureHosts):
-        allowedClients.append(get_ip())
+        allowedClients.append(get_local_ip())
     return allowedClients
 
-def resolve(host, *args, connector:str=None, **kwargs):
-    if host == 'localhost':
-        host = get_ip()
-    elif host is None and (connector == sts.appName or connector is None):
+def derrive_host(*args, connector:str=None, **kwargs):
+    """ 
+        if host is None, try to derrive it from other params
+    """
+    if connector == sts.appName or connector is None:
         host = os.environ['DATASAFEIP']
-    elif host.startswith(sts.appName):
+    elif connector is not None:
+        host = connector
+    return host
+
+def resolve_host_alias(*args, host, connector:str=None, **kwargs):
+    if host == 'localhost':
+        host = get_local_ip()
+    elif host == sts.appName:
         host = os.environ['DATASAFEIP']
     elif host.startswith(sts.devHost) and host[-1].isnumeric():
         host = socket.gethostbyname(f"{host}")
@@ -50,16 +58,25 @@ def resolve(host, *args, connector:str=None, **kwargs):
             host = socket.gethostbyname(f"{domain}{host}")
     return host
 
-def host_info_extended(apiParams, *args, connector:str=None, host=None, port=None, **kwargs):
+def get_ip(apiParams, *args, host=None, connector:str=None, **kwargs):
     if connector is None: connector = sts.appName
-    if os.name == 'posix':
-        # on a server host and port need to be read from service params
-        network = list(apiParams[connector].get('networks').keys())[0]
-        host = apiParams[connector].get('networks')[network].get('ipv4_address')
-        port = int(apiParams[connector].get('ports')[0].split(':')[0])
-    else:
-        # on a client (local machine) host and port are provided or read directly
-        host = host if host else get_ip()
-        port = port if port else int(apiParams[connector].get('ports')[0].split(':')[0])
-    host = resolve(host)
-    return host, port
+    # on a server host and port need to be read from service params
+    network = list(apiParams[connector].get('networks').keys())[0]
+    host = apiParams[connector].get('networks')[network].get('ipv4_address')
+    return host
+
+def get_port(apiParams, *args, port=None, connector:str=None, **kwargs):
+    if connector is None: connector = sts.appName
+    # on a server host and port need to be read from service params
+    port = int(port) if port else int(apiParams[connector].get('ports')[0].split(':')[0])
+    return port
+
+def get_host(*args, host=None, **kwargs):
+    isIp = r"\d{1,3}\.\d{1,3}\.\d{1,3}"
+    if host is None:
+        host = derrive_host(*args, **kwargs)
+    if not re.search(isIp, host):
+        host = resolve_host_alias(*args, host=host, **kwargs)
+    if not re.search(isIp, host):
+        host = get_ip(*args, host=host, **kwargs)
+    return host

@@ -138,8 +138,8 @@ class Joringel:
         if clusterParams.get(sts.apiParamsFileName):
             apiParams = self._handle_integer_keys(clusterParams[sts.apiParamsFileName])
             clusterParams[sts.apiParamsFileName] = apiParams
-            self.host, self.port = soc.host_info_extended(apiParams, *args, 
-                                                        connector=connector, **kwargs)
+            self.host = soc.get_host(apiParams, *args, connector=connector, **kwargs)
+            self.port = soc.get_port(apiParams, *args, connector=connector, **kwargs)
             self.api = dict_encrypt(dict_values_encrypt(
                                                         apiParams,
                                                         os.environ.get("DATAKEY")), 
@@ -148,7 +148,18 @@ class Joringel:
         if clusterParams.get(sts.appParamsFileName):
             sts.appParams.update(clusterParams[sts.appParamsFileName])
         self.joringels_runntime.update({'serving': re.sub(r"([: .])", r"-" , str(dt.now()))})
+        self.secrets['logunittest'] = self._get_recent_logfile(self, *args, **kwargs)
         return True
+
+    def _get_recent_logfile(self, *args, **kwargs):
+        files = ([os.path.join(sts.testLogPath, f) for f in os.listdir(sts.testLogPath)
+                                        if re.match(r'^log_unittest.*\.log$', f)
+                                        and os.path.isfile(os.path.join(sts.testLogPath, f))])
+        for logFilePath in sorted(files, key=os.path.getctime, reverse=True):
+            with open(logFilePath, 'r') as t:
+                text = t.read()
+                if text != '': return text
+        return 'No logfiles found'
 
     def _handle_integer_keys(self, apiParams):
         apiParams = {int(k) if str(k).isnumeric() else k: vs for k, vs in apiParams.items()}
@@ -236,12 +247,21 @@ class Joringel:
 
         """
         self.AF_INET = (self.host, self.port)
-
         handler = magic.MagicFlower(self)
         if self.secrets:
             self.sessions[self.safeName] = self.AF_INET
             if self.verbose: print(f"Joringels._serve: {self.sessions = }")
-            magic.HTTPServer(self.AF_INET, handler).serve_forever()
+            try:
+                magic.HTTPServer(self.AF_INET, handler).serve_forever()
+            except OSError as e:
+                msg = f"Joringels._serve: {self.AF_INET} with {e}"
+                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                raise
+            except TypeError as e:
+                msg = f"Joringels._serve: {self.AF_INET} with {e}"
+                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                raise
+
         # myServer.server_close()
 
     def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:

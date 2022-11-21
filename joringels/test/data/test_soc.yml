@@ -1,0 +1,33 @@
+services:
+joringels:
+  image: null
+  tty: true
+  build: 
+      context: .
+      dockerfile: Dockerfile-joringels
+  ports:
+      - 7000:7000
+  networks:
+      illuminati:
+          ipv4_address: 172.18.0.2
+
+# oamailer service docker-compose section
+oamailer:
+  image: null
+  tty: true
+  build: 
+      context: .
+      dockerfile: Dockerfile-oamailer
+  ports:
+      - 7007:7007
+  depends_on:
+    - joringels
+  networks:
+      illuminati:
+          ipv4_address: 172.18.0.3
+  0:
+    # NOTE: below import is used like importlib.import_module(api['import'], projectName)
+    #       so prjectName.import should result in oamailer.actions.send
+    import: oamailer.actions.send
+    action: send
+    response: null

@@ -86,6 +86,7 @@ impStr = f"joringels.src"
 # test
 testPath = os.path.join(srcPath, "test")
 testDataPath = os.path.join(testPath, "data")
+testLogPath = os.path.join(testPath, "logs")
 # Path function settings
 # os seperator correction
 os_sep = lambda x: os.path.abspath(x)
@@ -180,8 +181,8 @@ try:
     with open(appParamsPath.replace(fext, '.json'), "r") as f:
         appParams.update(yaml.safe_load(f))
 except FileNotFoundError:
-    appParams[secureHosts] = [soc.get_ip()]
-    appParams[allowedClients] = [soc.get_ip()]
+    appParams[secureHosts] = [soc.get_local_ip()]
+    appParams[allowedClients] = [soc.get_local_ip()]
     appParams["port"] = defaultPort
 
 
