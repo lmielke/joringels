@@ -7,6 +7,7 @@ from joringels.src.get_creds import Creds
 import joringels.src.get_soc as soc
 
 import colorama as color
+
 color.init()
 
 import joringels.src.settings as sts
@@ -23,20 +24,20 @@ class KeePassSecrets:
             if key is not None
             else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
-        self.session = keePass(sts.unalias_path(os.environ.get('secrets')), self.creds)
+        self.session = keePass(sts.unalias_path(os.environ.get("secrets")), self.creds)
         self.dataSafes = self.session.find_groups(name=sts.dataSafeGroup, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if not self.dataSafe:
             msg = f"KDBX.ERROR: No dataSafe found with name: {safeName} in {self.dataSafes}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             exit()
-        self.dataSafePath = '/'.join(self.dataSafe.path)
+        self.dataSafePath = "/".join(self.dataSafe.path)
         self.cluster = self.get_cluster(*args, **kwargs)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
             # print(f"{self.targets = }")
 
-    def get_cluster(self, *args, clusterName:str=None, productName:str=None, **kwargs):
+    def get_cluster(self, *args, clusterName: str = None, productName: str = None, **kwargs):
         self.clusterName = clusterName
         if self.clusterName is not None:
             clusters = self.session.find_groups(name=productName, first=True)
@@ -50,16 +51,16 @@ class KeePassSecrets:
             return None
 
     def _get_safe_params(self, *args, **kwargs) -> list:
-        """ 
-            reads entries and gets attachments from the datasafe
+        """
+        reads entries and gets attachments from the datasafe
 
         """
         if self.dataSafe is None:
             msg = (
-                    f"{color.Fore.RED}"
-                    f"KDBX.ERROR: s._get_safe_params with safeName not found: {self.safeName}"
-                    f"{color.Style.RESET_ALL}"
-                )
+                f"{color.Fore.RED}"
+                f"KDBX.ERROR: s._get_safe_params with safeName not found: {self.safeName}"
+                f"{color.Style.RESET_ALL}"
+            )
             print(msg)
             exit()
         self.encrpytKey = self.dataSafe.password
@@ -70,7 +71,7 @@ class KeePassSecrets:
         entries = safe_params["entries"]
         entries.append(self.dataSafePath)
         if self.clusterName is not None:
-            entries.append('/'.join(self.cluster.path))
+            entries.append("/".join(self.cluster.path))
         return targets, entries
 
     def _get_entries_params(self, entries, *args, **kwargs):
@@ -79,10 +80,8 @@ class KeePassSecrets:
             groupPath, entryName = os.path.split(entryPath)
             self.verbose: print(f"{groupPath = }, {entryName = }")
             entry = self.session.find_entries(
-                                            title=entryName, 
-                                            group=self.session.find_groups(path=groupPath), 
-                                            first=True
-                                            )
+                title=entryName, group=self.session.find_groups(path=groupPath), first=True
+            )
             self.secrets[entry.title] = self._get_entry_params(entry, *args, **kwargs)
             self.secrets[entry.title].update(self._get_attachments(entry, *args, **kwargs))
 
@@ -91,16 +90,16 @@ class KeePassSecrets:
         if ip_address is not None:
             try:
                 # add_ip_addres is a recursive loop that falls back to here
-                self.add_ip_address(self.secrets[self.clusterName], ip_address)            
+                self.add_ip_address(self.secrets[self.clusterName], ip_address)
             except:
                 pass
         return ip_address
 
     def add_ip_address(self, objs, ip_address, *args, **kwargs):
-        """ 
-            recursive loop that raises back to calling function try except block
-            finds the dict containing key sts.allowedClients by looping the input dict 
-            and adds external ip to all allowedClients lists
+        """
+        recursive loop that raises back to calling function try except block
+        finds the dict containing key sts.allowedClients by looping the input dict
+        and adds external ip to all allowedClients lists
         """
         found = False
         for objName, obj in objs.items():
@@ -110,7 +109,8 @@ class KeePassSecrets:
                     obj[sts.allowedClients].append(ip_address)
                 else:
                     self.add_ip_address(obj, ip_address)
-        if found: raise
+        if found:
+            raise
         return False
 
     def _get_entry_params(self, entry, *args, **kwargs):
@@ -119,11 +119,11 @@ class KeePassSecrets:
             print(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
             exit()
         entryParams = {
-                        "title": entry.title,
-                        "username": entry.username,
-                        "password": entry.password,
-                        "url": entry.url,
-                    }
+            "title": entry.title,
+            "username": entry.username,
+            "password": entry.password,
+            "url": entry.url,
+        }
         return entryParams
 
     def _get_attachments(self, entry, *args, **kwargs):
@@ -144,18 +144,18 @@ class KeePassSecrets:
         with open(filePath, "w") as f:
             f.write(yaml.dump(self.secrets))
 
-    def load(self, *args, host=None, productName:str=None, **kwargs) -> None:
+    def load(self, *args, host=None, productName: str = None, **kwargs) -> None:
         if self.verbose >= 2:
             self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
         self._get_entries_params(self.entries, *args, **kwargs)
         self._get_entries_params(self.targets, *args, **kwargs)
-        if productName is not None: self.secrets['PRODUCTNAME'] = productName
+        if productName is not None:
+            self.secrets["PRODUCTNAME"] = productName
         self.get_ip_address(*args, **kwargs)
         self._write_secs(*args, **kwargs)
         return self.dataSafePath
-
 
     def show(self, host, *args, **kwargs) -> None:
         """

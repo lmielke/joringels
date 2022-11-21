@@ -20,7 +20,8 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testdataPath = os.path.join(sts.testDataPath, "encryption_dict_handler.yml")
-        with open(cls.testdataPath, 'r') as f: cls.testData = yaml.safe_load(f)
+        with open(cls.testdataPath, "r") as f:
+            cls.testData = yaml.safe_load(f)
         cls.password = "8B62D98CB4BCE07F896EC6F30A146E00"
 
     @classmethod
@@ -28,7 +29,7 @@ class UnitTest(unittest.TestCase):
         pass
 
     def test_text_encrpyt(self, *args, **kwargs):
-        decrypted, length = 'Hello World!', 94
+        decrypted, length = "Hello World!", 94
         encrypted = handler.text_encrypt(decrypted, self.password)
         self.assertNotEqual(decrypted, encrypted)
         self.assertNotIn(decrypted, encrypted)
@@ -38,12 +39,14 @@ class UnitTest(unittest.TestCase):
         encrypted = """
                     VMVxRPoG9+qAOlyvJCKj3U/GZlgYIC9GQzanpAsTsow=:ExucUB7YAft+CFlZn+lJSw==
                     :FZiDZkGihg8WNeCzRmxHmg==
-                    """.replace(' ', '').replace('\n','')
+                    """.replace(
+            " ", ""
+        ).replace(
+            "\n", ""
+        )
         decrypted = handler.text_decrypt(encrypted, self.password)
         self.assertNotEqual(decrypted, encrypted)
-        self.assertEqual(decrypted, 'Hello World!')
-
-
+        self.assertEqual(decrypted, "Hello World!")
 
     def test_dict_encrypt(self, *args, **kwargs):
         encrypted = handler.dict_encrypt(self.testData, self.password)
@@ -56,7 +59,11 @@ class UnitTest(unittest.TestCase):
                     EuF5Pop4+2u5lyeO56isYnuorR+0EVpZJwN91XFFkxU+RNP0cJ3VMbC2+Tg22CD/uhn2C+
                     ARYzTXQ7TZlYViojC94UknJK8os6vyMUKRAQS26JqDVUGIF8nnoC5yhlFCrxU7Irljeo+4
                     OIiPqiOkLTUZgiPmciXJQ+xDi04P03MjMhGSnjgR
-                    """.replace(' ', '').replace('\n','')
+                    """.replace(
+            " ", ""
+        ).replace(
+            "\n", ""
+        )
         decrypted = handler.dict_decrypt(encrypted, self.password)
         self.assertEqual(decrypted, self.testData)
 

@@ -12,12 +12,12 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: 
+    run like:
     jo load -n digiserver -pd wobbles -c testing -src kdbx
     -n: safeName
     -pd: productName (needed to locate correct cluster)
     -c: clusterName to load secrets for
-    
+
 
     """
     # get secret

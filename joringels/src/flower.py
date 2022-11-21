@@ -44,7 +44,10 @@ class MagicFlower(BaseHTTPRequestHandler):
             found = self.agent._from_memory(requestedItem, None)
 
             if found is None:
-                returnCode, msg = 404, f"\nfrom {self.client_address[0]}, Not found! {requestedItem}"
+                returnCode, msg = (
+                    404,
+                    f"\nfrom {self.client_address[0]}, Not found! {requestedItem}",
+                )
                 logger.log(__name__, f"{returnCode}: {msg}")
                 time.sleep(5)
                 self.send_error(returnCode, message=msg)
@@ -62,7 +65,7 @@ class MagicFlower(BaseHTTPRequestHandler):
 
     def do_POST(self):
         requestedItem = unquote(self.path.strip("/"))
-        ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
         allowedClients = sts.appParams.get(sts.allowedClients)
         if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"
@@ -70,10 +73,10 @@ class MagicFlower(BaseHTTPRequestHandler):
             time.sleep(5)
             self.send_error(returnCode, message=msg)
 
-        payload = self.rfile.read(int(self.headers.get('Content-Length'))).decode('utf-8')
+        payload = self.rfile.read(int(self.headers.get("Content-Length"))).decode("utf-8")
         # call to application
         response = self.agent._invoke_application(payload, requestedItem)
-        
+
         if response is None:
             returnCode, msg = 404, f"{self.client_address[0]}, Not found! {requestedItem}"
             logger.log(__name__, f"{returnCode}: {msg}")

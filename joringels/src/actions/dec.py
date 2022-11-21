@@ -4,9 +4,10 @@ from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
 
+
 def local(*args, key, **kwargs) -> None:
     try:
-        kwargs['key'] = key
+        kwargs["key"] = key
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
         # if not j.authorized:
@@ -14,8 +15,9 @@ def local(*args, key, **kwargs) -> None:
     except Exception as e:
         print(f"show.local: {e}")
         return None
-    with open(os.path.join(sts.encryptDir, 'initialize.json'), 'w+') as f:
+    with open(os.path.join(sts.encryptDir, "initialize.json"), "w+") as f:
         json.dump(j.secrets, f)
+
 
 def main(*args, **kwargs) -> None:
     """

@@ -24,10 +24,10 @@ def local(*args, entryName, **kwargs) -> dict:
 
 
 def alloc(*args, host=None, **kwargs):
-    if host == 'loc' or host is None: 
+    if host == "loc" or host is None:
         if secret := local(*args, **kwargs):
             return secret
-        elif host == 'loc':
+        elif host == "loc":
             print(f"fetch.alloc, Entry not found locally: {secret = }")
             return None
     if secret := remote(*args, host=host, **kwargs):
@@ -42,6 +42,7 @@ def main(*args, entryName, **kwargs) -> None:
     then runs upload process using imported source an connector
     """
     assert entryName is not None, f"missing value for '-e entryName'"
-    if entryName.isnumeric(): entryName = int(entryName)
+    if entryName.isnumeric():
+        entryName = int(entryName)
     secret = alloc(*args, entryName=entryName, **kwargs)
     return f"{secret}"

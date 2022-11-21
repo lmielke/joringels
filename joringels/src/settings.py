@@ -7,12 +7,12 @@ from pathlib import Path
 import joringels.src.get_soc as soc
 
 
-
 def unalias_path(workPath: str) -> str:
     """
     repplaces path aliasse such as . ~ with path text
     """
-    if not any([e in workPath for e in ['.', '~', '%']]): return workPath
+    if not any([e in workPath for e in [".", "~", "%"]]):
+        return workPath
     workPath = workPath.replace(r"%USERPROFILE%", "~")
     workPath = workPath.replace("~", os.path.expanduser("~"))
     if workPath.startswith(".."):
@@ -28,8 +28,8 @@ fext = ".yml"
 # name of group in keeepass that stores entries for products i.e. wobbles
 # product entries contain the cluster parameter files.yml
 dataSafeGroup = "data_safes"
-allowedClients = 'allowedClients'
-secureHosts = 'secureHosts'
+allowedClients = "allowedClients"
+secureHosts = "secureHosts"
 # keepas/advanced/attachments
 # name of params file containing sources an targets for your secrets
 
@@ -37,23 +37,23 @@ secureHosts = 'secureHosts'
 safeParamsFileName = f"safe_params"
 appParamsFileName = f"_joringels"
 apiParamsFileName = f"services"
-providerHost = 'ipv4_address'
+providerHost = "ipv4_address"
 # app Name
-appName = 'joringels'
+appName = "joringels"
 # in kdbx each cluster has a entry which contais cluster parameter i.e. init password
-cluster_params = 'cluster_params'
+cluster_params = "cluster_params"
 # local directory for storing en/decrpytd files and managing your secrets
 encryptDir = unalias_path("~/.ssp")
-exportDir =  unalias_path("~/python_venvs/packages/dockerizer/dockerizer/builds")
+exportDir = unalias_path("~/python_venvs/packages/dockerizer/dockerizer/builds")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 kps_sep = "/"
 # default ip to fetch dataSafe from
 dataSafeIp = os.environ.get("DATASAFEIP")
 defaultPort = 7000
-entriesRoot = 'python_venvs'
-decPrefix = 'decrypted_'
-validator = 'text_is_valid'
+entriesRoot = "python_venvs"
+decPrefix = "decrypted_"
+validator = "text_is_valid"
 #### do NOT change params below unless you know what your doing :) ####
 def prep_path(workPath: str, filePrefix=None) -> str:
     workPath = unalias_path(workPath)
@@ -93,9 +93,9 @@ os_sep = lambda x: os.path.abspath(x)
 
 
 def file_or_files(workPath: str, *args, **kwargs) -> list:
-    """ takes a name and checks if its a fileName or dirName
-        then returns all files belongin to that file, dir
-        i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
+    """takes a name and checks if its a fileName or dirName
+    then returns all files belongin to that file, dir
+    i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
     """
     workPath = prep_path(workPath)
     print(f"{workPath = }")
@@ -122,10 +122,11 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
         yield
     finally:
         if os.path.exists(tempPath):
-            if os.path.exists(currPath): os.remove(currPath)
-            time.sleep(.1)
+            if os.path.exists(currPath):
+                os.remove(currPath)
+            time.sleep(0.1)
             os.rename(tempPath, currPath)
-            time.sleep(.1)
+            time.sleep(0.1)
 
 
 @contextmanager
@@ -148,20 +149,20 @@ def temp_chdir(path: Path) -> None:
 
 
 @contextmanager
-def temp_secret(j, *args, secretsFilePath:str, entryName:str, **kwargs) -> None:
+def temp_secret(j, *args, secretsFilePath: str, entryName: str, **kwargs) -> None:
     """
-        temporaryly renames files in .ssp for upload to bypass files
-        secretsFilePath: full path to secretsfile.json
-        creds: joringels params to get secret
-                {entryName: secretToWrite}
+    temporaryly renames files in .ssp for upload to bypass files
+    secretsFilePath: full path to secretsfile.json
+    creds: joringels params to get secret
+            {entryName: secretToWrite}
     """
     fType = os.path.splitext(secretsFilePath)[-1]
     try:
         secrets = j.secrets.get(entryName)
         with open(secretsFilePath, "w") as f:
-            if fType == '.json':
+            if fType == ".json":
                 json.dump(secrets, f)
-            elif fType == '.yml':
+            elif fType == ".yml":
                 yaml.dump(secrets, f)
             else:
                 raise Exception(f"Invalid file extension: {fType}, use [.json, .yml]")
@@ -178,7 +179,7 @@ def temp_secret(j, *args, secretsFilePath:str, entryName:str, **kwargs) -> None:
 startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 try:
     appParams = {}
-    with open(appParamsPath.replace(fext, '.json'), "r") as f:
+    with open(appParamsPath.replace(fext, ".json"), "r") as f:
         appParams.update(yaml.safe_load(f))
 except FileNotFoundError:
     appParams[secureHosts] = [soc.get_local_ip()]
@@ -203,9 +204,8 @@ available apps json looks like this
     }
 """
 available_appsPaths = {
-                        "nt": "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json",
-                        "posix": "~/os_setup/droplet/configs/available_apps.json",
-
+    "nt": "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json",
+    "posix": "~/os_setup/droplet/configs/available_apps.json",
 }
 
 
@@ -222,15 +222,13 @@ available_appsPaths = {
 
 """
 api_endpoints_path = lambda projectDir, projectName: os.path.join(
-                                                                projectDir,
-                                                                projectName,
-                                                                'api_endpoints',
-                                                                'params.yml'
-                                                                )
+    projectDir, projectName, "api_endpoints", "params.yml"
+)
 
 ########### HOST PARMETER ############
 # dev computer names
-devHost = 'WHILE-'
+devHost = "WHILE-"
+
 
 def get_api_enpoint_dir(connector, *args, **kwargs):
     with open(unalias_path(available_appsPaths.get(os.name)), "r") as apps:
@@ -239,7 +237,4 @@ def get_api_enpoint_dir(connector, *args, **kwargs):
     if not app:
         raise Exception(f"no app found in available_apps.yml named {connector}")
     else:
-        return (
-                api_endpoints_path(unalias_path(app[1]), connector),
-                unalias_path(app[1])
-                )
+        return (api_endpoints_path(unalias_path(app[1]), connector), unalias_path(app[1]))

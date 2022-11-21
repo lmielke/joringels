@@ -10,18 +10,27 @@ class SCPPS:
     def __init__(self, *args, **kwargs):
         pass
 
-    def upload(self, localPath:str, rmPath:str=None, *args, url:str, username:str, password:str=None, **kwargs):
-        localPath = localPath.replace(os.sep, '/')
+    def upload(
+        self,
+        localPath: str,
+        rmPath: str = None,
+        *args,
+        url: str,
+        username: str,
+        password: str = None,
+        **kwargs,
+    ):
+        localPath = localPath.replace(os.sep, "/")
         rmPath = os.path.dirname(localPath.replace(f"C:/Users/{getpass.getuser()}", "~"))
         cmds = [
-                    "powershell.exe",
-                    os.path.join(sts.settingsPath, "connectors", "scp.ps1"),
-                    url,
-                    localPath,
-                    rmPath,
-                    username,
-                    password,
-                ]
+            "powershell.exe",
+            os.path.join(sts.settingsPath, "connectors", "scp.ps1"),
+            url,
+            localPath,
+            rmPath,
+            username,
+            password,
+        ]
         p = subprocess.Popen(cmds, stdout=sys.stdout)
         p.communicate()
 

@@ -3,3 +3,4 @@ include CHANGELOG.md
 include LICENSE
 include joringels/resources/_joringels.yml
 include joringels/logs/.gitkeep
+include joringels/test/logs/.gitkeep

@@ -141,15 +141,15 @@ class Handler:
         isValid allowes to confirm, that decryption result is readable
         """
         try:
-            isValid, validator = True, 'text_is_valid'
+            isValid, validator = True, "text_is_valid"
             with open(filePath, "r+") as f:
                 text = f.read().strip()
-                if data == 'enc':
-                    text = text.replace(validator, '')
+                if data == "enc":
+                    text = text.replace(validator, "")
                     text = text + validator
-                elif data == 'dec':
+                elif data == "dec":
                     isValid = text.strip().endswith(validator)
-                    text = text.replace(validator, '')
+                    text = text.replace(validator, "")
                 for k, v in tokenizers.items():
                     text = text.replace(k, v) if data == "enc" else text.replace(v, k)
                 f.seek(0)

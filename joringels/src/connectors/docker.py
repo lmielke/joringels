@@ -14,10 +14,11 @@ class LOC:
         print(f"\n\tcopying from: {sourcePath} to {targetPath}")
         shutil.copyfile(sourcePath, targetPath)
 
-    def mk_src_target(self, localPath:str, rmPath:str=None, *args, **kwargs):
-        sourcePath = localPath.replace(os.sep, '/')
+    def mk_src_target(self, localPath: str, rmPath: str = None, *args, **kwargs):
+        sourcePath = localPath.replace(os.sep, "/")
         targetPath = os.path.join(sts.exportDir, os.path.basename(sourcePath))
         return sourcePath, targetPath
+
 
 def main(*args, **kwargs):
     return LOC(*args, **kwargs)
