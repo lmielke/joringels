@@ -1,6 +1,6 @@
 # upload.py
-# jo upload -src kdbx -con scp -pr joringels -n digiserver -pd wobbles -c testing
-# jo upload -src kdbx -con docker -pr joringels -n digiserver -pd wobbles -c testing
+# jo upload -src kdbx -con scp -pr joringels -n digiserver -pd wobbles -cn testing
+# jo upload -src kdbx -con docker -pr joringels -n digiserver -pd wobbles -cn testing
 import os, time
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
@@ -31,7 +31,6 @@ def run(
     dataSafePath = load_data_safe(SEC, *args, **kwargs)
     targets = get_targets(SEC.secrets, *args, projectName=projectName, **kwargs)
     kwargs.update(change_key(SEC, *args, **kwargs))
-
     j, encryptPath = encrypt_secrets(*args, action=action, **kwargs)
     upload_targets(j, conAdapt, targets, encryptPath, *args, projectName=projectName, **kwargs)
 
