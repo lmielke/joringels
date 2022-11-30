@@ -70,7 +70,7 @@ def get_ip(apiParams=None, *args, host=None, connector: str = None, **kwargs):
         connector = sts.appName
     # on a server host and port need to be read from service params
     if apiParams is None and os.name != 'nt':
-        apiParams = fetch.alloc(**{'entryName': 'testing', 'retain': True})['cluster_params']['services']
+        apiParams = fetch.alloc(**{'entryName': 'testing', 'connector': 'joringels', 'retain': True})['cluster_params']['services']
     network = list(apiParams[connector].get("networks").keys())[0]
     host = apiParams[connector].get("networks")[network].get("ipv4_address")
     return host
@@ -81,7 +81,7 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
     if connector is None:
         connector = sts.appName
     if apiParams is None:
-        apiParams = fetch.alloc(**{'entryName': 'testing', 'retain': True})['cluster_params']['services']
+        apiParams = fetch.alloc(**{'entryName': 'testing', 'connector': 'joringels', 'retain': True})['cluster_params']['services']
     # on a server host and port need to be read from service params
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
