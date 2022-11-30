@@ -53,7 +53,7 @@ class Jorinde:
         ########################### END TEST ###########################
 
         """
-        port = sts.appParams.get("port") if port is None else port
+        port = soc.get_port(port=port, connector=connector)
         host = soc.get_host(host=host, connector=connector)
         try:
             if connector != "joringels":

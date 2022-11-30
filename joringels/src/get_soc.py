@@ -1,5 +1,5 @@
 # get_soc.py -> import joringels.src.get_soc as soc
-
+from joringels.src.actions import fetch
 import os, re, requests, socket
 import joringels.src.settings as sts
 
@@ -60,21 +60,28 @@ def resolve_host_alias(*args, host, connector: str = None, **kwargs):
         domain, host = os.environ.get("NETWORK"), int(host)
         if domain.startswith(sts.devHost) and host in range(10):
             host = socket.gethostbyname(f"{domain}{host}")
+    elif host == connector and os.name == 'nt':
+        host = get_local_ip()
     return host
 
 
-def get_ip(apiParams, *args, host=None, connector: str = None, **kwargs):
+def get_ip(apiParams=None, *args, host=None, connector: str = None, **kwargs):
     if connector is None:
         connector = sts.appName
     # on a server host and port need to be read from service params
+    if apiParams is None and os.name != 'nt':
+        apiParams = fetch.alloc(**{'entryName': 'testing', 'retain': True})['cluster_params']['services']
     network = list(apiParams[connector].get("networks").keys())[0]
     host = apiParams[connector].get("networks")[network].get("ipv4_address")
     return host
 
 
-def get_port(apiParams, *args, port=None, connector: str = None, **kwargs):
+def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
+    if port is not None: return port
     if connector is None:
         connector = sts.appName
+    if apiParams is None:
+        apiParams = fetch.alloc(**{'entryName': 'testing', 'retain': True})['cluster_params']['services']
     # on a server host and port need to be read from service params
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
