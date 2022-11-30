@@ -50,6 +50,7 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 kps_sep = "/"
 # default ip to fetch dataSafe from
 dataSafeIp = os.environ.get("DATASAFEIP")
+defaultHost = '0.0.0.0'
 defaultPort = 7000
 entriesRoot = "python_venvs"
 decPrefix = "decrypted_"

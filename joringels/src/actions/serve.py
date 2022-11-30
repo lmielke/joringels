@@ -5,9 +5,10 @@ import joringels.src.settings as sts
 import joringels.src.arguments as arguments
 
 
-def run(*args, **kwargs) -> None:
+def run(*args, host=None, **kwargs) -> None:
+    if host is None: host = sts.defaultHost
     j = Joringel(*args, **kwargs)
-    j._digest(*args, **kwargs)
+    j._digest(*args, host=host, **kwargs)
     j._memorize(*args, secrets=j.secrets, **kwargs)
     j._initialize_api_endpoint(*args, secrets=j.secrets, **kwargs)
     j._serve(*args, **kwargs)
