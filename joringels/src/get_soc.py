@@ -77,7 +77,7 @@ def get_ip(apiParams=None, *args, host=None, connector: str = None, **kwargs):
 
 
 def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
-    if port is not None: return port
+    if port is not None: return int(port)
     if connector is None:
         connector = sts.appName
     if apiParams is None:
