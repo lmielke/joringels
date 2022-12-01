@@ -47,7 +47,12 @@ class ApiHandler:
         for ix, api in self.apis[connector].items():
             # import_module without package parameter. Hence provide full path like:
             # oamailer.actions.send
-            modules[connector][ix] = {"module": import_module(api["import"])}
+            module = import_module(api["import"])
+            modules[connector][ix] = {"module": module}
+            if ix == 0:
+                package = module.__package__.split('.')[-1]
+                testLogDir = os.path.join(module.__file__.split(package)[0], 'test', 'logs')
+                modules[connector]['testLogDir'] = testLogDir
         return modules
 
     def run_api(self, api, payload, *args, connector, **kwargs):

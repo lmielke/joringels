@@ -33,12 +33,12 @@ class UnitTest(unittest.TestCase):
             return yaml.safe_load(f)
 
     def test__memorize(self, *args, **kwargs):
-        expected = [sts.apiParamsFileName, "apiEndpointDir"]
+        expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
         testData = self.testData
-        testData["apiEndpointDir"] = "/Users/lars/python_venvs/modules/oamailer"
+        testData["apiEndpointDir"] = sts.appBasePath
         j = Joringel(*args, **kwargs)
         encrypted = j._memorize(
-            *args, safeName="safe_one", secrets=self.testData, connector="oamailer", **kwargs
+            *args, safeName="safe_one", secrets=self.testData, connector="joringels", **kwargs
         )
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
@@ -70,7 +70,7 @@ class UnitTest(unittest.TestCase):
 
     def test__get_recent_logfile(self, *args, **kwargs):
         j = Joringel(*args, **kwargs)
-        text = j._get_recent_logfile()
+        text = j._get_recent_logfile(connector='joringels')
         self.assertIn("INFO logunittest - run_unittest", text)
 
 

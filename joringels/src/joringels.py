@@ -33,6 +33,7 @@ from joringels.src.encryption_dict_handler import (
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
 from joringels.src.api_handler import ApiHandler
+from logunittest.logunittest import Coverage
 
 
 class Joringel:
@@ -127,28 +128,26 @@ class Joringel:
         if clusterParams.get(sts.appParamsFileName):
             sts.appParams.update(clusterParams[sts.appParamsFileName])
         self.joringels_runntime.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
-        # test results are added here to be available after cluster server up
-        self.secrets["logunittest"] = self._get_recent_logfile(self, *args, **kwargs).split('\n')[0]
         return True
 
-    def _get_recent_logfile(self, *args, **kwargs):
+    def _get_recent_logfile(self, connector, *args, **kwargs):
         """
             This is part of the serve/up strategy and allowes to remotely check
-            if upping was successfull and joringels runs without errors
+            if upping was successfull and joringels runs without errors by checking
+            unittest result logs.
             relies on logunittest to be installed and run before 'jo serve'
+            jo fetch -e logunittest -ip hostip
         """
-        files = [
-            os.path.join(sts.testLogPath, f)
-            for f in os.listdir(sts.testLogPath)
-            if re.match(r"^logunittest.*\.log$", f)
-            and os.path.isfile(os.path.join(sts.testLogPath, f))
-        ]
-        for logFilePath in sorted(files, key=os.path.getctime, reverse=True):
-            with open(logFilePath, "r") as t:
-                text = t.read()
-                if text != "":
-                    return text
-        return "No logfiles found"
+        if connector == sts.appName:
+            # get joringels testLogDir
+            testLogDir = sts.testLogDir
+        else:
+            # get testLogDir of imported apiModule
+            testLogDir = self.apiHand.modules[connector]['testLogDir']
+        # get header from latest test logfile
+        cov = Coverage(logDir=testLogDir)
+        cov()
+        return cov.latest[0]
 
     def _handle_integer_keys(self, apiParams):
         """
@@ -177,6 +176,7 @@ class Joringel:
                 **kwargs,
             )
 
+
     def _memorize(self, *args, safeName: str, secrets: dict, connector: str, **kwargs):
         """
             when 'jo serve' is called, all secrets have to be saved inside a encrypted
@@ -184,6 +184,11 @@ class Joringel:
             this takes a decrypted dict and returns the encrypted (memorized version)
             latter all get and post requests read from this dictionary
         """
+        # test results are added here to be available after cluster server up
+        secrets["logunittest"] = self._get_recent_logfile(
+                                                                connector,
+                                                                *args, 
+                                                                **kwargs).split('\n')[0]
         self.secrets = dict_encrypt(
             dict_values_encrypt(secrets, os.environ.get("DATAKEY")), os.environ.get("DATASAFEKEY")
         )

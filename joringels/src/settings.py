@@ -66,7 +66,7 @@ appParamsPath = prep_path(os.path.join(encryptDir, appParamsFileName))
 # test
 testPath = os.path.join(srcPath, "test")
 testDataDir = os.path.join(testPath, "data")
-testLogPath = os.path.join(testPath, "logs")
+testLogDir = os.path.join(testPath, "logs")
 # Path function settings
 # os seperator correction
 os_sep = lambda x: os.path.abspath(x)

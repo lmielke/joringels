@@ -43,8 +43,10 @@ def derrive_host(*args, connector: str = None, **kwargs):
     """
     if host is None, try to derrive it from other params
     """
+    # joringels case allowes to fall back to os.environ["DATASAFEIP"]
     if connector == sts.appName or connector is None:
         host = os.environ["DATASAFEIP"]
+    # this is the api case, where host can be derrived using the connector (i.e. oamailer)
     elif connector is not None:
         host = connector
     return host

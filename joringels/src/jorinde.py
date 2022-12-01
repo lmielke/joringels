@@ -24,7 +24,7 @@ from joringels.src.encryption_dict_handler import (
 
 class Jorinde:
     def __init__(self, *args, host=None, port=None, **kwargs):
-        self.port = sts.appParams.get("self.port") if port is None else port
+        self.port = sts.appParams.get("port") if port is None else port
         self.host = soc.get_host(host=host)
         self.response = None
         self.secrets = None
@@ -71,7 +71,11 @@ class Jorinde:
             self.secrets = f"ERROR {self.response.status_code}: {self.response.text}"
 
     def clean_response(self, connector, *args, entryName, **kwargs):
-        if connector == "joringels" and not self.secrets.get(entryName):
+        if type(self.secrets) == str:
+            msg = f"Jorinde._fetch ERROR, self.host: {self.host}, self.port: {self.port}, Not found: {entryName}"
+            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+            return None
+        elif connector == "joringels" and not self.secrets.get(entryName):
             msg = f"Jorinde._fetch ERROR, self.host: {self.host}, self.port: {self.port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
