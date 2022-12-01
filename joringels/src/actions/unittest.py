@@ -1,5 +1,6 @@
 # info.py
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.test.logunittest as logunittest
 import subprocess
 import os, sys

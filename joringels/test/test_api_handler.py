@@ -10,6 +10,7 @@ import unittest
 # C:\Users\lars\python_venvs\libs\joringels\joringels\test\test_api_handler.py
 # test package imports
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from joringels.src.api_handler import ApiHandler
 
 # print(f"\n__file__: {__file__}")
@@ -27,7 +28,7 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def get_test_data(cls, *args, **kwargs):
-        with open(os.path.join(sts.testDataPath, "test_api_handler.yml"), "r") as f:
+        with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
             return yaml.safe_load(f)
 
     def test__initialize_apis(self, *args, name="_initialize_apis", **kwargs):

@@ -5,6 +5,7 @@ from joringels.src.scp import SCPPS
 from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
 
 class Processes:
@@ -30,7 +31,7 @@ class Processes:
 
     def _mk_paths(self, *args, safeName, **kwargs) -> str:
         fileName = f"{sts.decPrefix}{safeName}.yml"
-        filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
+        filePath = helpers.prep_path(os.path.join(sts.encryptDir, fileName))
         return filePath
 
     def fetch(self, *args, **kwargs):

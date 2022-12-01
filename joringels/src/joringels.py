@@ -1,44 +1,13 @@
 """""
-##################### joringels_code.Joringel class documentation #####################
-
-<img src="https://drive.google.com/uc?id=1C8LBRduuHTgN8tWDqna_eH5lvqhTUQR4" alt="me_happy" class="plain" height="200px" width="310px">
-
-## B: Module Code of (Runner, Code):
-Contains the Joringel Class and code
-
-## Available shell cmds (only these can be called from shell using argparse params)
-### Table cmds:
-|Nr  | action   | description                  | examples                                    |
-|---:|:---------|:-----------------------------|:--------------------------------------------|
-| 2  | chkey    | changes self.key to newKey   | info [-hard]                                |
-| 5  | _digest   | reads/reomves a secrets file | _serve -f  -k testkey |
-| 9  | _serve    | runs MagicFlower             |                         |
-| 10 | upload   | upload to server             | show -n globals [-o pipe.table.T]           |
-| 10 | info     | short help                   | show -n globals [-o pipe.table.T]           |
-### End cmds
-## CALL: python joringels.py action -param ParamValue or psn action -param ParamValue
-## NOTE: if no key is provided, default key will be used see keypass 
-
-## main self are specified by globals.yml, users.yml, locals.yml (<-- Note precedence order)
-    - NOTE: precedence order means, that latter exist file vars overwrites earlier file vars
-    - ps: contains aggregated values with overwrite order: globals, users, locals
-    - self.: all ps vars can be accessed as self. variables if you know their names
-    - self.globals, self.users, self.locals contain current variable state as in .yml files
-
-Run examples: Note: remove linebreaks and spaces when copying
-MAIN DIR: python $hot/modulePath/...   <-- for more examples check dockstrings TEST section
- - pyCall show:            joringels.Joringel(__file__, **kwargs).show(**kwargs)
- - shellCall get_settings: joringels.py get_settings -n globals -o pipe.table.T
- - shellCall _serve: python ./joringels/src/joringels.py _serve 
-            -c pyCall 
-            -f "~/python_venvs/packages/joringels/joringels/src/test/test_get.yml"
-            -k testkey
-            -v 2
- - shellCall get:
-    python -m joringels.src.joringels get -c pyCall -f "~/python_venvs/packages/joringels/joringels/src/test/test_get.yml"-k testkey -v 2
-
-## NOTE: -hard to make NON RECOVERABLE changes !
-
+##################### joringels.Joringel class documentation #####################
+SERVER side handler which manages:
+joringels mostly serves as an agent for the overall secrets/api handling
+NOTE: A machine can act as a server and a client simultaneously
+uses imported modules to run funcitons like
+    - setting joringels runntime parameters
+    - getting secrets from defined sources
+    - getting and setting api endpoint parameter
+    - launching the WebServer to serve secrets and/or api entpoint data
 """
 
 import yaml, os, re, sys, time
@@ -49,6 +18,7 @@ color.init()
 
 
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
@@ -72,25 +42,21 @@ class Joringel:
         self.joringels_runntime = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
-        self.encryptPath = sts.mk_encrypt_path(self.safeName)
+        self.encryptPath = helpers.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
         self.apiHand = ApiHandler(*args, verbose=verbose, **kwargs)
         self.host, self.port = None, None
 
     def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
-        """<br><br>
-
-        *Last update: 2020-11-16*
-        ###Change Encryption Key
-        ___
-        ###Decrypts a file using self.key and Encrypts it using -k newKey
-
-
+        """
+            changes the key of all encrypted files within the provided
+            directory
+            this assumes, that all files use the same encryption + pwd
         """
         # confimr key change authorization
         key = Creds(*args, **kwargs).set(f"old {self.safeName} key: ", *args, key=key, **kwargs)
-        encryptPath, fileNames = sts.file_or_files(self.safeName, *args, **kwargs)
+        encryptPath, fileNames = helpers.file_or_files(self.safeName, *args, **kwargs)
         if len(fileNames) >= 2 and allYes is None:
             msg = f"Confirm key changes for {fileNames} [Y or ENTER]: "
             if not input(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}").upper() == "Y":
@@ -115,13 +81,11 @@ class Joringel:
                 exit()
         return True
 
-    def _digest(self, *args, key=None, **kwargs):
-        """<br><br>
-
-        *Last update: 2020-11-09*
-        ###Read Secrets
-        ___
-        ###Reads encrypted file and decrypts it after reading
+    def _digest(self, *args, key:str=None, **kwargs) -> tuple[str, dict]:
+        """
+            gets the decrypted content from a encrypted file and returns it
+            because self.secrets also contains runntime information for joringels
+            some of those parameters are added here as well
 
         """
         if not auth_checker.authorize_host():
@@ -136,6 +100,11 @@ class Joringel:
         return h.encryptPath, self.secrets
 
     def _prep_secrets(self, *args, connector: str = None, clusterName: str = None, **kwargs):
+        """
+            adds runtime information and api infos to self.secrets
+            this func is somewhat misplaced here and needs to change
+            i will refactor this later :) 
+        """
         if "serving" in self.joringels_runntime:
             return True
         clusterName = clusterName if clusterName else "testing"
@@ -158,14 +127,20 @@ class Joringel:
         if clusterParams.get(sts.appParamsFileName):
             sts.appParams.update(clusterParams[sts.appParamsFileName])
         self.joringels_runntime.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
-        self.secrets["logunittest"] = self._get_recent_logfile(self, *args, **kwargs)
+        # test results are added here to be available after cluster server up
+        self.secrets["logunittest"] = self._get_recent_logfile(self, *args, **kwargs).split('\n')[0]
         return True
 
     def _get_recent_logfile(self, *args, **kwargs):
+        """
+            This is part of the serve/up strategy and allowes to remotely check
+            if upping was successfull and joringels runs without errors
+            relies on logunittest to be installed and run before 'jo serve'
+        """
         files = [
             os.path.join(sts.testLogPath, f)
             for f in os.listdir(sts.testLogPath)
-            if re.match(r"^log_unittest.*\.log$", f)
+            if re.match(r"^logunittest.*\.log$", f)
             and os.path.isfile(os.path.join(sts.testLogPath, f))
         ]
         for logFilePath in sorted(files, key=os.path.getctime, reverse=True):
@@ -176,12 +151,23 @@ class Joringel:
         return "No logfiles found"
 
     def _handle_integer_keys(self, apiParams):
+        """
+            helper function for api calls
+            api endpoint calls are called by providing the relevant api action index
+            as an integer. During serialization its converted to string and therefore
+            has to be reconverted to int here
+        """
         apiParams = {int(k) if str(k).isnumeric() else k: vs for k, vs in apiParams.items()}
         return apiParams
 
     def _initialize_api_endpoint(
         self, *args, safeName: str, secrets: dict, connector: str, **kwargs
     ):
+        """
+            calls the api_endpoint module which imports relevant api modules and 
+            executes them if requested
+            joringels itself is not held as api because joringels is the base application
+        """
         if connector != "joringels":
             self.apiHand.initialize(
                 *args,
@@ -192,7 +178,12 @@ class Joringel:
             )
 
     def _memorize(self, *args, safeName: str, secrets: dict, connector: str, **kwargs):
-        # secrets will be encrypted
+        """
+            when 'jo serve' is called, all secrets have to be saved inside a encrypted
+            dictionary 
+            this takes a decrypted dict and returns the encrypted (memorized version)
+            latter all get and post requests read from this dictionary
+        """
         self.secrets = dict_encrypt(
             dict_values_encrypt(secrets, os.environ.get("DATAKEY")), os.environ.get("DATASAFEKEY")
         )
@@ -200,10 +191,12 @@ class Joringel:
 
     def _from_memory(self, entry: str, *args, **kwargs) -> str:
         """
-        encrypted entry [key] is provided by the requesting application
-        via get request to optain its value.
-        This entry is decrypted and then looked up in secrets.
-        If found, the value is selected, encrypted like {entryName, value} and returned.
+            reads data from the above memorized dictionary and returns a single requeted entry
+            trigger is a get request posted to flower.py
+            encrypted entry [key] is provided by the requesting application
+            via get request to optain its value.
+            This entry is decrypted and then looked up in secrets.
+            If found, the value is selected, encrypted like {entryName, value} and returned.
         """
         entryName = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
         found = dict_decrypt(self.secrets).get(entryName)
@@ -214,9 +207,10 @@ class Joringel:
 
     def _invoke_application(self, entry: str, apiName: str, *args, **kwargs) -> str:
         """
-        entry: request data coming from the client containing the
-                api index and api payload
-        safeName: requestedItem coming as url extension like domain/requesteItem
+            gets a api index from a post request and passes it on to api_handler.py
+            entry: request data coming from the client containing the
+                    api index and api payload
+            safeName: requestedItem coming as url extension like domain/requesteItem
         """
         entry = dict_values_decrypt(dict_decrypt(entry))
         connector = text_decrypt(apiName, os.environ.get("DATASAFEKEY"))
@@ -229,36 +223,20 @@ class Joringel:
         else:
             return dict_encrypt(dict_values_encrypt(response))
 
-    def clean(self, encrypted, *args, **kwargs):
-        decrypted = {}
-        for k, vals in encrypted.items():
-            if vals is None:
-                continue
-            decrypted[k] = yaml.safe_load(text_decrypt(vals, os.environ.get("DATAKEY")))
-        return decrypted
+    # def clean(self, encrypted, *args, **kwargs):
+    #     """ possible delete, no use found """
+    #     decrypted = {}
+    #     for k, vals in encrypted.items():
+    #         if vals is None:
+    #             continue
+    #         decrypted[k] = yaml.safe_load(text_decrypt(vals, os.environ.get("DATAKEY")))
+    #     return decrypted
 
     def _serve(self, *args, **kwargs):
-        """<br><br>
-
-        *Last update: 2020-11-09*
-        ###Serve Secrets
-        ___
-        ###Opens a webserver as runForever which serves secrets to self.get
-
-        ########################### START TEST ###########################
-        # INPUTS
-        key: testkey
-        encryptPath: "~/python_venvs/packages/joringels/joringels/src/test/test_read.yml"
-
-        # FUNCTION
-        pyCall: instance._serve(**kwargs)
-        shellCall: None
-
-        # RETURN
-        returns: pyCallTestString
-
-        ########################### END TEST ###########################
-
+        """
+            takes secrets/api params and passes it on to the flower.py http server when
+            'jo serve' is called
+            flower.py will then handle the http part
         """
         self.AF_INET = (self.host, self.port)
         handler = magic.MagicFlower(self)
@@ -279,10 +257,11 @@ class Joringel:
 
         # myServer.server_close()
 
-    def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:
-        sts.appParams.update(secrets.get(sts.appParamsFileName, {}))
-        with open(sts.appParamsPath.replace(sts.fext, ".json"), "w+") as f:
-            json.dump(sts.appParams, f)
+    # def _update_joringels_appParams(self, secrets, *args, **kwargs) -> None:
+    #     """possible delete, no use found"""
+    #     sts.appParams.update(secrets.get(sts.appParamsFileName, {}))
+    #     with open(sts.appParamsPath.replace(sts.fext, ".json"), "w+") as f:
+    #         json.dump(sts.appParams, f)
 
 
 def main(*args, **kwargs):

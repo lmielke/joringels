@@ -10,6 +10,7 @@ import unittest
 # C:\Users\lars\python_venvs\libs\joringels\joringels\test\test_api_handler.py
 # test package imports
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from joringels.src.joringels import Joringel
 from joringels.src.encryption_dict_handler import dict_decrypt
 
@@ -28,16 +29,16 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def get_test_data(cls, *args, **kwargs):
-        with open(os.path.join(sts.testDataPath, "test_api_handler.yml"), "r") as f:
+        with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
             return yaml.safe_load(f)
 
     def test__memorize(self, *args, **kwargs):
         expected = [sts.apiParamsFileName, "apiEndpointDir"]
         testData = self.testData
-        testData["apiEndpointDir"] = "C:\\Users\\lars\\python_venvs\\modules\\oamailer"
+        testData["apiEndpointDir"] = "/Users/lars/python_venvs/modules/oamailer"
         j = Joringel(*args, **kwargs)
         encrypted = j._memorize(
-            *args, safeName="digiserver", secrets=self.testData, connector="oamailer", **kwargs
+            *args, safeName="safe_one", secrets=self.testData, connector="oamailer", **kwargs
         )
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
@@ -55,7 +56,7 @@ class UnitTest(unittest.TestCase):
         )
         with temp_password(pw="8B62D98CB4BCE07F896EC6F30A146E00") as t:
             j = Joringel(*args, **kwargs)
-            with open(os.path.join(sts.testDataPath, "test_from_memory.txt"), "r") as f:
+            with open(os.path.join(sts.testDataDir, "test_from_memory.txt"), "r") as f:
                 j.secrets = f.read()
             self.assertIsNotNone(j._from_memory(validEntry))
             self.assertIsNone(j._from_memory(inValidEntry))
@@ -70,7 +71,7 @@ class UnitTest(unittest.TestCase):
     def test__get_recent_logfile(self, *args, **kwargs):
         j = Joringel(*args, **kwargs)
         text = j._get_recent_logfile()
-        self.assertIn("INFO log_unittest - run_unittest", text)
+        self.assertIn("INFO logunittest - run_unittest", text)
 
 
 from contextlib import contextmanager

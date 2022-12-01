@@ -1,5 +1,6 @@
 # contracts.py
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import os, sys
 import colorama as color
 
@@ -91,7 +92,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
         print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
         return None
     elif source.endswith(".kdbx"):
-        kwargs["source"] = sts.unalias_path(source)
+        kwargs["source"] = helpers.unalias_path(source)
     else:
         kwargs["source"] = source
     return kwargs

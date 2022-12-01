@@ -1,5 +1,6 @@
 # api_handler.py
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from importlib import import_module
 import os, sys
 from datetime import datetime as dt
@@ -39,7 +40,7 @@ class ApiHandler:
                 1: ...
                 }
         """
-        self.apiEndpointDir = sts.get_api_enpoint_dir(connector)
+        self.apiEndpointDir = helpers.get_api_enpoint_dir(connector)
         sys.path.append(self.apiEndpointDir)
         modules = {connector: {}}
         # modules[connector] = modules.get(connector, {})

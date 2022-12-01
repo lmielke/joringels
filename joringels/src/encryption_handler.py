@@ -9,6 +9,7 @@ from Crypto.Hash import SHA256
 from Crypto import Random
 
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
 # touch "decrypted_test_hint.yml" "TestJoringels: pyCallTestString"
 

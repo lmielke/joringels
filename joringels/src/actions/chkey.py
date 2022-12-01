@@ -3,8 +3,9 @@ import os
 
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
-# run like: joringels chkey -n digiserver [-k "C:\Users\Lars\OneDrive\Dokumente\50 sonstiges\aktuell_2021.kdbx"]
+# run like: joringels chkey -n safe_one [-k "C:\Users\Lars\OneDrive\Dokumente\50 sonstiges\aktuell_2021.kdbx"]
 
 
 def run(action: str, *args, **kwargs) -> None:
@@ -13,7 +14,7 @@ def run(action: str, *args, **kwargs) -> None:
     NOTE: NON-DIGESTIVE, encrypted secretsFile remains in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels load -n digiserver -src kdbx
+    run like: joringels load -n safe_one -src kdbx
     """
     # change key
     Joringel(*args, **kwargs)._chkey(*args, **kwargs)

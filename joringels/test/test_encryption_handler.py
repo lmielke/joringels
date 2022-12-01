@@ -9,6 +9,7 @@ import unittest
 
 # test package imports
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from joringels.src.encryption_handler import Handler as Handler
 
 
@@ -19,7 +20,7 @@ class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
-        cls.tempDataPath = os.path.join(sts.testDataPath, "temp")
+        cls.tempDataPath = os.path.join(sts.testDataDir, "temp")
         cls.testKey = "testKey"
         time.sleep(1)
 

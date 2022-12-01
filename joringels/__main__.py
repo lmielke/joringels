@@ -5,11 +5,11 @@
     __main__.py imports the action module from joringels.src.actions >> actionModule.py
                 and runs it
                 action is provided as first positional argument
-    example: joringels chkey -n digiserver
+    example: joringels chkey -n safe_one
 
     ###################################################################################
     
-    for user info ru: 
+    for user info run: 
         python -m joringels info
     above cmd is identical to
         python -m joringels.src.actions.info
@@ -26,6 +26,7 @@ color.init()
 import importlib
 
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.arguments as arguments
 import joringels.src.contracts as contracts
 

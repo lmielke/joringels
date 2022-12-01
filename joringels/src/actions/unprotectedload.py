@@ -3,6 +3,7 @@ import os
 from joringels.src.jorinde import Jorinde
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import importlib
 
 
@@ -13,7 +14,7 @@ def run(srcAdapt: object, action: str, *args, host, **kwargs) -> None:
     NOTE: this leaves unprotected secrets in .ssp
     NOTE: this is only allowed on a local host computer
 
-    run like: joringels unprotectedload -n digiserver -src kdbx
+    run like: joringels unprotectedload -n safe_one -src kdbx
     """
     sec = srcAdapt.main(*args, **kwargs)
     sec.load(*args, filePrefix=f"{action}_", **kwargs)
@@ -29,5 +30,5 @@ def main(*args, source: str, connector: str, **kwargs) -> None:
         moduleName = os.path.splitext(source)[-1][1:]
     else:
         moduleName = source
-    srcAdapt = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
+    srcAdapt = importlib.import_module(f"joringels.src.sources.{moduleName}")
     return run(srcAdapt, *args, source=source, **kwargs)

@@ -11,9 +11,9 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
     jo fetch -e _joringel.yml
     # load to local docker export dir
-    jo upload -src kdbx -con docker -pr joringels -n digiserver -pd wobbles -c testing
+    jo upload -src kdbx -con docker -pr joringels -n safe_one -pd wobbles -c testing
     # load to remote server
-    jo upload -src kdbx -con scp -pr joringels -n digiserver -pd wobbles -c testing
+    jo upload -src kdbx -con scp -pr joringels -n safe_one -pd wobbles -c testing
 
 ```
 ## Installation
@@ -32,7 +32,7 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     jo load -n oamailer -src application
     
     # Serve aip-endpoint NOTE: -p port parameter is not accepted
-    jo serve -n digiserver -con oamailer -rt
+    jo serve -n safe_one -con oamailer -rt
 
     # Test availability aip-endpoint
     jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007

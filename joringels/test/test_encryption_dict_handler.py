@@ -9,6 +9,7 @@ import unittest
 
 # test package imports
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.encryption_dict_handler as handler
 
 
@@ -19,8 +20,8 @@ class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
-        cls.testdataPath = os.path.join(sts.testDataPath, "encryption_dict_handler.yml")
-        with open(cls.testdataPath, "r") as f:
+        cls.testDataDir = os.path.join(sts.testDataDir, "encryption_dict_handler.yml")
+        with open(cls.testDataDir, "r") as f:
             cls.testData = yaml.safe_load(f)
         cls.password = "8B62D98CB4BCE07F896EC6F30A146E00"
 

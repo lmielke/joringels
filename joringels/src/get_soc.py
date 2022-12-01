@@ -2,6 +2,7 @@
 
 import os, re, requests, socket
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
 
 def get_local_ip():

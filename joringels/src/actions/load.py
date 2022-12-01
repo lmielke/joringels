@@ -3,6 +3,7 @@ import os
 
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import importlib
 
 
@@ -13,7 +14,7 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     NOTE: this is only allowed on a local host computer
 
     run like:
-    jo load -n digiserver -pd wobbles -c testing -src kdbx
+    jo load -n safe_one -pd wobbles -c testing -src kdbx
     -n: safeName
     -pd: productName (needed to locate correct cluster)
     -c: clusterName to load secrets for
@@ -40,5 +41,5 @@ def main(*args, source: str, **kwargs) -> None:
         moduleName = os.path.splitext(source)[-1][1:]
     else:
         moduleName = source
-    srcAdapt = importlib.import_module(f"{sts.impStr}.sources.{moduleName}")
+    srcAdapt = importlib.import_module(f"joringels.src.sources.{moduleName}")
     return run(srcAdapt, *args, source=source, **kwargs)

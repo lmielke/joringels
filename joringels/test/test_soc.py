@@ -10,11 +10,12 @@ import unittest
 # C:\Users\lars\python_venvs\libs\joringels\joringels\test\test_tempfile.py
 # test package imports
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.get_soc as soc
 
 # print(f"\n__file__: {__file__}")
 
-# jo upload -n digiserver -src kdbx -con scp -pr all
+# jo upload -n safe_one -src kdbx -con scp -pr all
 class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
@@ -29,7 +30,7 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def get_test_data(cls, *args, **kwargs):
-        with open(os.path.join(sts.testDataPath, "test_soc.yml"), "r") as f:
+        with open(os.path.join(sts.testDataDir, "test_soc.yml"), "r") as f:
             return yaml.safe_load(f)
 
     def test_derrive_host(self, *args, **kwargs):

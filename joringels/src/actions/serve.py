@@ -2,10 +2,12 @@
 # jo serve -n $DATASAFENAME -con $PROJECTNAME -rt
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.arguments as arguments
 
 
-def run(*args, **kwargs) -> None:
+def run(*args, host=None, **kwargs) -> None:
+    if host is None: kwargs['host'] = sts.defaultHost
     j = Joringel(*args, **kwargs)
     j._digest(*args, **kwargs)
     j._memorize(*args, secrets=j.secrets, **kwargs)

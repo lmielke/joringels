@@ -34,3 +34,4 @@ def temp_secret(*args, secretsFilePath: str, creds: dict, **kwargs) -> None:
     finally:
         if os.path.exists(secretsFilePath):
             os.remove(secretsFilePath)
+

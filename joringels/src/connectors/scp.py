@@ -3,6 +3,7 @@
 import os, sys, getpass
 import subprocess
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import joringels.src.get_soc as soc
 
 

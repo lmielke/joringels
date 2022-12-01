@@ -7,6 +7,7 @@ import colorama as color
 color.init()
 
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from joringels.src.actions import fetch
 
 # :)L0veMi11i0n$
@@ -17,15 +18,15 @@ class Applcation:
         self.encrpytKey = os.environ.get("DATASAFEKEY")
 
     def get_api_enpoint_path(self, safeName, *args, **kwargs):
-        with open(sts.unalias_path(sts.available_appsPath), "r") as apps:
+        with open(helpers.unalias_path(sts.available_appsPath), "r") as apps:
             available_apps = json.load(apps)
         app = available_apps.get(safeName)
         if not app:
             raise Exception(f"no app found in available_apps.yml named {safeName}")
         else:
             return (
-                sts.api_endpoints_path(sts.unalias_path(app[1]), safeName),
-                sts.unalias_path(app[1]),
+                sts.api_endpoints_path(helpers.unalias_path(app[1]), safeName),
+                helpers.unalias_path(app[1]),
             )
 
     def get_api_params(self, apiParamsPath, *args, **kwargs):
@@ -41,7 +42,7 @@ class Applcation:
     def _write_joringels_params(self, *args, safeName, filePrefix=None, **kwargs):
         filePrefix = filePrefix if filePrefix else sts.decPrefix
         fileName = f"{filePrefix}{safeName}.yml"
-        filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
+        filePath = helpers.prep_path(os.path.join(sts.encryptDir, fileName))
 
         # file extension is .yml
         with open(filePath, "w") as f:

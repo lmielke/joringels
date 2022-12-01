@@ -1,4 +1,9 @@
 # jorinde.py
+"""
+    client side handler of self.secrets and requests
+    i.e. if a secret is requested jorinde creates the get/post requests and
+    handles the server self.response
+"""
 import colorama as color
 
 color.init()
@@ -6,6 +11,7 @@ import os, requests, yaml
 from copy import deepcopy
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 from joringels.src.encryption_dict_handler import (
     text_decrypt,
     text_encrypt,
@@ -17,86 +23,67 @@ from joringels.src.encryption_dict_handler import (
 
 
 class Jorinde:
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, *args, host=None, port=None, **kwargs):
+        self.port = sts.appParams.get("self.port") if port is None else port
+        self.host = soc.get_host(host=host)
+        self.response = None
+        self.secrets = None
 
-    def _fetch(
-        self,
-        *args,
-        connector="joringels",
-        entryName=False,
-        host=None,
-        port=None,
-        safeName=None,
-        **kwargs,
-    ):
-        """<br><br>
-
-        *Last update: 2020-11-09*
-        ###Hint Secrets
-        ___
-        ###Asks Joringle Flower for a secrets
-
-        ########################### START TEST ###########################
-        # INPUTS
-        key: testkey
-        entryName: TestJoringels
-        encryptPath: ~/python_venvs/packages/joringels/joringels/src/test/test_get.yml
-
-        # FUNCTION
-        pyCall: instance.get(**kwargs)
-        shellCall: None
-
-        # RETURN
-        returns: {'TestJoringels': 'pyCallTestString'}
-
-        ########################### END TEST ###########################
-
+    def _fetch(self, *args, connector:str="joringels", **kwargs):
         """
-        port = sts.appParams.get("port") if port is None else port
-        host = soc.get_host(host=host, connector=connector)
+            makes a get/post request to server and returns the self.response
+        """
         try:
             if connector != "joringels":
-                if not type(entryName) == dict:
-                    raise Exception(
-                        f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}"
-                    )
-                url = f"http://{host}:{port}/{text_encrypt(connector, os.environ.get('DATASAFEKEY'))}"
-                payload = dict_encrypt(dict_values_encrypt(entryName))
-                # POST request
-                resp = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
+                self.get_request(connector, *args, **kwargs)
             else:
-                # entryName = str(entryName) if entryName is not None else None
-                entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
-                url = f"http://{host}:{port}/{entry}"
-                # GET request
-                resp = requests.get(url, headers={"Content-Type": f"{connector}"})
-
-            # prepare response
-            if resp.status_code == 200:
-                secrets = dict_values_decrypt(dict_decrypt(resp.text))
-            else:
-                secrets = f"ERROR {resp.status_code}: {resp.text}"
-            status_code = resp.status_code
+                self.post_request(connector, *args, **kwargs)
+            self.validate_response(*args, **kwargs)
         except Exception as e:
             try:
-                status_code = resp.status_code
+                statusCode = self.response.status_code
             except:
-                status_code = "000 pre response EXCEPT"
-            secrets = {"Jorinde._fetch ERROR {status_code} host: {host}, port: {port}": e}
-        # return result
-        if connector == "joringels" and not secrets.get(entryName):
-            msg = f"Jorinde._fetch ERROR {status_code} host: {host}, port: {port}, Not found: {entryName}"
+                statusCode = "000 pre self.response EXCEPT"
+            finally:
+                self.secrets = f"Jorinde._fetch ERROR {statusCode} host: {self.host}, port: {self.port}: {e}"
+        return self.clean_response(connector, *args, **kwargs)
+
+    def get_request(self, connector:str, *args, entryName, **kwargs):
+        entry = text_encrypt(connector, os.environ.get('DATASAFEKEY'))
+        url = f"http://{self.host}:{self.port}/{entry}"
+        if not type(entryName) == dict:
+            raise Exception(
+                f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}"
+            )
+        payload = dict_encrypt(dict_values_encrypt(entryName))
+        self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
+
+    def post_request(self, connector, *args, entryName, **kwargs):
+        entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
+        url = f"http://{self.host}:{self.port}/{entry}"
+        self.response = requests.get(url, headers={"Content-Type": f"{connector}"})
+
+    def validate_response(self, *args, **kwargs):
+        # prepare self.response
+        if self.response.status_code == 200:
+            self.secrets = dict_values_decrypt(dict_decrypt(self.response.text))
+        else:
+            self.secrets = f"ERROR {self.response.status_code}: {self.response.text}"
+
+    def clean_response(self, connector, *args, entryName, **kwargs):
+        if connector == "joringels" and not self.secrets.get(entryName):
+            msg = f"Jorinde._fetch ERROR, self.host: {self.host}, self.port: {self.port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == "joringels":
-            return secrets.get(entryName)
+            return self.secrets.get(entryName)
         else:
-            return secrets
+            return self.secrets
+        return out
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()
-        decPath = sts.prep_path(safeName, "unprotectedload")
+        decPath = helpers.prep_path(safeName, "unprotectedload")
         with open(decPath, "r") as f:
             entries = yaml.safe_load(f)
         # save every parameter to a seperate file

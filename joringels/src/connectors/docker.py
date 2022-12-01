@@ -2,6 +2,7 @@
 
 import os, shutil, sys
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
 
 class LOC:
@@ -14,9 +15,9 @@ class LOC:
         print(f"\n\tcopying from: {sourcePath} to {targetPath}")
         shutil.copyfile(sourcePath, targetPath)
 
-    def mk_src_target(self, localPath: str, rmPath: str = None, *args, **kwargs):
+    def mk_src_target(self, exportDir:str, localPath: str, rmPath: str = None, *args, **kwargs):
         sourcePath = localPath.replace(os.sep, "/")
-        targetPath = os.path.join(sts.exportDir, os.path.basename(sourcePath))
+        targetPath = os.path.join(exportDir, os.path.basename(sourcePath))
         return sourcePath, targetPath
 
 

@@ -4,6 +4,7 @@
 import os, time
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 import importlib
 
 
@@ -95,11 +96,11 @@ def main(*args, source: str, connector: str, safeName: str, retain: bool = True,
     kwargs["action"] = kwargs.get("action", "upload")
     isPath = os.path.isfile(source)
     sourceAdapter = importlib.import_module(
-        f"{sts.impStr}.sources.{source.split('.')[-1] if isPath else source}"
+        f"joringels.src.sources.{source.split('.')[-1] if isPath else source}"
     )
-    conAdapt = importlib.import_module(f"{sts.impStr}.connectors.{connector}")
+    conAdapt = importlib.import_module(f"joringels.src.connectors.{connector}")
     # upload will temporaryly rename existing dataSafe with name identical to uploaded safe
-    with sts.temp_safe_rename(*args, prefix="#upload_", safeName=safeName, **kwargs) as t:
+    with helpers.temp_safe_rename(*args, prefix="#upload_", safeName=safeName, **kwargs) as t:
         encryptPath = run(
             sourceAdapter, conAdapt, *args, source=source, safeName=safeName, **kwargs
         )

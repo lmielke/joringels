@@ -11,6 +11,7 @@ import colorama as color
 color.init()
 
 import joringels.src.settings as sts
+import joringels.src.helpers as helpers
 
 # jo load -n digiserver -pd wobbles -c testing -src kdbx
 class KeePassSecrets:
@@ -24,7 +25,7 @@ class KeePassSecrets:
             if key is not None
             else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
-        self.session = keePass(sts.unalias_path(os.environ.get("secrets")), self.creds)
+        self.session = keePass(helpers.unalias_path(os.environ.get("secrets")), self.creds)
         self.dataSafes = self.session.find_groups(name=sts.dataSafeGroup, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if not self.dataSafe:
@@ -138,8 +139,7 @@ class KeePassSecrets:
     def _write_secs(self, *args, safeName, filePrefix=None, **kwargs):
         filePrefix = filePrefix if filePrefix else sts.decPrefix
         fileName = f"{filePrefix}{safeName}.yml"
-        filePath = sts.prep_path(os.path.join(sts.encryptDir, fileName))
-
+        filePath = helpers.prep_path(os.path.join(sts.encryptDir, fileName))
         # file extension is .yml
         with open(filePath, "w") as f:
             f.write(yaml.dump(self.secrets))
@@ -173,7 +173,7 @@ class KeePassSecrets:
         msg = f"Available Groups: {host}"
         print(f"\n{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
         for i, element in enumerate(self.session.find_entries(title=".*", regex=True)):
-            if element.path[0] == sts.entriesRoot:
+            if element.path[0] == sts.kdbxRootGroup:
                 entryPath = sts.kps_sep.join(element.path)
                 print(f"{i} copy to Notes:\t{entryPath}")
 
