@@ -33,11 +33,6 @@ class Jorinde:
         """
             makes a get/post request to server and returns the self.response
         """
-<<<<<<< HEAD
-=======
-        port = soc.get_port(port=port, connector=connector)
-        host = soc.get_host(host=host, connector=connector)
->>>>>>> 37501d52c05fa18ff356c2e7fd45a5c2b588c921
         try:
             if connector != "joringels":
                 self.get_request(connector, *args, **kwargs)
