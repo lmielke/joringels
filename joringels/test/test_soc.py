@@ -52,7 +52,7 @@ class UnitTest(unittest.TestCase):
         self.assertTrue(re.match(self.isIp, soc.get_host(self.testData, connector="oamailer")))
         local = soc.get_host(self.testData, host="localhost", connector="oamailer")
         apiHost = soc.get_host(self.testData, connector="oamailer")
-        self.assertNotEqual(local, apiHost)
+        self.assertEqual(local, apiHost)
 
     def test_get_port(self, *args, **kwargs):
         # locally

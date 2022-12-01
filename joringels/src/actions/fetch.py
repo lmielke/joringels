@@ -1,4 +1,6 @@
 # serve.py
+# from joringels.src.actions import fetch
+# fetch.alloc(**{'entryName': 'testing', 'retain': True})
 import os
 from joringels.src.joringels import Joringel
 from joringels.src.jorinde import Jorinde

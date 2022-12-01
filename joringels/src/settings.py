@@ -46,7 +46,11 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 
 # path sepeator for path to find your secret inside its source i.e. kdbx
 # default ip to fetch dataSafe from
+<<<<<<< HEAD
 defaultSafeIp = os.environ.get("DATASAFEIP")
+=======
+dataSafeIp = os.environ.get("DATASAFEIP")
+>>>>>>> 37501d52c05fa18ff356c2e7fd45a5c2b588c921
 defaultHost = '0.0.0.0'
 defaultPort = 7000
 # encryption/decryption helper
