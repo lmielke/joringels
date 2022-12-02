@@ -1,5 +1,4 @@
 # get_soc.py -> import joringels.src.get_soc as soc
-from joringels.src.actions import fetch
 import os, re, requests, socket
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
@@ -88,6 +87,7 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
 
 def get_api_params(*args, clusterName, connector, **kwargs):
     params = {'entryName': clusterName, 'retain': True}
+    from joringels.src.actions import fetch
     apiParams = fetch.alloc(*args, **params)['cluster_params']['services']
     return apiParams
 

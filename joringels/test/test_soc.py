@@ -64,6 +64,7 @@ class UnitTest(unittest.TestCase):
         with helpers.temp_ch_host_name('posix') as h:
             local = soc.get_host(self.testData, host="localhost", connector="oamailer")
             apiHost = soc.get_host(self.testData, connector="oamailer")
+            print(f"{apiHost = }")
             self.assertNotEqual(local, apiHost)
 
     def test_get_port(self, *args, **kwargs):
