@@ -155,6 +155,17 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-t",
+        "--runTests",
+        required=False,
+        nargs="?",
+        const=1,
+        type=bool,
+        default=None,
+        help="runs unittest before the action is performed",
+    )
+
+    parser.add_argument(
         "-rt",
         "--retain",
         required=False,

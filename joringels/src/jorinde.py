@@ -23,8 +23,8 @@ from joringels.src.encryption_dict_handler import (
 
 
 class Jorinde:
-    def __init__(self, *args, host=None, port=None, **kwargs):
-        self.port = sts.appParams.get("port") if port is None else port
+    def __init__(self, *args, host=None, **kwargs):
+        self.port = soc.get_port(*args, **kwargs)
         self.host = soc.get_host(host=host)
         self.response = None
         self.secrets = None

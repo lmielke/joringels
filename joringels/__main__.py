@@ -29,6 +29,7 @@ import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import joringels.src.arguments as arguments
 import joringels.src.contracts as contracts
+import subprocess
 
 
 def runable(*args, action, **kwargs):
@@ -38,6 +39,10 @@ def runable(*args, action, **kwargs):
     """
     return importlib.import_module(f"joringels.src.actions.{action}")
 
+def run_tests(*args, runTests=None, **kwargs):
+    if runTests:
+        # runs unittest before serving, NOTE: tries to serve even if test has errors!
+        subprocess.call(['pipenv', 'run', 'python', '-m', 'logunittest', 'ut'])
 
 def main(*args, **kwargs):
     """
@@ -48,6 +53,7 @@ def main(*args, **kwargs):
 
     # kwargs are vakidated against enforced contract
     kwargs = contracts.checks(*args, **kwargs)
+    run_tests(*args, **kwargs)
     return runable(*args, **kwargs).main(*args, **kwargs)
 
 

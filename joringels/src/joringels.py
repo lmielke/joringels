@@ -19,6 +19,7 @@ color.init()
 
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
+import joringels.src.logger as logger
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
