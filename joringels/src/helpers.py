@@ -98,6 +98,24 @@ def temp_chdir(path: Path) -> None:
     finally:
         os.chdir(origin)
 
+@contextmanager
+def temp_ch_host_name(hostName:str) -> None:
+    """Sets the cwd within the context
+
+    Args:
+        host (Path): The host to the cwd
+
+    Yields:
+        None
+    """
+
+    origin = os.name
+    try:
+        os.name = hostName
+        yield
+    finally:
+        os.name = origin
+
 
 
 @contextmanager

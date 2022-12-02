@@ -83,15 +83,12 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
     if connector is None or connector == sts.appName: return sts.defaultPort
     # on a server host and port need to be read from service params
     if apiParams is None: apiParams = get_api_params(*args, connector=connector, **kwargs)
-    with open(os.path.join(sts.logDir, 'get_soc.log'), 'w') as f:
-        f.write(f"{apiParams}")
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
 
 def get_api_params(*args, clusterName, connector, **kwargs):
     params = {'entryName': clusterName, 'retain': True}
     apiParams = fetch.alloc(*args, **params)['cluster_params']['services']
-    print(f"{apiParams = }")
     return apiParams
 
 

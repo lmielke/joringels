@@ -23,6 +23,7 @@ class UnitTest(unittest.TestCase):
         cls.safeIp = os.environ.get("DATASAFEIP")
         cls.testData = cls.get_test_data(*args, **kwargs)
         cls.isIp = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+        cls.dockerIp = r"172\.\d{1,3}\.\d{1,3}\.\d{1,3}"
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -40,19 +41,30 @@ class UnitTest(unittest.TestCase):
         self.assertTrue(re.match(self.isIp, soc.derrive_host()))
 
     def test_get_host(self, *args, **kwargs):
-        # locally
+        # test joringels connector
         self.assertEqual(self.safeIp, soc.get_host(self.testData, connector="joringels"))
         self.assertEqual(self.safeIp, soc.get_host(self.testData))
-        self.assertNotEqual(
+        self.assertEqual(
             self.safeIp, soc.get_host(self.testData, host="localhost", connector="joringels")
         )
-        self.assertNotEqual(self.safeIp, soc.get_host(self.testData, host="localhost"))
-        # if connector is an api, host comes from secrets
-        self.assertNotEqual(self.safeIp, soc.get_host(self.testData, connector="oamailer"))
-        self.assertTrue(re.match(self.isIp, soc.get_host(self.testData, connector="oamailer")))
-        local = soc.get_host(self.testData, host="localhost", connector="oamailer")
-        apiHost = soc.get_host(self.testData, connector="oamailer")
-        self.assertEqual(local, apiHost)
+        self.assertEqual(self.safeIp, soc.get_host(self.testData, host="localhost"))
+        
+
+        # if connector is an api (non-joringels), host comes from secrets
+        with helpers.temp_ch_host_name('nt') as h:
+            self.assertEqual(self.safeIp, soc.get_host(self.testData, connector="oamailer"))
+        # this test assumes that cluster ip for oamailer is fixed
+        with helpers.temp_ch_host_name('posix') as h:
+            self.assertTrue(re.match(self.dockerIp, soc.get_host(self.testData, connector="oamailer")))
+
+        with helpers.temp_ch_host_name('nt') as h:
+            local = soc.get_host(self.testData, host="localhost", connector="oamailer")
+            apiHost = soc.get_host(self.testData, connector="oamailer")
+            self.assertEqual(local, apiHost)
+        with helpers.temp_ch_host_name('posix') as h:
+            local = soc.get_host(self.testData, host="localhost", connector="oamailer")
+            apiHost = soc.get_host(self.testData, connector="oamailer")
+            self.assertNotEqual(local, apiHost)
 
     def test_get_port(self, *args, **kwargs):
         # locally
