@@ -34,7 +34,7 @@ class Jorinde:
             makes a get/post request to server and returns the self.response
         """
         try:
-            if connector != "joringels":
+            if connector == 'joringels' or connector is None:
                 self.get_request(connector, *args, **kwargs)
             else:
                 self.post_request(connector, *args, **kwargs)
@@ -45,10 +45,11 @@ class Jorinde:
             except:
                 statusCode = "000 pre self.response EXCEPT"
             finally:
-                self.secrets = f"Jorinde._fetch ERROR {statusCode} host: {self.host}, port: {self.port}: {e}"
+                self.secrets = f"Jorinde._fetch ERROR status: {statusCode}, host: {self.host}, port: {self.port}: {e}"
+                print(f"{color.Fore.RED}{self.secrets}{color.Style.RESET_ALL}")
         return self.clean_response(connector, *args, **kwargs)
 
-    def get_request(self, connector:str, *args, entryName, **kwargs):
+    def post_request(self, connector:str, *args, entryName, **kwargs):
         entry = text_encrypt(connector, os.environ.get('DATASAFEKEY'))
         url = f"http://{self.host}:{self.port}/{entry}"
         if not type(entryName) == dict:
@@ -58,7 +59,7 @@ class Jorinde:
         payload = dict_encrypt(dict_values_encrypt(entryName))
         self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
 
-    def post_request(self, connector, *args, entryName, **kwargs):
+    def get_request(self, connector, *args, entryName, **kwargs):
         entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
         url = f"http://{self.host}:{self.port}/{entry}"
         self.response = requests.get(url, headers={"Content-Type": f"{connector}"})
