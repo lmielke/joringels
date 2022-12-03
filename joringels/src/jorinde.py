@@ -25,7 +25,7 @@ from joringels.src.encryption_dict_handler import (
 class Jorinde:
     def __init__(self, *args, host=None, **kwargs):
         self.port = soc.get_port(*args, **kwargs)
-        self.host = soc.get_host(host=host)
+        self.host = soc.get_host(host=host, **kwargs)
         self.response = None
         self.secrets = None
 

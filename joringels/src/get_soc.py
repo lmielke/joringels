@@ -68,12 +68,12 @@ def resolve_host_alias(*args, host, connector: str = None, **kwargs):
     return host
 
 
-def get_ip(apiParams=None, *args, host=None, connector: str = None, **kwargs):
-    if connector is None:
-        connector = sts.appName
+def get_ip(apiParams=None, *args, host, **kwargs):
+    if apiParams is None:
+        apiParams = get_api_params(*args, **kwargs)
     # on a server host and port need to be read from service params
-    network = list(apiParams[connector].get("networks").keys())[0]
-    host = apiParams[connector].get("networks")[network].get("ipv4_address")
+    network = list(apiParams[host].get("networks").keys())[0]
+    host = apiParams[host].get("networks")[network].get("ipv4_address")
     return host
 
 
@@ -81,12 +81,13 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
     if port is not None: return int(port)
     if connector is None or connector == sts.appName: return sts.defaultPort
     # on a server host and port need to be read from service params
-    if apiParams is None: apiParams = get_api_params(*args, connector=connector, **kwargs)
+    if apiParams is None: apiParams = get_api_params(*args, **kwargs)
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
 
-def get_api_params(*args, clusterName, connector, **kwargs):
-    params = {'entryName': clusterName, 'retain': True}
+def get_api_params(*args, clusterName=None, **kwargs):
+    if clusterName is None: clusterName = os.environ.get('CLUSTERNAME')
+    params = {'entryName': clusterName, 'connector':'joringels', 'retain': True}
     from joringels.src.actions import fetch
     apiParams = fetch.alloc(*args, **params)['cluster_params']['services']
     return apiParams
