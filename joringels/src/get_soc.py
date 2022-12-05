@@ -63,7 +63,7 @@ def resolve_host_alias(*args, host, connector: str = None, **kwargs):
         domain, host = os.environ.get("NETWORK"), int(host)
         if domain.startswith(sts.devHost) and host in range(10):
             host = socket.gethostbyname(f"{domain}{host}")
-    elif host == connector and os.name == 'nt':
+    elif host == connector and os.environ.get('HOSTNAME') == sts.devHost:
         host = get_local_ip()
     return host
 

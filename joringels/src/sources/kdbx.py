@@ -103,6 +103,7 @@ class KeePassSecrets:
         and adds external ip to all allowedClients lists
         """
         found = False
+        print(f"{objs = }")
         for objName, obj in objs.items():
             if type(obj) is dict:
                 if sts.allowedClients in obj:

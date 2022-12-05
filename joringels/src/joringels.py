@@ -34,7 +34,6 @@ from joringels.src.encryption_dict_handler import (
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
 from joringels.src.api_handler import ApiHandler
-from logunittest.logunittest import Coverage
 
 
 class Joringel:
@@ -139,6 +138,7 @@ class Joringel:
             relies on logunittest to be installed and run before 'jo serve'
             jo fetch -e logunittest -ip hostip
         """
+        from logunittest.logunittest import Coverage
         if connector == sts.appName:
             # get joringels testLogDir
             testLogDir = sts.testLogDir

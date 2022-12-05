@@ -101,22 +101,17 @@ def temp_chdir(path: Path) -> None:
 @contextmanager
 def temp_ch_host_name(hostName:str) -> None:
     """Sets the cwd within the context
-
     Args:
         host (Path): The host to the cwd
-
     Yields:
         None
     """
-
-    origin = os.name
+    origin = os.environ.get('HOSTNAME', '')
     try:
-        os.name = hostName
+        os.environ['HOSTNAME'] = hostName
         yield
     finally:
-        os.name = origin
-
-
+        os.environ['HOSTNAME'] = origin
 
 @contextmanager
 def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
