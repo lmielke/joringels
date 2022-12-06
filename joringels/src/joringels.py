@@ -119,7 +119,6 @@ class Joringel:
             apiParams = self._handle_integer_keys(clusterParams[sts.apiParamsFileName])
             clusterParams[sts.apiParamsFileName] = apiParams
             self.host = soc.get_host(apiParams, *args, connector=connector, **kwargs)
-            print(f"{self.host = }")
             self.port = soc.get_port(apiParams, *args, connector=connector, **kwargs)
             self.api = dict_encrypt(
                 dict_values_encrypt(apiParams, os.environ.get("DATAKEY")),

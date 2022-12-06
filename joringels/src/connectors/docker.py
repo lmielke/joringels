@@ -15,7 +15,11 @@ class LOC:
         print(f"\n\tcopying from: {sourcePath} to {targetPath}")
         shutil.copyfile(sourcePath, targetPath)
 
-    def mk_src_target(self, exportPath:str, targetDir: str, rmPath: str = None, *args, **kwargs):
+    def mk_src_target(self, exportPath:str, *args, targetDir: str, **kwargs):
+        """ 
+            exportPath: path/to/safeName.yml
+            targetDir: dir/to/export/...
+        """
         sourcePath = exportPath.replace(os.sep, "/")
         targetPath = os.path.join(targetDir, os.path.basename(sourcePath))
         return sourcePath, targetPath
