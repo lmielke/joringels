@@ -51,7 +51,7 @@ def change_key(SEC, *args, clusterName, **kwargs):
 def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwargs):
     for targetName, target in zip(*targets):
         # upload to server
-        print(f"Uploading {targetName}: {target}")
+        print(f"Uploading {encryptPath}: {target}")
         LOAD = conAdapt.main(*args, **kwargs)
         LOAD.upload(encryptPath, *args, **target)
         # if file is loaded to local docker folder, then docker handles targets

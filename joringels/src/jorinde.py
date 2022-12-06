@@ -73,11 +73,11 @@ class Jorinde:
 
     def clean_response(self, connector, *args, entryName, **kwargs):
         if type(self.secrets) == str:
-            msg = f"Jorinde._fetch ERROR, self.host: {self.host}, self.port: {self.port}, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR, {connector}: {self.host}, self.port: {self.port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == "joringels" and not self.secrets.get(entryName):
-            msg = f"Jorinde._fetch ERROR, self.host: {self.host}, self.port: {self.port}, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR, {connector}: {self.host}, self.port: {self.port}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == "joringels":
