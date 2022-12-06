@@ -52,7 +52,7 @@ def upload_targets(j, conAdapt, targets, encryptPath, *args, projectName, **kwar
     for targetName, target in zip(*targets):
         # upload to server
         LOAD = conAdapt.main(*args, **kwargs)
-        LOAD.upload(encryptPath, *args, **target)
+        LOAD.upload(encryptPath, *args, **target, **kwargs)
         # if file is loaded to local docker folder, then docker handles targets
         if hasattr(LOAD, "singleSource"):
             break

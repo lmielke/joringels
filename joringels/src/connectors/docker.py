@@ -12,7 +12,6 @@ class LOC:
 
     def upload(self, *args, **kwargs):
         sourcePath, targetPath = self.mk_src_target(*args, **kwargs)
-        print(f"\n\tcopying from: {sourcePath} to {targetPath}")
         shutil.copyfile(sourcePath, targetPath)
 
     def mk_src_target(self, exportPath:str, *args, targetDir: str, **kwargs):
