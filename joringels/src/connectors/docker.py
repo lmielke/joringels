@@ -19,6 +19,8 @@ class LOC:
         """ 
             exportPath: path/to/safeName.yml
             targetDir: dir/to/export/...
+            NOTE: targetDir is not in arguments ! currently only works from program
+            like: upload.main(**params, targetDir=sts.exportDir)
         """
         sourcePath = exportPath.replace(os.sep, "/")
         targetPath = os.path.join(targetDir, os.path.basename(sourcePath))
