@@ -13,6 +13,7 @@ import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 from joringels.src.joringels import Joringel
 from joringels.src.encryption_dict_handler import dict_decrypt
+from joringels.src.encryption_dict_handler import dict_values_decrypt
 
 # print(f"\n__file__: {__file__}")
 
@@ -42,6 +43,35 @@ class UnitTest(unittest.TestCase):
         )
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
+
+    def test__digest(self, *args, **kwargs):
+        one = f'{sts.testDataDir}/safe_one.yml'.replace(os.sep, '/')
+        two = 'haimdall'
+        three = {'action': 'send', 'import': 'haimdall.actions.communicate', 'response': None}
+        os.environ['secrets'] = os.path.join(sts.testDataDir, 'joringels.kdbx')
+        sts.encryptDir = sts.testDataDir
+        clusterName = 'testing_cluster'
+        apiName = 'haimdall'
+        kwargs = {  
+                        'safeName':'safe_one',
+                        'productName': apiName,
+                        'clusterName': clusterName,
+                        'key':'testing',
+                        # never remove retain, it will break the test
+                        'retain': True,
+                        }
+        j = Joringel(**kwargs)
+        encryptPath, secrets = j._digest(*args, **kwargs )
+        self.assertEqual(one, encryptPath.replace(os.sep, '/'))
+        self.assertEqual(two, secrets.get('PRODUCTNAME'))
+        # apiParams are found in a nested dictionary using integer values to ref api params
+        # so [0] here is a dict parameter
+        self.assertEqual(three, secrets[clusterName]['cluster_params']['services'][apiName][0])
+        # apiParams are also stored in j.api dictionary in encrypted form
+        # hence ['0'] here is identical to [0] in apiParams select above
+        self.assertEqual(   secrets[clusterName]['cluster_params']['services'][apiName][0],
+                                    dict_values_decrypt(dict_decrypt(j.api))[apiName]['0']
+                        )
 
     def test__from_memory(self, *args, **kwargs):
         # entry spells: _apis

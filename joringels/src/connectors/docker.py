@@ -7,7 +7,6 @@ import joringels.src.helpers as helpers
 
 class LOC:
     def __init__(self, *args, **kwargs):
-        print(f"__init__kwargs: \n{kwargs}")
         self.singleSource = True
 
     def upload(self, *args, **kwargs):

@@ -84,7 +84,6 @@ class Jorinde:
             return self.secrets.get(entryName)
         else:
             return self.secrets
-        return out
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()
