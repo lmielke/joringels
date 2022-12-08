@@ -82,12 +82,15 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
     if connector is None or connector == sts.appName: return sts.defaultPort
     # on a server host and port need to be read from service params
     if apiParams is None: apiParams = get_api_params(*args, **kwargs)
+    print(f"{connector = }")
+    print(f"{apiParams = }")
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
 
-def get_api_params(*args, clusterName=None, **kwargs):
+def get_api_params(*args, clusterName=None, safeName=None, **kwargs):
     if clusterName is None: clusterName = os.environ.get('CLUSTERNAME')
     params = {'entryName': clusterName, 'connector':'joringels', 'retain': True}
+    if safeName is not None: params['safeName'] = safeName
     from joringels.src.actions import fetch
     apiParams = fetch.alloc(*args, **params)['cluster_params']['services']
     return apiParams

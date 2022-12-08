@@ -42,12 +42,13 @@ class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
         self.joringels_runntime = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
         self.verbose = verbose
-        self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
+        self.safeName = safeName if safeName else os.environ.get('DATASAFENAME')
         self.encryptPath = helpers.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
         self.apiHand = ApiHandler(*args, verbose=verbose, **kwargs)
         self.host, self.port = None, None
+        if self.safeName == 'digiserver': raise
 
     def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
         """

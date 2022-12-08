@@ -86,7 +86,7 @@ class Jorinde:
             return self.secrets
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
-        safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()
+        safeName = safeName if safeName is not None else os.environ.get('DATASAFENAME').lower()
         decPath = helpers.prep_path(safeName, "unprotectedload")
         with open(decPath, "r") as f:
             entries = yaml.safe_load(f)
