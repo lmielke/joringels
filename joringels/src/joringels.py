@@ -48,7 +48,6 @@ class Joringel:
         self.authorized = False
         self.apiHand = ApiHandler(*args, verbose=verbose, **kwargs)
         self.host, self.port = None, None
-        if self.safeName == 'digiserver': raise
 
     def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
         """

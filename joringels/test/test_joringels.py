@@ -14,6 +14,7 @@ import joringels.src.helpers as helpers
 from joringels.src.joringels import Joringel
 from joringels.src.encryption_dict_handler import dict_decrypt
 from joringels.src.encryption_dict_handler import dict_values_decrypt
+from logunittest.settings import testLogsDir
 
 # print(f"\n__file__: {__file__}")
 
@@ -23,6 +24,7 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testData = cls.get_test_data(*args, **kwargs)
+        cls.mk_test_logs_dir(*args, **kwargs)
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -32,6 +34,13 @@ class UnitTest(unittest.TestCase):
     def get_test_data(cls, *args, **kwargs):
         with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
             return yaml.safe_load(f)
+
+    @classmethod
+    def mk_test_logs_dir(cls, *args, **kwargs):
+        if not os.path.exists(testLogsDir):
+            os.mkdir(testLogsDir)
+        else:
+            print(f"not making: {testLogsDir = }")
 
     def test__memorize(self, *args, **kwargs):
         expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
