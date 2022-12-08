@@ -39,8 +39,6 @@ class UnitTest(unittest.TestCase):
     def mk_test_logs_dir(cls, *args, **kwargs):
         if not os.path.exists(testLogsDir):
             os.mkdir(testLogsDir)
-        else:
-            print(f"not making: {testLogsDir = }")
 
     def test__memorize(self, *args, **kwargs):
         expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
