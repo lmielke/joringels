@@ -37,8 +37,9 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def mk_test_logs_dir(cls, *args, **kwargs):
-        if not os.path.exists(testLogsDir):
-            os.mkdir(testLogsDir)
+        logDir = os.path.join(testLogsDir, 'joringels')
+        if not os.path.exists(logDir):
+            os.makedirs(logDir)
 
     def test__memorize(self, *args, **kwargs):
         expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
