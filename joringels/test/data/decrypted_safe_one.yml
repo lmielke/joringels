@@ -1,0 +1,96 @@
+PRODUCTNAME: haimdall
+aws_postgres:
+  db_params:
+    host: db-postgresql-fra1-0815-do-user-31415-1.a.db.ondigitalocean.com
+    port: '12345'
+  password: password
+  title: aws_postgres
+  url: null
+  username: adminUser
+haimdall_server:
+  password: BSF22DqPkS8yreYLakIg
+  title: haimdall_server
+  url: 123.456.789.0
+  username: thor
+joringels_server:
+  password: KC7fbmsXk0nIIP2kbZ15
+  title: joringels_server
+  url: 987.765.654.3
+  username: jori
+safe_one:
+  password: myDataSafeKey
+  safe_params:
+    entries:
+    - python_venvs/databases/aws_postgres
+    targets:
+    - python_venvs/physical_machines/haimdall_server
+    - python_venvs/physical_machines/joringels_server
+  title: safe_one
+  url: null
+  username: myDataKey
+testing_cluster:
+  cluster_params:
+    _joringels:
+      DATASAFEIP: 172.18.0.2
+      DATASAFENAME: digiserver
+      allowedClients:
+      - 172.18.0.1
+      - 172.18.0.2
+      - 172.18.0.3
+      - 172.18.0.4
+      - 172.19.0.1
+      - 172.19.0.2
+      - 172.19.0.3
+      - 172.19.0.4
+      - 192.168.0.*
+      - 172.18.0.2
+      - 46.114.172.37
+      defaultPort: 7000
+      secureHosts:
+      - WHILE-AI-1
+      - WHILE-AI-2
+      - WHILE-AI-3
+      - WHILE-AI-4
+      - 172.18.0.99
+      - 172.18.0.2
+    networks:
+      illuminati:
+        external: true
+    services:
+      haimdall:
+        image: null
+        tty: true
+        build:
+          context: .
+          dockerfile: Dockerfile-haimdall
+        ports:
+        - 7007:7007
+        depends_on:
+        - joringels
+        networks:
+          illuminati:
+            ipv4_address: 172.18.0.3
+        0:
+          action: send
+          import: haimdall.actions.communicate
+          response: null
+        1:
+          action: receive
+          import: haimdall.actions.communicate
+          response: null
+      joringels:
+        build:
+          context: .
+          dockerfile: Dockerfile-joringels
+        image: null
+        networks:
+          illuminati:
+            ipv4_address: 172.18.0.2
+        ports:
+        - 7000:7000
+        tty: true
+    version: '3.8'
+  password: initinit
+  title: testing_cluster
+  url: null
+  username: testuser
