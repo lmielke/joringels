@@ -11,10 +11,12 @@ requests = "*"
 tabulate = "*"
 psutil = "*"
 ipwhois = "*"
-joringels = {path = "."}
-# joringels = {editable = true, path = "."}
-logunittest = {git = "https://oauth2:glpat-PDn2Nftephd5_mGosn4x@gitlab.com/larsmielke2/logunittest.git"}
-# logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
+# joringels installs differ depending on system to install on
+# joringels = {git = "https://oauth2:glpat-PDn2Nftephd5_mGosn4x@gitlab.com/larsmielke2/joringels.git"}
+joringels = {editable = true, path = "."}
+# logunittest installs differ depending on system to install on
+# logunittest = {git = "https://oauth2:glpat-PDn2Nftephd5_mGosn4x@gitlab.com/larsmielke2/logunittest.git"}
+logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
 
 [dev-packages]
 pykeepass = "*"
