@@ -185,6 +185,7 @@ class KeePassSecrets:
             server login credential start like: !~/python_venvs/.../...
             normal entries look like:             python_venvs/.../...
         """
+        self.verbose = 1
         if self.verbose:
             msg = f"Available Groups: {searchTerm}"
             print(f"\n{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")

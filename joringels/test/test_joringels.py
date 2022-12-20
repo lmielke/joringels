@@ -58,8 +58,8 @@ class UnitTest(unittest.TestCase):
         three = {'action': 'send', 'import': 'haimdall.actions.communicate', 'response': None}
         os.environ['secrets'] = os.path.join(sts.testDataDir, 'joringels.kdbx')
         sts.encryptDir = sts.testDataDir
-        clusterName = 'testing_cluster'
         apiName = 'haimdall'
+        clusterName = 'testing_cluster'
         kwargs = {  
                         'safeName':'safe_one',
                         'productName': apiName,
