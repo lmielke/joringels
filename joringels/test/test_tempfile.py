@@ -25,7 +25,7 @@ class UnitTest(unittest.TestCase):
         sts.encryptDir = sts.testDataDir
         cls.creds = {
             'clusterName': 'testing_cluster',
-            'productName': 'wobbles',
+            # 'productName': 'haimdall',
             'entryName': 'haimdall_server',
             'safeName': 'safe_one',
             'key': 'testing',

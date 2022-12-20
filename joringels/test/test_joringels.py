@@ -109,7 +109,10 @@ class UnitTest(unittest.TestCase):
     def test__get_recent_logfile(self, *args, **kwargs):
         j = Joringel(*args, **kwargs)
         text = j._get_recent_logfile(connector='joringels')
-        self.assertIn("INFO logunittest - run_unittest", text)
+        if os.name == 'posix':
+            self.assertEqual("Nothing", text)
+        else:
+            self.assertIn("INFO logunittest - run_unittest", text)
 
 
 from contextlib import contextmanager
