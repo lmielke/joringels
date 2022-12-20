@@ -21,20 +21,20 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         # cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.safeName = 'safe_one'
-        cls.productName = 'haimdall'
-        cls.clusterName = 'testing_cluster'
-        cls.exportDir = os.path.join(sts.testDataDir, 'actions')
-        os.environ['secrets'] = os.path.join(sts.testDataDir, 'joringels.kdbx')
+        cls.safeName = "safe_one"
+        cls.productName = "haimdall"
+        cls.clusterName = "testing_cluster"
+        cls.exportDir = os.path.join(sts.testDataDir, "actions")
+        os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
         sts.encryptDir = sts.testDataDir
-        cls.kwargs = {  
-                        'safeName':cls.safeName,
-                        'entryName': 'safe_one',
-                        'productName':cls.productName,
-                        'clusterName':cls.clusterName,
-                        'key': 'testing',
-                        'retain': True,
-                        }
+        cls.kwargs = {
+            "safeName": cls.safeName,
+            "entryName": "safe_one",
+            "productName": cls.productName,
+            "clusterName": cls.clusterName,
+            "key": "testing",
+            "retain": True,
+        }
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -47,9 +47,9 @@ class UnitTest(unittest.TestCase):
 
     def test_fetch(self, *args, **kwargs):
         from joringels.src.actions import fetch
+
         out = fetch.alloc(*[], **self.kwargs)
-        self.assertEqual('myDataSafeKey', out.get('password'))
-        
+        self.assertEqual("myDataSafeKey", out.get("password"))
 
     def test_load(self, *args, **kwargs):
         pass

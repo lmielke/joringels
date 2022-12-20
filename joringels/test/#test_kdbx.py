@@ -21,18 +21,18 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.safeName = 'safe_one'
-        cls.productName = 'haimdall'
-        cls.clusterName = 'testing_cluster'
-        os.environ['secrets'] = os.path.join(sts.testDataDir, 'joringels.kdbx')
+        cls.safeName = "safe_one"
+        cls.productName = "haimdall"
+        cls.clusterName = "testing_cluster"
+        os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
         sts.encryptDir = sts.testDataDir
-        cls.kwargs = {  
-                        'safeName':cls.safeName,
-                        'productName':cls.productName,
-                        'clusterName':cls.clusterName,
-                        'key':'testing',
-                        }
-        cls.KP = kdbx.KeePassSecrets('load', *args, **cls.kwargs)
+        cls.kwargs = {
+            "safeName": cls.safeName,
+            "productName": cls.productName,
+            "clusterName": cls.clusterName,
+            "key": "testing",
+        }
+        cls.KP = kdbx.KeePassSecrets("load", *args, **cls.kwargs)
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -45,18 +45,23 @@ class UnitTest(unittest.TestCase):
 
     def test__init__(self, *args, **kwargs):
         # targets
-        self.assertEqual({'haimdall_server': 'python_venvs/physical_machines', 
-                                    'joringels_server': 'python_venvs/physical_machines'}, 
-                            self.KP.targets)
+        self.assertEqual(
+            {
+                "haimdall_server": "python_venvs/physical_machines",
+                "joringels_server": "python_venvs/physical_machines",
+            },
+            self.KP.targets,
+        )
         # entreis
-        self.assertEqual(['python_venvs/databases/aws_postgres', 
-                                    'python_venvs/data_safes/safe_one'], 
-                            self.KP.entries[:2])
+        self.assertEqual(
+            ["python_venvs/databases/aws_postgres", "python_venvs/data_safes/safe_one"],
+            self.KP.entries[:2],
+        )
 
     def test_load(self, *args, **kwargs):
         self.KP.load(*args, **self.kwargs)
-        postgresUser = self.KP.secrets.get('aws_postgres').get('username')
-        self.assertEqual('adminUser', postgresUser)
+        postgresUser = self.KP.secrets.get("aws_postgres").get("username")
+        self.assertEqual("adminUser", postgresUser)
 
 
 if __name__ == "__main__":

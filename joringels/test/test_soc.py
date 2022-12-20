@@ -48,20 +48,21 @@ class UnitTest(unittest.TestCase):
             self.safeIp, soc.get_host(self.testData, host="localhost", connector="joringels")
         )
         self.assertEqual(self.safeIp, soc.get_host(self.testData, host="localhost"))
-        
 
         # if connector is an api (non-joringels), host comes from secrets
         with helpers.temp_ch_host_name(sts.devHost) as h:
             self.assertEqual(self.safeIp, soc.get_host(self.testData, connector="oamailer"))
         # this test assumes that cluster ip for oamailer is fixed
-        with helpers.temp_ch_host_name('posix') as h:
-            self.assertTrue(re.match(self.dockerIp, soc.get_host(self.testData, connector="oamailer")))
+        with helpers.temp_ch_host_name("posix") as h:
+            self.assertTrue(
+                re.match(self.dockerIp, soc.get_host(self.testData, connector="oamailer"))
+            )
 
         with helpers.temp_ch_host_name(sts.devHost) as h:
             local = soc.get_host(self.testData, host="localhost", connector="oamailer")
             apiHost = soc.get_host(self.testData, connector="oamailer")
             self.assertEqual(local, apiHost)
-        with helpers.temp_ch_host_name('posix') as h:
+        with helpers.temp_ch_host_name("posix") as h:
             local = soc.get_host(self.testData, host="localhost", connector="oamailer")
             apiHost = soc.get_host(self.testData, connector="oamailer")
             self.assertNotEqual(local, apiHost)
@@ -78,7 +79,8 @@ class UnitTest(unittest.TestCase):
 
     def test_get_allowed_clients(self, *args, **kwargs):
         # the host machine ip address must allways be in allowed clients
-        self.assertIn(soc.get_local_ip(), ', '.join(soc.get_allowed_clients()))
+        self.assertIn(soc.get_local_ip(), ", ".join(soc.get_allowed_clients()))
+
 
 if __name__ == "__main__":
     unittest.main()

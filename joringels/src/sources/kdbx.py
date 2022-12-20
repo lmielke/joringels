@@ -25,7 +25,7 @@ class KeePassSecrets:
             if key is not None
             else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
-        self.session = keePass(helpers.unalias_path(os.environ.get('secrets')), self.creds)
+        self.session = keePass(helpers.unalias_path(os.environ.get("secrets")), self.creds)
         self.dataSafes = self.session.find_groups(name=sts.dataSafeGroup, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if not self.dataSafe:
@@ -164,8 +164,8 @@ class KeePassSecrets:
             self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
-        self._get_entries_params(self.entries, productName=productName,  *args, **kwargs)
-        self._get_entries_params(self.targets, productName=productName,  *args, **kwargs)
+        self._get_entries_params(self.entries, productName=productName, *args, **kwargs)
+        self._get_entries_params(self.targets, productName=productName, *args, **kwargs)
         if productName is not None:
             self.secrets["PRODUCTNAME"] = productName
         self.get_ip_address(*args, **kwargs)

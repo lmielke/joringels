@@ -50,7 +50,7 @@ class Applcation:
 
     def add_api_enpoint_params(self, apiEndpointDir, *args, safeName, **kwargs):
         _joringels = fetch.alloc(entryName="_joringels.yml", retain=True)
-        _joringels['DATASAFENAME'] = safeName
+        _joringels["DATASAFENAME"] = safeName
         _joringels["port"] = self.secrets.get("port")
         _joringels["application"] = safeName
         del _joringels["kPath"]

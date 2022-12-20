@@ -37,12 +37,12 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def mk_test_logs_dir(cls, *args, **kwargs):
-        logDir = os.path.join(testLogsDir, 'joringels')
+        logDir = os.path.join(testLogsDir, "joringels")
         if not os.path.exists(logDir):
             os.makedirs(logDir)
 
     def test__memorize(self, *args, **kwargs):
-        expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
+        expected = [sts.apiParamsFileName, "apiEndpointDir", "logunittest"]
         testData = self.testData
         testData["apiEndpointDir"] = sts.appBasePath
         j = Joringel(*args, **kwargs)
@@ -53,33 +53,34 @@ class UnitTest(unittest.TestCase):
         self.assertEqual(list(decrypted.keys()), expected)
 
     def test__digest(self, *args, **kwargs):
-        one = f'{sts.testDataDir}/safe_one.yml'.replace(os.sep, '/')
-        two = 'haimdall'
-        three = {'action': 'send', 'import': 'haimdall.actions.communicate', 'response': None}
-        os.environ['secrets'] = os.path.join(sts.testDataDir, 'joringels.kdbx')
+        one = f"{sts.testDataDir}/safe_one.yml".replace(os.sep, "/")
+        two = "haimdall"
+        three = {"action": "send", "import": "haimdall.actions.communicate", "response": None}
+        os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
         sts.encryptDir = sts.testDataDir
-        apiName = 'haimdall'
-        clusterName = 'testing_cluster'
-        kwargs = {  
-                        'safeName':'safe_one',
-                        'productName': apiName,
-                        'clusterName': clusterName,
-                        'key':'testing',
-                        # never remove retain, it will break the test
-                        'retain': True,
-                        }
+        apiName = "haimdall"
+        clusterName = "testing_cluster"
+        kwargs = {
+            "safeName": "safe_one",
+            "productName": apiName,
+            "clusterName": clusterName,
+            "key": "testing",
+            # never remove retain, it will break the test
+            "retain": True,
+        }
         j = Joringel(**kwargs)
-        encryptPath, secrets = j._digest(*args, **kwargs )
-        self.assertEqual(one, encryptPath.replace(os.sep, '/'))
-        self.assertEqual(two, secrets.get('PRODUCTNAME'))
+        encryptPath, secrets = j._digest(*args, **kwargs)
+        self.assertEqual(one, encryptPath.replace(os.sep, "/"))
+        self.assertEqual(two, secrets.get("PRODUCTNAME"))
         # apiParams are found in a nested dictionary using integer values to ref api params
         # so [0] here is a dict parameter
-        self.assertEqual(three, secrets[clusterName]['cluster_params']['services'][apiName][0])
+        self.assertEqual(three, secrets[clusterName]["cluster_params"]["services"][apiName][0])
         # apiParams are also stored in j.api dictionary in encrypted form
         # hence ['0'] here is identical to [0] in apiParams select above
-        self.assertEqual(   secrets[clusterName]['cluster_params']['services'][apiName][0],
-                                    dict_values_decrypt(dict_decrypt(j.api))[apiName]['0']
-                        )
+        self.assertEqual(
+            secrets[clusterName]["cluster_params"]["services"][apiName][0],
+            dict_values_decrypt(dict_decrypt(j.api))[apiName]["0"],
+        )
 
     def test__from_memory(self, *args, **kwargs):
         # entry spells: _apis
@@ -108,8 +109,8 @@ class UnitTest(unittest.TestCase):
 
     def test__get_recent_logfile(self, *args, **kwargs):
         j = Joringel(*args, **kwargs)
-        text = j._get_recent_logfile(connector='joringels')
-        if os.name == 'posix':
+        text = j._get_recent_logfile(connector="joringels")
+        if os.name == "posix":
             self.assertEqual("Nothing", text)
         else:
             self.assertIn("INFO logunittest - run_unittest", text)

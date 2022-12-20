@@ -5,7 +5,6 @@ from contextlib import contextmanager
 import joringels.src.settings as sts
 
 
-
 def unalias_path(workPath: str) -> str:
     """
     repplaces path aliasse such as . ~ with path text
@@ -21,6 +20,7 @@ def unalias_path(workPath: str) -> str:
     workPath = os.path.normpath(os.path.abspath(workPath))
     return workPath
 
+
 def prep_path(workPath: str, filePrefix=None) -> str:
     workPath = unalias_path(workPath)
     workPath = workPath if workPath.endswith(sts.fext) else f"{workPath}{sts.fext}"
@@ -32,10 +32,12 @@ def prep_path(workPath: str, filePrefix=None) -> str:
     workPath = workPath if workPath.endswith(sts.fext) else f"{workPath}{sts.fext}"
     return workPath
 
+
 def mk_encrypt_path(safeName: str) -> str:
     encrpytPath = os.path.join(sts.encryptDir, f"{safeName.lower()}.yml")
     encrpytPath = encrpytPath.replace(".yml.yml", ".yml")
     return encrpytPath
+
 
 def file_or_files(workPath: str, *args, **kwargs) -> list:
     """takes a name and checks if its a fileName or dirName
@@ -98,20 +100,22 @@ def temp_chdir(path: Path) -> None:
     finally:
         os.chdir(origin)
 
+
 @contextmanager
-def temp_ch_host_name(hostName:str) -> None:
+def temp_ch_host_name(hostName: str) -> None:
     """Sets the cwd within the context
     Args:
         host (Path): The host to the cwd
     Yields:
         None
     """
-    origin = os.environ.get('HOSTNAME', '')
+    origin = os.environ.get("HOSTNAME", "")
     try:
-        os.environ['HOSTNAME'] = hostName
+        os.environ["HOSTNAME"] = hostName
         yield
     finally:
-        os.environ['HOSTNAME'] = origin
+        os.environ["HOSTNAME"] = origin
+
 
 @contextmanager
 def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:

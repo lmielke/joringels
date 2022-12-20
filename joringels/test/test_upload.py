@@ -36,10 +36,10 @@ class UnitTest(unittest.TestCase):
     def test_get_targets(self, *args, **kwargs):
         expected_names = ["joringels_server", "haimdall_server"]
         expected_targets = (
-                    "python_venvs/physical_machines/haimdall_server",
-                    "python_venvs/physical_machines/joringels_server",
+            "python_venvs/physical_machines/haimdall_server",
+            "python_venvs/physical_machines/joringels_server",
         )
-        
+
 
 if __name__ == "__main__":
     unittest.main()
