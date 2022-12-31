@@ -22,6 +22,7 @@ class UnitTest(unittest.TestCase):
         cls.verbose = 0
         # cls.testData = cls.get_test_data(*args, **kwargs)
         cls.safeName = "safe_one"
+        cls.prep_enc_path(*args, **kwargs)
         cls.productName = "haimdall"
         cls.clusterName = "testing_cluster"
         cls.exportDir = os.path.join(sts.testDataDir, "actions")
@@ -38,7 +39,17 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        pass
+        if os.path.exists(cls.encryptPath):
+            os.remove(cls.encryptPath)
+
+    @classmethod
+    def prep_enc_path(cls, *args, **kwargs):
+        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
+        if os.path.exists(cls.encryptPath):
+            return True
+        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
+        # copying this file is needed because pre-commit fails on changes
+        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
     # @classmethod
     # def get_test_data(cls, *args, **kwargs):

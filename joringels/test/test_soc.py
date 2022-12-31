@@ -21,18 +21,29 @@ class UnitTest(unittest.TestCase):
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
         cls.safeIp = os.environ.get("DATASAFEIP")
+        cls.prep_enc_path(*args, **kwargs)
         cls.testData = cls.get_test_data(*args, **kwargs)
         cls.isIp = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
         cls.dockerIp = r"172\.\d{1,3}\.\d{1,3}\.\d{1,3}"
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        pass
+        if os.path.exists(cls.encryptPath):
+            os.remove(cls.encryptPath)
 
     @classmethod
     def get_test_data(cls, *args, **kwargs):
         with open(os.path.join(sts.testDataDir, "test_soc.yml"), "r") as f:
             return yaml.safe_load(f)
+
+    @classmethod
+    def prep_enc_path(cls, *args, **kwargs):
+        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
+        if os.path.exists(cls.encryptPath):
+            return True
+        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
+        # copying this file is needed because pre-commit fails on changes
+        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
     def test_derrive_host(self, *args, **kwargs):
         self.assertEqual(self.safeIp, soc.derrive_host(connector="joringels"))
