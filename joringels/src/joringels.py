@@ -149,7 +149,7 @@ class Joringel:
             testLogDir = self.apiHand.modules[connector]["testLogDir"]
         # get header from latest test logfile
         cov = Coverage(logDir=testLogDir)
-        cov()
+        cov.get_stats()
         return cov.latest[0]
 
     def _handle_integer_keys(self, apiParams):

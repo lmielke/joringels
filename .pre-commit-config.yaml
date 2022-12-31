@@ -4,3 +4,12 @@ repos:
     hooks:
       - id: black
         args: [--safe]
+  # pyhton -m unittest
+  - repo: local
+    hooks:
+      - id: unittest
+        name: unittest
+        entry: python -m unittest
+        language: system
+        pass_filenames: false
+        args: ["discover"]
