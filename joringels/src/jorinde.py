@@ -8,7 +8,6 @@ import colorama as color
 
 color.init()
 import os, requests, yaml
-from copy import deepcopy
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
@@ -50,6 +49,7 @@ class Jorinde:
         return self.clean_response(connector, *args, **kwargs)
 
     def post_request(self, connector: str, *args, entryName, **kwargs):
+        """sends an encrypted post request to the specified host/port server"""
         entry = text_encrypt(connector, os.environ.get("DATASAFEKEY"))
         url = f"http://{self.host}:{self.port}/{entry}"
         if not type(entryName) == dict:
