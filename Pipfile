@@ -12,7 +12,7 @@ tabulate = "*"
 psutil = "*"
 ipwhois = "*"
 joringels = {editable = true, path = "."}
-logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
+logunittest = {git = "https://oauth2:glpat-PDn2Nftephd5_mGosn4x@gitlab.com/larsmielke2/logunittest.git"}
 
 [dev-packages]
 pykeepass = "*"
