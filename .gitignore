@@ -9,7 +9,8 @@ users/__pycache__/
 *.png
 *.jpg
 zz_rapit_proto.py
-test/data/safe_one.yml
+joringels/test/data/safe_one.yml
+safe_one.yml
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
