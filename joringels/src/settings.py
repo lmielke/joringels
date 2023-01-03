@@ -7,7 +7,7 @@ import joringels.src.get_soc as soc
 from joringels.src.helpers import unalias_path as unalias_path
 from joringels.src.helpers import prep_path as prep_path
 
-#****************** MUST CHANGE PARAMS ***********************#
+# ****************** MUST CHANGE PARAMS ***********************#
 """ 
     You must change the followig parameter according to your 
     individual project setup
@@ -36,9 +36,9 @@ exportDir = unalias_path("~/python_venvs/packages/dockerizer/dockerizer/builds")
 ########################### END src.sources.kdbx parameters ##########################
 
 
-#****************** CAN CHANGE PARAMS ***********************#
+# ****************** CAN CHANGE PARAMS ***********************#
 ########################### START joringels base params ###########################
-appName = 'joringels'
+appName = "joringels"
 
 global encryptDir
 encryptDir = unalias_path("~/.ssp")
@@ -47,14 +47,14 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 # path sepeator for path to find your secret inside its source i.e. kdbx
 # default ip to fetch dataSafe from
 defaultSafeIp = os.environ.get("DATASAFEIP")
-defaultHost = '0.0.0.0'
+defaultHost = "0.0.0.0"
 defaultPort = 7000
 # encryption/decryption helper
 decPrefix = "decrypted_"
 validator = "text_is_valid"
 #### do NOT change params below unless you know what your doing :) ####
 
-#****************** MUST NOT CHANGE PARAMS ***********************#
+# ****************** MUST NOT CHANGE PARAMS ***********************#
 # takes the current module and runs function with funcName
 settingsPath = os.path.split(__file__)[0]
 srcPath = os.path.split(settingsPath)[0]
@@ -120,4 +120,3 @@ available_appsPaths = {
 api_endpoints_path = lambda projectDir, projectName: os.path.join(
     projectDir, projectName, "api_endpoints", "params.yml"
 )
-

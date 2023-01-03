@@ -2,7 +2,8 @@
 
 ## up next
 Topics to be implemented:
--  invoke.py: host, port derivation is not in the correct module ! should be in get_soc.py
+- invoke.py: host, port derivation is not in the correct module ! should be in get_soc.py
+- unittest must run on testserver docker
 
 ### run in Shell
 jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)

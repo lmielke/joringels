@@ -20,6 +20,7 @@ class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
+        cls.prep_enc_path(*args, **kwargs)
         cls.tempDataPath = os.path.join(sts.testDataDir, "temp")
         cls.testKey = "testKey"
         time.sleep(1)
@@ -31,6 +32,17 @@ class UnitTest(unittest.TestCase):
             # pass
         except Exception as e:
             print(f"UnitTest, tearDownClass, e: {e}")
+        if os.path.exists(cls.encryptPath):
+            os.remove(cls.encryptPath)
+
+    @classmethod
+    def prep_enc_path(cls, *args, **kwargs):
+        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
+        if os.path.exists(cls.encryptPath):
+            return True
+        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
+        # copying this file is needed because pre-commit fails on changes
+        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
     def mk_test_data(cls, fileDir, fileName="test_secrets", *args, **kwargs):
         if not os.path.isdir(fileDir):

@@ -8,7 +8,6 @@ import colorama as color
 
 color.init()
 import os, requests, yaml
-from copy import deepcopy
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
@@ -29,12 +28,12 @@ class Jorinde:
         self.response = None
         self.secrets = None
 
-    def _fetch(self, *args, connector:str="joringels", **kwargs):
+    def _fetch(self, *args, connector: str = "joringels", **kwargs):
         """
-            makes a get/post request to server and returns the self.response
+        makes a get/post request to server and returns the self.response
         """
         try:
-            if connector == 'joringels' or connector is None:
+            if connector == "joringels" or connector is None:
                 self.get_request(connector, *args, **kwargs)
             else:
                 self.post_request(connector, *args, **kwargs)
@@ -49,13 +48,14 @@ class Jorinde:
                 print(f"{color.Fore.RED}{self.secrets}{color.Style.RESET_ALL}")
         return self.clean_response(connector, *args, **kwargs)
 
-    def post_request(self, connector:str, *args, entryName, **kwargs):
-        entry = text_encrypt(connector, os.environ.get('DATASAFEKEY'))
+    def post_request(self, connector: str, *args, entryName, **kwargs):
+        """
+        sends an encrypted post request to the specified host/port server
+        """
+        entry = text_encrypt(connector, os.environ.get("DATASAFEKEY"))
         url = f"http://{self.host}:{self.port}/{entry}"
         if not type(entryName) == dict:
-            raise Exception(
-                f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}"
-            )
+            raise Exception(f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}")
         payload = dict_encrypt(dict_values_encrypt(entryName))
         self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
 
@@ -84,7 +84,6 @@ class Jorinde:
             return self.secrets.get(entryName)
         else:
             return self.secrets
-        return out
 
     def _unpack_decrypted(self, *args, safeName=None, **kwargs):
         safeName = safeName if safeName is not None else os.environ.get("DATASAFENAME").lower()

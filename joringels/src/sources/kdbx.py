@@ -36,12 +36,15 @@ class KeePassSecrets:
         self.cluster = self.get_cluster(*args, **kwargs)
         if action != "show":
             self.targets, self.entries = self._get_safe_params(*args, **kwargs)
-            # print(f"{self.targets = }")
 
     def get_cluster(self, *args, clusterName: str = None, productName: str = None, **kwargs):
         self.clusterName = clusterName
         if self.clusterName is not None:
-            clusters = self.session.find_groups(name=productName, first=True)
+            if not productName:
+                msg = f"KDBX.ERROR: No productName: {productName}"
+                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                exit()
+            clusters = self.session.find_groups(name=productName)[0]
             cluster = self.session.find_entries(title=clusterName, group=clusters, first=True)
             if cluster is None:
                 msg = f"KDBX.ERROR: No cluster named: {clusterName} in {productName}"
@@ -75,14 +78,26 @@ class KeePassSecrets:
             entries.append("/".join(self.cluster.path))
         return targets, entries
 
-    def _get_entries_params(self, entries, *args, **kwargs):
-        for entryPath in entries:
+    def _get_entries_params(self, entries, *args, productName, clusterName, **kwargs):
+        for i, entryPath in enumerate(entries):
             self.verbose: print(f"{entryPath = }")
             groupPath, entryName = os.path.split(entryPath)
-            self.verbose: print(f"{groupPath = }, {entryName = }")
-            entry = self.session.find_entries(
-                title=entryName, group=self.session.find_groups(path=groupPath), first=True
+            if self.verbose:
+                print(f"\n_get_entries_params {i} {groupPath = }, {entryName = }")
+            entries = self.session.find_entries(
+                title=entryName, group=self.session.find_groups(path=groupPath)
             )
+            # for enttry with productName/clusterName pykeepass finds multiple entries
+            # but needs to be a single entry
+            if len(entries) >= 2:
+                for e in entries:
+                    if productName in e.path and clusterName in e.path:
+                        entry = e
+                        break
+                else:
+                    entry = entries[0]
+            else:
+                entry = entries[0]
             self.secrets[entry.title] = self._get_entry_params(entry, *args, **kwargs)
             self.secrets[entry.title].update(self._get_attachments(entry, *args, **kwargs))
 
@@ -103,7 +118,6 @@ class KeePassSecrets:
         and adds external ip to all allowedClients lists
         """
         found = False
-        print(f"{objs = }")
         for objName, obj in objs.items():
             if type(obj) is dict:
                 if sts.allowedClients in obj:
@@ -150,15 +164,15 @@ class KeePassSecrets:
             self.show(self, host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
-        self._get_entries_params(self.entries, *args, **kwargs)
-        self._get_entries_params(self.targets, *args, **kwargs)
+        self._get_entries_params(self.entries, productName=productName, *args, **kwargs)
+        self._get_entries_params(self.targets, productName=productName, *args, **kwargs)
         if productName is not None:
             self.secrets["PRODUCTNAME"] = productName
         self.get_ip_address(*args, **kwargs)
         self._write_secs(*args, **kwargs)
         return self.dataSafePath
 
-    def show(self, host, *args, **kwargs) -> None:
+    def show(self, searchTerm=None, *args, **kwargs) -> None:
         """
         gets all relevant entry paths from keepass and prints them in a copy/paste
         optimized way
@@ -171,12 +185,18 @@ class KeePassSecrets:
             server login credential start like: !~/python_venvs/.../...
             normal entries look like:             python_venvs/.../...
         """
-        msg = f"Available Groups: {host}"
-        print(f"\n{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
+        self.verbose = 1
+        if self.verbose:
+            msg = f"Available Groups: {searchTerm}"
+            print(f"\n{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}")
         for i, element in enumerate(self.session.find_entries(title=".*", regex=True)):
             if element.path[0] == sts.kdbxRootGroup:
                 entryPath = sts.kps_sep.join(element.path)
-                print(f"{i} copy to Notes:\t{entryPath}")
+                if searchTerm is not None and searchTerm in entryPath:
+                    return element
+                else:
+                    if self.verbose:
+                        print(f"{i} copy to Notes:\t{entryPath}")
 
 
 def main(action=None, *args, **kwargs):

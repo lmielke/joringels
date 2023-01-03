@@ -9,6 +9,7 @@ def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     socName = s.getsockname()[0]
+    s.close()
     return socName
 
 
@@ -63,7 +64,7 @@ def resolve_host_alias(*args, host, connector: str = None, **kwargs):
         domain, host = os.environ.get("NETWORK"), int(host)
         if domain.startswith(sts.devHost) and host in range(10):
             host = socket.gethostbyname(f"{domain}{host}")
-    elif host == connector and os.environ.get('HOSTNAME') == sts.devHost:
+    elif host == connector and os.environ.get("HOSTNAME") == sts.devHost:
         host = get_local_ip()
     return host
 
@@ -78,18 +79,26 @@ def get_ip(apiParams=None, *args, host, **kwargs):
 
 
 def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
-    if port is not None: return int(port)
-    if connector is None or connector == sts.appName: return sts.defaultPort
+    if port is not None:
+        return int(port)
+    if connector is None or connector == sts.appName:
+        return sts.defaultPort
     # on a server host and port need to be read from service params
-    if apiParams is None: apiParams = get_api_params(*args, **kwargs)
+    if apiParams is None:
+        apiParams = get_api_params(*args, **kwargs)
     port = int(port) if port else int(apiParams[connector].get("ports")[0].split(":")[0])
     return port
 
-def get_api_params(*args, clusterName=None, **kwargs):
-    if clusterName is None: clusterName = os.environ.get('CLUSTERNAME')
-    params = {'entryName': clusterName, 'connector':'joringels', 'retain': True}
+
+def get_api_params(*args, clusterName=None, safeName=None, **kwargs):
+    if clusterName is None:
+        clusterName = os.environ.get("CLUSTERNAME")
+    params = {"entryName": clusterName, "connector": "joringels", "retain": True}
+    if safeName is not None:
+        params["safeName"] = safeName
     from joringels.src.actions import fetch
-    apiParams = fetch.alloc(*args, **params)['cluster_params']['services']
+
+    apiParams = fetch.alloc(*args, **params)["cluster_params"]["services"]
     return apiParams
 
 

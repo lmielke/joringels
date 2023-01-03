@@ -39,10 +39,12 @@ def runable(*args, action, **kwargs):
     """
     return importlib.import_module(f"joringels.src.actions.{action}")
 
+
 def run_tests(*args, runTests=None, **kwargs):
     if runTests:
         # runs unittest before serving, NOTE: tries to serve even if test has errors!
-        subprocess.call(['pipenv', 'run', 'python', '-m', 'logunittest', 'ut'])
+        subprocess.call(["pipenv", "run", "python", "-m", "logunittest", "ut"])
+
 
 def main(*args, **kwargs):
     """
@@ -50,7 +52,6 @@ def main(*args, **kwargs):
     runs action if legidemit and prints outputs
     """
     kwargs = arguments.mk_args().__dict__
-
     # kwargs are vakidated against enforced contract
     kwargs = contracts.checks(*args, **kwargs)
     run_tests(*args, **kwargs)

@@ -13,6 +13,8 @@ import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 from joringels.src.joringels import Joringel
 from joringels.src.encryption_dict_handler import dict_decrypt
+from joringels.src.encryption_dict_handler import dict_values_decrypt
+from logunittest.settings import testLogsDir
 
 # print(f"\n__file__: {__file__}")
 
@@ -21,19 +23,37 @@ class UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
+        cls.prep_enc_path(*args, **kwargs)
         cls.testData = cls.get_test_data(*args, **kwargs)
+        cls.mk_test_logs_dir(*args, **kwargs)
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        pass
+        if os.path.exists(cls.encryptPath):
+            os.remove(cls.encryptPath)
 
     @classmethod
     def get_test_data(cls, *args, **kwargs):
         with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
             return yaml.safe_load(f)
 
+    @classmethod
+    def prep_enc_path(cls, *args, **kwargs):
+        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
+        if os.path.exists(cls.encryptPath):
+            return True
+        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
+        # copying this file is needed because pre-commit fails on changes
+        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
+
+    @classmethod
+    def mk_test_logs_dir(cls, *args, **kwargs):
+        logDir = os.path.join(testLogsDir, "joringels")
+        if not os.path.exists(logDir):
+            os.makedirs(logDir)
+
     def test__memorize(self, *args, **kwargs):
-        expected = [sts.apiParamsFileName, "apiEndpointDir", 'logunittest']
+        expected = [sts.apiParamsFileName, "apiEndpointDir", "logunittest"]
         testData = self.testData
         testData["apiEndpointDir"] = sts.appBasePath
         j = Joringel(*args, **kwargs)
@@ -42,6 +62,36 @@ class UnitTest(unittest.TestCase):
         )
         decrypted = dict_decrypt(encrypted)
         self.assertEqual(list(decrypted.keys()), expected)
+
+    def test__digest(self, *args, **kwargs):
+        one = f"{sts.testDataDir}/safe_one.yml".replace(os.sep, "/")
+        two = "haimdall"
+        three = {"action": "send", "import": "haimdall.actions.communicate", "response": None}
+        os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
+        sts.encryptDir = sts.testDataDir
+        apiName = "haimdall"
+        clusterName = "testing_cluster"
+        kwargs = {
+            "safeName": "safe_one",
+            "productName": apiName,
+            "clusterName": clusterName,
+            "key": "testing",
+            # never remove retain, it will break the test
+            "retain": True,
+        }
+        j = Joringel(**kwargs)
+        encryptPath, secrets = j._digest(*args, **kwargs)
+        self.assertEqual(one, encryptPath.replace(os.sep, "/"))
+        self.assertEqual(two, secrets.get("PRODUCTNAME"))
+        # apiParams are found in a nested dictionary using integer values to ref api params
+        # so [0] here is a dict parameter
+        self.assertEqual(three, secrets[clusterName]["cluster_params"]["services"][apiName][0])
+        # apiParams are also stored in j.api dictionary in encrypted form
+        # hence ['0'] here is identical to [0] in apiParams select above
+        self.assertEqual(
+            secrets[clusterName]["cluster_params"]["services"][apiName][0],
+            dict_values_decrypt(dict_decrypt(j.api))[apiName]["0"],
+        )
 
     def test__from_memory(self, *args, **kwargs):
         # entry spells: _apis
@@ -70,8 +120,11 @@ class UnitTest(unittest.TestCase):
 
     def test__get_recent_logfile(self, *args, **kwargs):
         j = Joringel(*args, **kwargs)
-        text = j._get_recent_logfile(connector='joringels')
-        self.assertIn("INFO logunittest - run_unittest", text)
+        text = j._get_recent_logfile(connector="joringels")
+        if os.name == "posix":
+            self.assertEqual("Nothing", text)
+        else:
+            self.assertIn("INFO logunittest - run_unittest", text)
 
 
 from contextlib import contextmanager
