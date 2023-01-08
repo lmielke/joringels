@@ -99,10 +99,7 @@ available apps json looks like this
                          ]
     }
 """
-available_appsPaths = {
-    "nt": "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json",
-    "posix": "~/os_setup/droplet/configs/available_apps.json",
-}
+available_appsPaths = "~/python_venvs/modules/os_setup/droplet/configs/available_apps.json"
 
 
 # api_endpoint.yml contains the api parameters

@@ -140,7 +140,7 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
 
 
 def get_api_enpoint_dir(connector, *args, **kwargs):
-    with open(unalias_path(sts.available_appsPaths.get(os.name)), "r") as apps:
+    with open(unalias_path(sts.available_appsPaths), "r") as apps:
         available_apps = json.load(apps)
     app = available_apps.get(connector)
     if not app:

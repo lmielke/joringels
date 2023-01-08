@@ -13,6 +13,7 @@ def get_local_ip():
     return socName
 
 
+# marked for deletion, not used !?
 def get_external_ip_from_env():
     ip_address = os.environ.get("my_ip", None)
     if ip_address is None:
