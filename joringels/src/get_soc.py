@@ -72,7 +72,7 @@ def resolve_host_alias(*args, host, connector: str = None, **kwargs):
 
 def get_ip(apiParams=None, *args, host, **kwargs):
     if apiParams is None:
-        apiParams = get_api_params(*args, **kwargs)
+        apiParams = get_api_params(*args, host=host, **kwargs)
     # on a server host and port need to be read from service params
     network = list(apiParams[host].get("networks").keys())[0]
     host = apiParams[host].get("networks")[network].get("ipv4_address")
@@ -94,6 +94,12 @@ def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
 def get_api_params(*args, clusterName=None, safeName=None, **kwargs):
     if clusterName is None:
         clusterName = os.environ.get("CLUSTERNAME")
+        assert clusterName, (
+            f"\nget_soc.get_api_params:"
+            f" hostName {kwargs['host']} could not be resolved,"
+            f" and clusterName is {clusterName}!"
+            f" Check spelling of hostName ! {kwargs['host']}"
+        )
     params = {"entryName": clusterName, "connector": "joringels", "retain": True}
     if safeName is not None:
         params["safeName"] = safeName
