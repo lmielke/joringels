@@ -11,7 +11,7 @@ requests = "*"
 tabulate = "*"
 psutil = "*"
 ipwhois = "*"
-# context change in lut ut
+# context will change in lut ut before git add
 joringels = {path = "."}
 logunittest = {git = "https://oauth2:glpat-PDn2Nftephd5_mGosn4x@gitlab.com/larsmielke2/logunittest.git"}
 
