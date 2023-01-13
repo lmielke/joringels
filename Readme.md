@@ -9,6 +9,9 @@ Topics to be implemented:
 jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)
 ```
     # Examples
+    # serving joringels
+    jo serve -n digiserver -con joringels -cn testing -rt -t
+    # loading a datasafe from kdbx source to .ssp folder
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
     jo fetch -e _joringel.yml
     # load to local docker export dir
