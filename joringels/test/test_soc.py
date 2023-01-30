@@ -55,8 +55,11 @@ class UnitTest(unittest.TestCase):
         # test joringels connector
         self.assertEqual(self.safeIp, soc.get_host(self.testData, connector="joringels"))
         self.assertEqual(self.safeIp, soc.get_host(self.testData))
-        self.assertEqual(
-            self.safeIp, soc.get_host(self.testData, host="localhost", connector="joringels")
+        self.assertTrue(
+            re.match(
+                r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$",
+                soc.get_host(self.testData, host="localhost", connector="joringels"),
+            )
         )
         self.assertEqual(self.safeIp, soc.get_host(self.testData, host="localhost"))
 

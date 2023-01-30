@@ -45,7 +45,6 @@ def file_or_files(workPath: str, *args, **kwargs) -> list:
     i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
     """
     workPath = prep_path(workPath)
-    print(f"{workPath = }")
     if os.path.isdir(workPath):
         fileNames = os.listdir(workPath)
     elif os.path.isfile(workPath):

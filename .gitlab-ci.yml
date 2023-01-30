@@ -8,5 +8,5 @@ unittest:
         - test
   script:
     - pip3 install pipenv
-    - pipenv install
+    - echo Y | pipenv install
     - pipenv run python -m unittest

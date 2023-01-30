@@ -19,7 +19,6 @@ def check_serve(*args, host=None, port=None, connector=None, **kwargs):
     errors = {}
     if host is not None:
         errors["host"] = f"serve host must be provided in api params file but is {host}"
-
     if port is not None and port != 7000:
         errors["port"] = f"serve port must only be provided in api params file but is {port}"
     if connector == "application" and errors:

@@ -16,16 +16,33 @@ if ($args.Length -lt 3){
     exit 0
 }
 
-Write-Host "`tNow uploading to $username@$hostIp, files: $locPath -> $rmPath" -ForegroundColor yellow
 if (($username -eq $null) -or ($password -eq $null)){
-    Write-Host "`t`tEnter target credentials! Use pwd-user autotype:" -ForegroundColor magenta
-    $username = Read-Host -Prompt "`t`t`tusername $username@$hostIp"
-    $password = Read-Host -Prompt "`t`t`tpwd $username@$hostIp"
+    Write-Host "`nTarget credentials! " -nonewline
+    Write-Host "AUTOTYPE hostName-pwd-user :" -ForegroundColor yellow
+    $username, $hostIp = $(Read-Host -Prompt " ").split('@')
+    $username = $username.Substring(4, $username.Length-4)
+    $password = Read-Host -Prompt " "
+
 }
-
-$password = ConvertTo-SecureString -String $password -AsPlainText -Force
-
-Write-Host "Creds: $username, key: $password" -ForegroundColor green
+$password = ConvertTo-SecureString -String "$password" -AsPlainText -Force
 $credential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $password
+
+Write-Host "`nUPLOADING ... "
+Write-Host "Credential: username: " -nonewline
+Write-Host "$username " -ForegroundColor yellow -nonewline
+Write-Host ", key: " -nonewline
+Write-Host "$password " -ForegroundColor yellow -nonewline
+Write-Host "-> " -nonewline
+Write-Host "$credential" -ForegroundColor yellow
+
+Write-Host "Set-SCPItem -ComputerName" -NoNewline -ForegroundColor white
+Write-Host " $hostIp" -NoNewline -ForegroundColor yellow
+Write-Host " -Path" -NoNewline -ForegroundColor white
+Write-Host " $locPath" -NoNewline -ForegroundColor yellow
+Write-Host " -Destination" -NoNewline -ForegroundColor white
+Write-Host " $rmPath" -NoNewline -ForegroundColor yellow
+Write-Host " -Force`n" -ForegroundColor white
+
+
 Set-SCPItem  -Credential $credential -ComputerName $hostIp -Path $locPath -Destination $rmPath -Force
 Write-Host "`tUpload successful" -ForegroundColor green
