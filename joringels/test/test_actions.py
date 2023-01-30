@@ -60,7 +60,7 @@ class UnitTest(unittest.TestCase):
         from joringels.src.actions import fetch
 
         out = fetch.alloc(*[], **self.kwargs)
-        self.assertEqual("myDataSafeKey", out.get("password"))
+        self.assertEqual("testing", out.get("password"))
 
     def test_load(self, *args, **kwargs):
         # from joringels.src.actions import load
