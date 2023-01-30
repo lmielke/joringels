@@ -15,7 +15,7 @@ import joringels.src.helpers as helpers
 
 # jo load -n digiserver -pd wobbles -c testing -src kdbx
 class KeePassSecrets:
-    def __init__(self, action, *args, safeName, verbose=0, key=None, **kwargs):
+    def __init__(self, action, *args, safeName, source=None, verbose=0, key=None, **kwargs):
         self.verbose = verbose
         self.groups, self.safeName = {}, safeName.lower()
         self.secrets, self.secretsKey, self.serverCreds = {}, "", {}
@@ -25,7 +25,8 @@ class KeePassSecrets:
             if key is not None
             else Creds(*args, **kwargs).set("KeePass login", *args, **kwargs)
         )
-        self.session = keePass(helpers.unalias_path(os.environ.get("secrets")), self.creds)
+        source = source if source is not None else helpers.unalias_path(os.environ.get("secrets"))
+        self.session = keePass(source, self.creds)
         self.dataSafes = self.session.find_groups(name=sts.dataSafeGroup, first=True)
         self.dataSafe = self.session.find_entries(title=safeName, group=self.dataSafes, first=True)
         if not self.dataSafe:

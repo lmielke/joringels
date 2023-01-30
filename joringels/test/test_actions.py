@@ -63,8 +63,10 @@ class UnitTest(unittest.TestCase):
         self.assertEqual("myDataSafeKey", out.get("password"))
 
     def test_load(self, *args, **kwargs):
-        pass
+        # from joringels.src.actions import load
+        # kwargs = {'safeName': 'safe_one', 'source': os.environ["secrets"], 'key': 'testing'}
         # self.assertEqual('adminUser', postgresUser)
+        pass
 
 
 if __name__ == "__main__":
