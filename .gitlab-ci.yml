@@ -1,12 +1,33 @@
 stages:
   - test
+  - review
+  - deploy
+
+# variables:
+#   DOCKER_HOST: tcp://docker:2375
+
+# services:
+#     - docker:dind
+
+before_script:
+  - echo "$CI_COMMIT_TAG"
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+precommittest:
+  stage: test
+  when: manual
+  allow_failure: true
+  tags:
+        - precommittest
+  script:
+    - python -m unittest
 
 unittest:
-  image: python:3.9
   stage: test
   tags:
         - test
   script:
-    - pip3 install pipenv
-    - echo Y | pipenv install
-    - pipenv run python -m unittest
+    - echo $(cat /etc/lsb-release)
+    - echo $PWD
+    - echo ls -la
+    - docker run -i --rm --ip 172.18.0.9 --network illuminati lmielke/unittests unittest $CI_PROJECT_NAME no-update
