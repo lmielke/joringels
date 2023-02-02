@@ -30,4 +30,4 @@ unittest:
     - echo $(cat /etc/lsb-release)
     - echo $PWD
     - echo ls -la
-    - docker run -i --rm --ip 172.18.0.9 --network illuminati lmielke/unittests unittest $CI_PROJECT_NAME no-update
+    - docker run -i --rm --ip 172.18.0.9 --network illuminati lmielke/unittests unittest $CI_PROJECT_NAME
