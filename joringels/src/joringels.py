@@ -40,7 +40,7 @@ class Joringel:
     sessions = {}
 
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
-        self.joringels_runntime = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
+        self.sessions = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
         self.encryptPath = helpers.mk_encrypt_path(self.safeName)
@@ -106,7 +106,7 @@ class Joringel:
         for example host, port and network infos
         clusterParams has these infos under _joringels, services
         """
-        if "serving" in self.joringels_runntime:
+        if "serving" in self.sessions:
             return False
         clusterName = clusterName if clusterName else "testing"
         if not self.secrets.get(clusterName):
@@ -128,7 +128,7 @@ class Joringel:
         # joringels basic runntime params like allowedHosts must be loaded from secrets
         if clusterParams.get(sts.appParamsFileName):
             sts.appParams.update(clusterParams[sts.appParamsFileName])
-        self.joringels_runntime.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
+        self.sessions.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
         return True
 
     def _get_recent_logfile(self, connector, *args, **kwargs):
@@ -187,9 +187,10 @@ class Joringel:
         latter all get and post requests read from this dictionary
         """
         # test results are added here to be available after cluster server up
-        secrets["logunittest"] = self._get_recent_logfile(connector, *args, **kwargs).split("\n")[
-            0
-        ]
+        secrets["logunittest"] = (
+            f"FROM {soc.get_hostname()}.{connector.upper()}: "
+            + self._get_recent_logfile(connector, *args, **kwargs).split("\n")[0]
+        )
         self.secrets = dict_encrypt(
             dict_values_encrypt(secrets, os.environ.get("DATAKEY")), os.environ.get("DATASAFEKEY")
         )
