@@ -70,6 +70,16 @@ class KeePassSecrets:
             exit()
         self.encrpytKey = self.dataSafe.password
         attachs = self._get_attachments(self.dataSafe)
+        if not attachs:
+            msg = (
+                f"{color.Fore.RED}"
+                f"KDBX.ERROR: s._get_safe_params no attachment named {sts.safeParamsFileName}"
+                f" for {self.safeName}"
+                f"{color.Style.RESET_ALL}"
+            )
+            print(msg)
+            exit()
+
         safe_params = attachs.get(sts.safeParamsFileName)
         # self.joringelsParams = attachs.get(sts.appParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
@@ -162,7 +172,7 @@ class KeePassSecrets:
 
     def load(self, *args, host=None, productName: str = None, **kwargs) -> None:
         if self.verbose >= 2:
-            self.show(self, host, *args, **kwargs)
+            self.show(host, *args, **kwargs)
         host = host if host is not None else list(self.targets)[0]
         target = self.targets.get(host, None)
         self._get_entries_params(self.entries, productName=productName, *args, **kwargs)
