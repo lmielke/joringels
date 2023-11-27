@@ -5,6 +5,7 @@ from importlib import import_module
 import os, sys
 from datetime import datetime as dt
 import subprocess
+from logunittest.settings import get_testlogsdir
 
 
 class ApiHandler:
@@ -51,7 +52,8 @@ class ApiHandler:
             modules[connector][ix] = {"module": module}
             if ix == 0:
                 package = module.__package__.split(".")[-1]
-                testLogDir = os.path.join(module.__file__.split(package)[0], "test", "logs")
+                # testLogDir = os.path.join(module.__file__.split(package)[0], "test", "logs")
+                testLogDir = get_testlogsdir()
                 modules[connector]["testLogDir"] = testLogDir
         return modules
 

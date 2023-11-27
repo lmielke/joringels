@@ -12,7 +12,16 @@ def checks(*args, **kwargs):
     kwargs = error_check_params(*args, **kwargs)
     error_upload_all(*args, **kwargs)
     kwargs = warn_deletion(*args, **kwargs)
+    check_secrets_path(*args, **kwargs)
     return kwargs
+
+
+def check_secrets_path(*args, **kwargs):
+    if os.name == "nt":
+        secretsPath = sts.unalias_path(os.environ.get("secrets"))
+        # assert that secretsPath is actually a path that does exist
+        msg = f"{color.Fore.RED}secretsPath: {secretsPath} not valid!{color.Style.RESET_ALL}"
+        assert os.path.exists(secretsPath), msg
 
 
 def check_serve(*args, host=None, port=None, connector=None, **kwargs):

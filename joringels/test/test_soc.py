@@ -15,8 +15,9 @@ import joringels.src.get_soc as soc
 
 # print(f"\n__file__: {__file__}")
 
+
 # jo upload -n safe_one -src kdbx -con scp -pr all
-class UnitTest(unittest.TestCase):
+class Test_UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
@@ -61,6 +62,7 @@ class UnitTest(unittest.TestCase):
                 soc.get_host(self.testData, host="localhost", connector="joringels"),
             )
         )
+        # self.safeIp comes from env: DATASAFEIP and for some reason ipv4 changes frequently
         self.assertEqual(self.safeIp, soc.get_host(self.testData, host="localhost"))
 
         # if connector is an api (non-joringels), host comes from secrets

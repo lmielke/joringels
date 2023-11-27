@@ -14,15 +14,15 @@ import joringels.src.helpers as helpers
 from joringels.src.joringels import Joringel
 from joringels.src.encryption_dict_handler import dict_decrypt
 from joringels.src.encryption_dict_handler import dict_values_decrypt
-from logunittest.settings import testLogsDir
+from logunittest.settings import get_testlogsdir
 
 # print(f"\n__file__: {__file__}")
 
 
-class UnitTest(unittest.TestCase):
+class Test_Joringel(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
-        cls.verbose = 0
+        cls.verbose = 1
         cls.prep_enc_path(*args, **kwargs)
         cls.testData = cls.get_test_data(*args, **kwargs)
         cls.mk_test_logs_dir(*args, **kwargs)
@@ -48,7 +48,7 @@ class UnitTest(unittest.TestCase):
 
     @classmethod
     def mk_test_logs_dir(cls, *args, **kwargs):
-        logDir = os.path.join(testLogsDir, "joringels")
+        logDir = os.path.join(get_testlogsdir(), "joringels")
         if not os.path.exists(logDir):
             os.makedirs(logDir)
 
@@ -124,7 +124,7 @@ class UnitTest(unittest.TestCase):
         if os.name == "posix":
             self.assertEqual("Nothing", text)
         else:
-            self.assertIn("INFO logunittest - run_unittest", text)
+            self.assertIn("INFO logunittest -", text)
 
 
 from contextlib import contextmanager

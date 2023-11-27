@@ -1,5 +1,5 @@
 """
-parses haimdall arguments
+parses joringels arguments
 """
 import argparse
 

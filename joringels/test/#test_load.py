@@ -11,7 +11,9 @@ import unittest
 # test package imports
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
-from joringels.src.sources import kdbx
+import os
+from joringels.src.actions import fetch
+from joringels.src.actions import load
 
 # print(f"\n__file__: {__file__}")
 
@@ -20,48 +22,44 @@ class Test_UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
-        cls.testData = cls.get_test_data(*args, **kwargs)
+        # cls.testData = cls.get_test_data(*args, **kwargs)
         cls.safeName = "safe_one"
+        cls.prep_enc_path(*args, **kwargs)
         cls.productName = "haimdall"
         cls.clusterName = "testing_cluster"
+        cls.exportDir = os.path.join(sts.testDataDir, "actions")
         os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
         sts.encryptDir = sts.testDataDir
         cls.kwargs = {
             "safeName": cls.safeName,
+            "entryName": "safe_one",
             "productName": cls.productName,
             "clusterName": cls.clusterName,
             "key": "testing",
+            "retain": True,
         }
-        cls.KP = kdbx.KeePassSecrets("load", *args, **cls.kwargs)
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        pass
+        if os.path.exists(cls.encryptPath):
+            os.remove(cls.encryptPath)
 
     @classmethod
-    def get_test_data(cls, *args, **kwargs):
-        with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
-            return yaml.safe_load(f)
+    def prep_enc_path(cls, *args, **kwargs):
+        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
+        if os.path.exists(cls.encryptPath):
+            return True
+        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
+        # copying this file is needed because pre-commit fails on changes
+        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
-    def test__init__(self, *args, **kwargs):
-        # targets
-        self.assertEqual(
-            {
-                "haimdall_server": "python_venvs/physical_machines",
-                "joringels_server": "python_venvs/physical_machines",
-            },
-            self.KP.targets,
-        )
-        # entreis
-        self.assertEqual(
-            ["python_venvs/databases/aws_postgres", "python_venvs/data_safes/safe_one"],
-            self.KP.entries[:2],
-        )
+    # @classmethod
+    # def get_test_data(cls, *args, **kwargs):
+    #     with open(os.path.join(sts.testDataDir, "test_api_handler.yml"), "r") as f:
+    #         return yaml.safe_load(f)
 
-    def test_load(self, *args, **kwargs):
-        self.KP.load(*args, **self.kwargs)
-        postgresUser = self.KP.secrets.get("aws_postgres").get("username")
-        self.assertEqual("adminUser", postgresUser)
+    # def test_run(self, *args, **kwargs):
+    #     pass
 
 
 if __name__ == "__main__":

@@ -34,6 +34,7 @@ from joringels.src.encryption_dict_handler import (
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
 from joringels.src.api_handler import ApiHandler
+from logunittest.settings import get_testlogsdir
 
 
 class Joringel:
@@ -143,10 +144,11 @@ class Joringel:
 
         if connector == sts.appName:
             # get joringels testLogDir
-            testLogDir = sts.testLogDir
+            testLogDir = os.path.join(get_testlogsdir(), sts.appName)
         else:
             # get testLogDir of imported apiModule
             testLogDir = self.apiHand.modules[connector]["testLogDir"]
+        # print(f"_get_recent_logfile: {testLogDir = }")
         # get header from latest test logfile
         cov = Coverage(logDir=testLogDir)
         cov.get_stats()

@@ -16,7 +16,7 @@ from joringels.src.actions import upload
 # print(f"\n__file__: {__file__}")
 
 
-class UnitTest(unittest.TestCase):
+class Test_UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0

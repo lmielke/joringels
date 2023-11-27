@@ -13,7 +13,8 @@ color.init()
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 
-# jo load -n digiserver -pd wobbles -c testing -src kdbx
+
+# jo load -n digiserver -pd wobbles -cn testing -src $secrets/aktuell_2021.kdbx
 class KeePassSecrets:
     def __init__(self, action, *args, safeName, source=None, verbose=0, key=None, **kwargs):
         self.verbose = verbose

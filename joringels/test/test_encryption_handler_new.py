@@ -10,7 +10,7 @@ import unittest
 # test package imports
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
-from joringels.src.encryption_handler import Handler as Handler
+from joringels.src.encryption_handler_new import Handler as Handler
 
 
 # print(f"\n__file__: {__file__}")
@@ -45,6 +45,9 @@ class Test_UnitTest(unittest.TestCase):
         shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
     def mk_test_data(cls, fileDir, fileName="test_secrets", *args, **kwargs):
+        """
+        test files to be encrypted are created on the fly inside a temp directory
+        """
         if not os.path.isdir(fileDir):
             os.makedirs(fileDir)
         testFileName = f"{sts.decPrefix}{fileName}.yml"
@@ -66,6 +69,9 @@ class Test_UnitTest(unittest.TestCase):
         )
 
     def test_file_encrypt(self, *args, **kwargs):
+        """
+        mk_test_data creates a file_encrypt.yml file which is then encrypted
+        """
         testPath = self.mk_test_data(self.tempDataPath, "file_encrypt", *args, **kwargs)
         inst = Handler(testPath, *args, key=self.testKey)
         inst.file_encrypt(*args, **kwargs)

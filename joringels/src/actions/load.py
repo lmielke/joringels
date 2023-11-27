@@ -6,6 +6,8 @@ import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import importlib
 
+import colorama as color
+
 
 def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     """
@@ -37,8 +39,12 @@ def main(*args, source: str, **kwargs) -> None:
     """
     # sometimes windows adds a ; to env variables
     source = source.strip(";")
-    if os.path.isfile(source):
-        moduleName = os.path.splitext(source)[-1][1:]
+    # if source looks like a path
+    if os.sep in source.replace("/", os.sep):
+        if os.path.isfile(source):
+            moduleName = os.path.splitext(source)[-1][1:]
+        else:
+            assert False, f"{color.Fore.RED}source: {source} is not a file{color.Style.RESET_ALL}"
     else:
         moduleName = source
     srcAdapt = importlib.import_module(f"joringels.src.sources.{moduleName}")
