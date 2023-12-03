@@ -17,7 +17,7 @@ def run(action: str, *args, **kwargs) -> None:
     run like: joringels load -n safe_one -src kdbx
     """
     # change key
-    Joringel(*args, **kwargs)._chkey(*args, **kwargs)
+    Joringel(*args, **kwargs).chkey(*args, **kwargs)
     return True
 
 

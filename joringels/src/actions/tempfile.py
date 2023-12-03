@@ -19,6 +19,8 @@ def temp_secret(*args, secretsFilePath: str, creds: dict, **kwargs) -> None:
     fType = os.path.splitext(secretsFilePath)[-1]
     try:
         secrets = fetch.alloc(**creds, retain=True)
+        with open(os.path.join(os.path.dirname(secretsFilePath), "test_tempfile.txt"), "w") as f:
+            f.write(str(secrets))
         with open(secretsFilePath, "w") as f:
             if fType == ".json":
                 json.dump(secrets, f)

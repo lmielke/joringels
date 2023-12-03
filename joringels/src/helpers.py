@@ -1,6 +1,6 @@
 # helpers.py
 from pathlib import Path
-import json, os, sys, time, yaml
+import json, os, shutil, sys, time, yaml
 from contextlib import contextmanager
 import joringels.src.settings as sts
 
@@ -23,34 +23,43 @@ def unalias_path(workPath: str) -> str:
 
 def prep_path(workPath: str, filePrefix=None) -> str:
     workPath = unalias_path(workPath)
-    workPath = workPath if workPath.endswith(sts.fext) else f"{workPath}{sts.fext}"
-    if os.path.isfile(workPath):
+    if os.path.exists(workPath):
         return workPath
-    if filePrefix:
-        workPath = f"{filePrefix}_{workPath}"
-    workPath = os.path.join(sts.encryptDir, workPath)
-    workPath = workPath if workPath.endswith(sts.fext) else f"{workPath}{sts.fext}"
-    return workPath
+    # check for extensions
+    extensions = ["", sts.eext, sts.fext]
+    name, extension = os.path.splitext(os.path.basename(workPath))
+    for ext in extensions:
+        workPath = unalias_path(f"{name}{ext}")
+        if os.path.isfile(workPath):
+            return workPath
+    return f"{name}{extension}"
 
 
 def mk_encrypt_path(safeName: str) -> str:
-    encrpytPath = os.path.join(sts.encryptDir, f"{safeName.lower()}.yml")
-    encrpytPath = encrpytPath.replace(".yml.yml", ".yml")
-    return encrpytPath
+    encrpytPath = os.path.join(
+        sts.encryptDir,
+        safeName.lower() if safeName.endswith(sts.eext) else f"{safeName.lower()}{sts.eext}",
+    )
+    decryptPath = os.path.join(
+        sts.encryptDir,
+        safeName.lower() if safeName.endswith(sts.fext) else f"{safeName.lower()}{sts.fext}",
+    )
+    return encrpytPath, decryptPath
 
 
-def file_or_files(workPath: str, *args, **kwargs) -> list:
+def data_safe_files(*args, safeName=None, **kwargs) -> list:
     """takes a name and checks if its a fileName or dirName
     then returns all files belongin to that file, dir
     i.e. chkey can change one dataSafe key or keys of all dataSafes in dir
     """
-    workPath = prep_path(workPath)
-    if os.path.isdir(workPath):
-        fileNames = os.listdir(workPath)
-    elif os.path.isfile(workPath):
-        workPath, fileName = os.path.split(workPath)
-        fileNames = [fileName]
-    return workPath, fileNames
+    if safeName is None:
+        return [
+            os.path.join(sts.encryptDir, f)
+            for f in os.listdir(sts.encryptDir)
+            if f.endswith(sts.eext)
+        ]
+    else:
+        return [os.path.join(sts.encryptDir, f"{safeName}{sts.eext}")]
 
 
 @contextmanager
@@ -67,10 +76,10 @@ def temp_secret(j, *args, secretsFilePath: str, entryName: str, **kwargs) -> Non
         with open(secretsFilePath, "w") as f:
             if fType == ".json":
                 json.dump(secrets, f)
-            elif fType == ".yml":
+            elif fType == "sts.fext":
                 yaml.dump(secrets, f)
             else:
-                raise Exception(f"Invalid file extension: {fType}, use [.json, .yml]")
+                raise Exception(f"Invalid file extension: {fType}, use [.json, sts.fext]")
         while not os.path.exists(secretsFilePath):
             continue
         yield
@@ -122,7 +131,7 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
     temporaryly renames files in .ssp for upload to bypass files
     """
     # rename fileName by adding prefix
-    fileName = f"{safeName.lower()}.yml"
+    fileName = f"{safeName.lower()}sts.fext"
     currPath = os.path.join(sts.encryptDir, fileName)
     tempPath = os.path.join(sts.encryptDir, f"{prefix}{fileName}")
     try:
@@ -143,6 +152,60 @@ def get_api_enpoint_dir(connector, *args, **kwargs):
         available_apps = json.load(apps)
     app = available_apps.get(connector)
     if not app:
-        raise Exception(f"no app found in available_apps.yml named {connector}")
+        raise Exception(f"no app found in available_appssts.fext named {connector}")
     else:
         return (sts.api_endpoints_path(unalias_path(app[1]), connector), unalias_path(app[1]))
+
+
+# helper functions for unittest setup and teardown
+def mk_test_file(tempDataDir, fileName, testDataStr=None, *args, **kwargs):
+    """
+    test files to be encrypted are created on the fly inside a temp directory
+    """
+    testFilePath = os.path.join(tempDataDir, fileName)
+    testDataStr = sts.testDataStr if testDataStr is None else testDataStr
+    if testFilePath.endswith(".yml"):
+        if not os.path.isfile(testFilePath):
+            with open(testFilePath, "w") as f:
+                f.write(yaml.dump(sts.testDataDict))
+    elif testFilePath.endswith(".json"):
+        if not os.path.isfile(testFilePath):
+            with open(testFilePath, "w+") as f:
+                json.dump(json.dumps(testDataStr, ensure_ascii=False), f)
+    return testFilePath
+
+
+# some test helper functions
+def rm_test_dir(tempDir, *args, **kwargs):
+    try:
+        shutil.rmtree(tempDir, ignore_errors=False, onerror=None)
+        # pass
+    except Exception as e:
+        print(f"UnitTest, tearDownClass, e: {e}")
+
+
+def mk_test_dir(tempDirName, *args, **kwargs):
+    """
+    test files to be encrypted are created on the fly inside a temp directory
+    """
+    tempDataDir = os.path.join(sts.testDataDir, tempDirName)
+    if not os.path.isdir(tempDataDir):
+        os.makedirs(tempDataDir)
+    time.sleep(0.1)
+    return tempDataDir
+
+
+def copy_test_data(tempDirName, testFileName, *args, targetName=None, **kwargs):
+    target = os.path.join(tempDirName, testFileName if targetName is None else targetName)
+    shutil.copyfile(os.path.join(sts.testDataDir, testFileName), target)
+    return target
+
+
+def load_yml(testFilePath, *args, **kwargs):
+    with open(testFilePath, "r") as f:
+        return yaml.safe_load(f)
+
+
+def load_str(testFilePath, *args, **kwargs):
+    with open(testFilePath, "r") as f:
+        return f.read()

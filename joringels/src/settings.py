@@ -17,7 +17,7 @@ from joringels.src.helpers import prep_path as prep_path
 # kdbx-file.dataSafes
 kdbxRootGroup = "python_venvs"
 dataSafeGroup = "data_safes"
-fext = ".yml"
+fext, eext = ".yml", ".json"
 kps_sep = "/"
 
 # kdbx-file.dataSafes.dataSafe.attachments.safe_params.yml
@@ -50,7 +50,7 @@ defaultSafeIp = os.environ.get("DATASAFEIP")
 defaultHost = "0.0.0.0"
 defaultPort = 7000
 # encryption/decryption helper
-decPrefix = "decrypted_"
+decPrefix = ""
 validator = "text_is_valid"
 #### do NOT change params below unless you know what your doing :) ####
 
@@ -63,10 +63,28 @@ logDir = os.path.join(srcPath, "logs")
 appParamsPath = prep_path(os.path.join(encryptDir, appParamsFileName))
 
 
-# test
+# test paths and data used for unittesting
 testPath = os.path.join(srcPath, "test")
 testDataDir = os.path.join(testPath, "data")
 testLogDir = os.path.join(testPath, "logs")
+# tests use these inputs to create test data for joringels
+testKey = "testKey"  # key to enycrypt test data
+testDataDict = {"Joringel": "Jorinde"}  # decrypted test data to be encrypted
+# encrypted test data, NOTE: decryption using testKey='testKey' results in testDataDict
+testDataStr = (
+    f"gv2b6OhLiCUbc5OrVrvXVDpvgBzi/Zi05nXsSYD93NA=:tw49vW9rg0v1clTo92lM7w==:"
+    f"m66Dwox/axAaUP4JGPUAR6oUi91e9A38VSyep8W46B3PImE7VLddvbAr5qC2A40Dk4f74h"
+    f"w+YeBBsAufrMkBHj+MiPiPqSsE7r7tBeb6ezMSzLbaWvMABdiW3blyZmulBKahCptjZ0yM"
+    f"a1jjDwVa0SEeMrCW1MTYZViATmJJPZ6ty9s9Y7ZhIm9/7XkljE1DXmqeENS+rX/w5XXSN2"
+    f"tQlQ=="
+)
+cryptonizeDataStr = (
+    f"aZwqGLxJ6kfKllpgmUbfm57mksEhJjxhphxPdJC+HrQ=:kAmDCc3JffxxxxP5nG2FyQ==:"
+    f"ox2XcWCW9fz84vM7brqdQFisUzV2MaFdepRR7CFuIF4pUjL8Gls1Rcherf3KEbOIDBr7f8"
+    f"1GcFJUwNPmPrqkxxLWf84+t9R1ssOnLWgCFqMYxpEpVYuoMxsOXXgIDd+LrYB2m9eGCIr0"
+    f"FKP2jZ9m4A/pW1dfNBYlyAmindfCsh93LRsFDijkMR9AVf0lwD+Y6OsPfruqDA9mGHRnNu"
+    f"+OjA=="
+)
 # Path function settings
 # os seperator correction
 os_sep = lambda x: os.path.abspath(x)

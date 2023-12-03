@@ -1,5 +1,5 @@
 # flower.py
-import json, re, time, yaml, cgi
+import json, re, time, yaml  # , cgi
 from urllib.parse import unquote
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import joringels.src.settings as sts
@@ -66,7 +66,7 @@ class MagicFlower(BaseHTTPRequestHandler):
 
     def do_POST(self):
         requestedItem = unquote(self.path.strip("/"))
-        ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
+        # ctype, pdict = cgi.parse_header(self.headers.get("content-type"))
         allowedClients = sts.appParams.get(sts.allowedClients)
         if not auth_checker.authorize_client(allowedClients, self.client_address[0]):
             returnCode, msg = 403, f"\nfrom: {self.client_address[0]}, Not authorized!"

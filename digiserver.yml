@@ -1,0 +1,194 @@
+03 - dockerhub:
+  password: TPm/s~A=sH2*Jg3^?|JuZq#_~
+  title: 03 - dockerhub
+  url: https://login.docker.com/u/login
+  username: lmielke
+PRODUCTNAME: wobbles
+chatgptApi:
+  password: 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
+  title: chatgptApi
+  url: null
+  username: apiToken
+digi_postgres_login:
+  db_params:
+    host: db-postgresql-fra1-78786-do-user-3693534-0.a.db.ondigitalocean.com
+    port: '25060'
+  password: AVNS_WKfZDp5yCG3FXJRdzCF
+  title: digi_postgres_login
+  url: null
+  username: doadmin
+digiserver:
+  password: 58039C1E5E9EF20D2D52F0A9D17E931A
+  safe_params:
+    entries:
+    - python_venvs/000_provider/databases/digi_postgres_login
+    - python_venvs/000_provider/cdns/home-cdn-space
+    - python_venvs/000_provider/apiTokens/chatgptApi
+    - python_venvs/000_provider/apiTokens/repo_download
+    - python_venvs/000_provider/apiTokens/digitalocean_api_token
+    - python_venvs/000_provider/google_oauth
+    - python_venvs/000_provider/03 - dockerhub
+    targets:
+    - python_venvs/000_provider/apps/joringels/joringels-pwd-user
+    - python_venvs/000_provider/apps/oamailer/oamailer-pwd-user
+    - python_venvs/000_provider/apps/kingslanding/kingslanding-pwd-user
+  title: digiserver
+  url: null
+  username: OSM5MQEmAZxi6ZZFYtnH
+digitalocean_api_token:
+  password: cb80bcd537c910bdf333e6093aef9d058939bd5ab0624d634dab7916e83736ed
+  title: digitalocean_api_token
+  url: https://cloud.digitalocean.com/account/security?i=9dd821
+  username: droplet_create
+google_oauth:
+  client_secrets:
+    web:
+      auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+      auth_uri: https://accounts.google.com/o/oauth2/auth
+      client_id: 868651055935-11sk7te5nsnoig23teh83ibee7rrev0i.apps.googleusercontent.com
+      client_secret: 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
+      project_id: auto-mailer-358309
+      redirect_uris:
+      - http://localhost:8080/
+      token_uri: https://oauth2.googleapis.com/token
+  password: null
+  title: google_oauth
+  url: null
+  username: null
+home-cdn-space:
+  password: cJKzcef31/BVm3cgAsuJpH1SnddYDxAXz72k2iMcnHM
+  title: home-cdn-space
+  url: fra1.digitaloceanspaces.com
+  username: 3TDBQKIN52PNPNI6VRSW
+joringels-pwd-user:
+  password: clusterPasswordForProductsWobblesTesting
+  title: joringels-pwd-user
+  url: 165.22.202.46
+  username: gitlab-runner
+kingslanding-pwd-user:
+  password: clusterPasswordForProductsWobblesTesting
+  title: kingslanding-pwd-user
+  url: 167.71.75.225
+  username: gitlab-runner
+oamailer-pwd-user:
+  password: clusterPasswordForProductsWobblesTesting
+  title: oamailer-pwd-user
+  url: 161.35.84.119
+  username: gitlab-runner
+repo_download:
+  password: oauth2:glpat-PDn2Nftephd5_mGosn4x
+  title: repo_download
+  url: https://gitlab.com/-/profile/personal_access_tokens
+  username: accessToken
+testing:
+  cluster_params:
+    _joringels:
+      DATASAFEIP: 172.18.0.2
+      DATASAFENAME: digiserver
+      JORINGELSSERVER: 0.0.0.0
+      allowedClients:
+      - 172.18.0.1
+      - 172.18.0.2
+      - 172.18.0.3
+      - 172.18.0.4
+      - 172.19.0.1
+      - 172.19.0.2
+      - 172.19.0.3
+      - 172.19.0.4
+      - 192.168.0.*
+      - 172.18.0.2
+      - 161.35.84.119
+      - 192.168.39.244
+      - 164.92.217.100
+      - 142.93.141.154
+      - 95.90.241.48
+      defaultPort: 7000
+      secureHosts:
+      - WHILE-AI-1
+      - WHILE-AI-2
+      - WHILE-AI-3
+      - WHILE-AI-4
+      - 172.18.0.99
+      - 172.18.0.2
+      - 161.35.84.119
+      - 192.168.39.244
+      - 164.92.217.100
+      - 142.93.141.154
+    networks:
+      illuminati:
+        external: true
+    services:
+      joringels:
+        SERVICE: microservice
+        build:
+          context: .
+          dockerfile: Dockerfile-joringels
+        healthcheck:
+          interval: 30s
+          retries: 2
+          test:
+          - CMD
+          - curl
+          - http://localhost:7000/ping
+          timeout: 10s
+        image: null
+        networks:
+          illuminati:
+            ipv4_address: 172.18.0.2
+        ports:
+        - 7000:7000
+        tty: true
+      kingslanding:
+        SERVICE: djangoproject
+        build:
+          context: .
+          dockerfile: Dockerfile-kingslanding
+        depends_on:
+        - joringels
+        - oamailer
+        healthcheck:
+          interval: 30s
+          retries: 2
+          test:
+          - CMD
+          - curl
+          - http://localhost:80
+          timeout: 20s
+        image: null
+        networks:
+          illuminati:
+            ipv4_address: 172.18.0.4
+        ports:
+        - 80:80
+        tty: true
+      oamailer:
+        SERVICE: microservice
+        image: null
+        tty: true
+        build:
+          context: .
+          dockerfile: Dockerfile-oamailer
+        ports:
+        - 7007:7007
+        healthcheck:
+          interval: 30s
+          retries: 2
+          test:
+          - CMD
+          - curl
+          - http://localhost:7007/ping
+          timeout: 10s
+        depends_on:
+        - joringels
+        networks:
+          illuminati:
+            ipv4_address: 172.18.0.3
+        0:
+          action: send
+          import: oamailer.actions.send
+          response: null
+    version: '3.8'
+  password: clusterPasswordForProductsWobblesTesting
+  title: testing
+  url: '{REF:P@I:F532B16F32C7004BA70296BE8A609E0B}'
+  username: gitlab-runner

@@ -11,14 +11,7 @@ import os, requests, yaml
 import joringels.src.get_soc as soc
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
-from joringels.src.encryption_dict_handler import (
-    text_decrypt,
-    text_encrypt,
-    dict_decrypt,
-    dict_encrypt,
-    dict_values_decrypt,
-    dict_values_encrypt,
-)
+from joringels.src.encryption_dict_handler import text_encrypt, dict_decrypt, dict_encrypt
 
 
 class Jorinde:
@@ -56,7 +49,7 @@ class Jorinde:
         url = f"http://{self.host}:{self.port}/{entry}"
         if not type(entryName) == dict:
             raise Exception(f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}")
-        payload = dict_encrypt(dict_values_encrypt(entryName))
+        payload = dict_encrypt(entryName)
         self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
 
     def get_request(self, connector, *args, entryName, **kwargs):
@@ -67,7 +60,7 @@ class Jorinde:
     def validate_response(self, *args, **kwargs):
         # prepare self.response
         if self.response.status_code == 200:
-            self.secrets = dict_values_decrypt(dict_decrypt(self.response.text))
+            self.secrets = dict_decrypt(self.response.text)
         else:
             self.secrets = f"ERROR {self.response.status_code}: {self.response.text}"
 

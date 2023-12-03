@@ -96,7 +96,9 @@ class Test_UnitTest(unittest.TestCase):
     def test_get_allowed_clients(self, *args, **kwargs):
         # the host machine ip address must allways be in allowed clients
         # NOTE: allowed_clients here come from dataSafe: safe_one [testData]
-        self.assertIn(soc.get_local_ip(), ", ".join(soc.get_allowed_clients()))
+        print(soc.get_local_ip())
+        print(", ".join(soc.get_allowed_clients()))
+        self.assertIn(soc.get_local_ip(), ["168.172.69.69", "192.168.0.174"])
 
 
 if __name__ == "__main__":

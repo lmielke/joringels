@@ -1,5 +1,5 @@
 # upload.py
-import os
+import os, time
 
 from joringels.src.joringels import Joringel
 import joringels.src.settings as sts
@@ -23,13 +23,12 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
 
 
     """
+    j = Joringel(*args, **kwargs)
     # get secret
-    sec = srcAdapt.main(*args, **kwargs)
-    sec.load(*args, **kwargs)
-    # encrypt secret
-    kwargs.update({"key": sec.encrpytKey})
-    filePath, _ = Joringel(*args, **kwargs)._digest(*args, **kwargs)
-    return filePath
+    with srcAdapt.KeePassSecrets("load", *args, **kwargs) as src:
+        print(kwargs)
+        secrets = src.read_source(*args, **kwargs)
+        j.create(j.encryptPath, secrets, *args, **kwargs)
 
 
 def main(*args, source: str, **kwargs) -> None:

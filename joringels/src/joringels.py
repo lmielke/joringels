@@ -10,27 +10,24 @@ uses imported modules to run funcitons like
     - launching the WebServer to serve secrets and/or api entpoint data
 """
 
-import yaml, os, re, sys, time
+import os, re
 from datetime import datetime as dt
+
+# colors for printing
 import colorama as color
 
 color.init()
-
+COL_RM = color.Style.RESET_ALL
+YELLOW = color.Fore.YELLOW
+GREEN = color.Fore.GREEN
+RED = color.Fore.RED
 
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
-import joringels.src.logger as logger
 import joringels.src.flower as magic
 import joringels.src.get_soc as soc
 from joringels.src.encryption_handler import Handler as decryptor
-from joringels.src.encryption_dict_handler import (
-    text_decrypt,
-    text_encrypt,
-    dict_encrypt,
-    dict_decrypt,
-    dict_values_decrypt,
-    dict_values_encrypt,
-)
+from joringels.src.encryption_dict_handler import text_decrypt, dict_encrypt, dict_decrypt
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
 from joringels.src.api_handler import ApiHandler
@@ -44,46 +41,50 @@ class Joringel:
         self.sessions = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
         self.verbose = verbose
         self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
-        self.encryptPath = helpers.mk_encrypt_path(self.safeName)
+        self.encryptPath, self.decryptPath = helpers.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
         self.apiHand = ApiHandler(*args, verbose=verbose, **kwargs)
         self.host, self.port = None, None
 
-    def _chkey(self, *args, key, newKey, allYes=None, **kwargs):
+    def _get_pwd(self, *args, key, keyV, newKey=None, newKeyV=None, **kwargs):
         """
         changes the key of all encrypted files within the provided
         directory
         this assumes, that all files use the same encryption + pwd
         """
-        # confimr key change authorization
-        key = Creds(*args, **kwargs).set(f"old {self.safeName} key: ", *args, key=key, **kwargs)
-        encryptPath, fileNames = helpers.file_or_files(self.safeName, *args, **kwargs)
-        if len(fileNames) >= 2 and allYes is None:
-            msg = f"Confirm key changes for {fileNames} [Y or ENTER]: "
-            if not input(f"{color.Fore.YELLOW}{msg}{color.Style.RESET_ALL}").upper() == "Y":
-                msg = f"Key change interrupted by user intervention. "
-                print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
-                exit()
-        # keys are changed for all files in fileNames
-        newKey = Creds(*args, **kwargs).set(
-            "new key: ", *args, confirmed=False, key=newKey, **kwargs
-        )
-        # changing keys
-        for fileName in fileNames:
+        # confim key change authorization
+        # keys for dict_keys
+        key = Creds(uName=self.safeName, kName="key").set(key=key)
+        newKey = Creds(uName=self.safeName, kName="newKey").set(key=newKey, confirmed=0)
+        # keys for dict_values_encrypt
+        keyV = Creds(uName=self.safeName, kName="keyV").set(key=keyV)
+        newKeyV = Creds(uName=self.safeName, kName="newKeyV").set(key=newKeyV, confirmed=0)
+        return {"key": key, "keyV": keyV, "newKey": newKey, "newKeyV": newKeyV}
+
+    def chkey(self, *args, **kwargs):
+        kwargs.update(self._get_pwd(*args, **kwargs))
+        self._chkey(*args, **kwargs)
+
+    def _chkey(self, *args, **kwargs):
+        print(f"{GREEN}Changing keys for: {self.encryptPath}{COL_RM}")
+        encryptPaths = helpers.data_safe_files(*args, **kwargs)
+        for encryptPath in encryptPaths:
             try:
-                filePath = os.path.join(encryptPath, fileName)
-                with decryptor(filePath, *args, key=key, **kwargs) as f:
-                    f.key = newKey
-                msg = f"\tKey changed for: {fileName}"
-                print(f"{color.Fore.GREEN}{msg}{color.Style.RESET_ALL}")
+                with decryptor(encryptPath, *args, **kwargs) as f:
+                    f.change_key(*args, **kwargs)
+                print(f"{GREEN}\t{f'Key changed for: {encryptPath}'}{COL_RM}")
             except Exception as e:
-                msg = f"ERROR: {e}"
-                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                print(f"{RED}{f'CHKEY ERROR: {e}'}{COL_RM}")
                 exit()
         return True
 
-    def _digest(self, *args, key: str = None, **kwargs) -> tuple[str, dict]:
+    def create(self, *args, key: str = None, keyV: str = None, **kwargs) -> None:
+        with decryptor(*args, key=key, keyV=keyV, **kwargs) as h:
+            self.secrets = h.data["encrypted"]
+        return self.secrets
+
+    def _digest(self, *args, key: str = None, keyV: str = None, **kwargs) -> tuple[str, dict]:
         """
         gets the decrypted content from a encrypted file and returns it
         because self.secrets also contains runntime information for joringels
@@ -94,10 +95,9 @@ class Joringel:
             return None, None
         self.authorized = True
         # secrets will decryped and returned
-        key = key if key is not None else os.environ.get("DATASAFEKEY")
-        with decryptor(self.encryptPath, key=key, **kwargs) as h:
-            with open(h.decryptPath, "r") as f:
-                self.secrets = yaml.safe_load(f.read())
+        # key = key if key is not None else os.environ.get("DATASAFEKEY")
+        with decryptor(self.encryptPath, key=key, keyV=keyV) as h:
+            self.secrets = h.data["decrypted"]
         self._prep_params(*args, **kwargs)
         return h.encryptPath, self.secrets
 
@@ -119,10 +119,7 @@ class Joringel:
             # api params are needed to identify and run the api as requested by jorinde
             api = self._handle_integer_keys(clusterParams[sts.apiParamsFileName])
             clusterParams[sts.apiParamsFileName] = api
-            self.api = dict_encrypt(
-                dict_values_encrypt(api, os.environ.get("DATAKEY")),
-                os.environ.get("DATASAFEKEY"),
-            )
+            self.api = dict_encrypt(api)
             # if services are present, they contain serving host and port info
             self.host = soc.get_host(api, *args, connector=connector, **kwargs)
             self.port = soc.get_port(api, *args, connector=connector, **kwargs)
@@ -141,6 +138,7 @@ class Joringel:
         jo fetch -e logunittest -ip hostip
         """
         from logunittest.logunittest import Coverage
+        from logunittest.actions import stats
 
         if connector == sts.appName:
             # get joringels testLogDir
@@ -152,7 +150,8 @@ class Joringel:
         # get header from latest test logfile
         cov = Coverage(logDir=testLogDir)
         cov.get_stats()
-        return cov.latest[0]
+        logResults = f" | {cov.latest[0]} | [{stats.main().split('[')[-1]}"
+        return logResults
 
     def _handle_integer_keys(self, apiParams):
         """
@@ -175,13 +174,13 @@ class Joringel:
         if connector != "joringels":
             self.apiHand.initialize(
                 *args,
-                apis=dict_values_decrypt(dict_decrypt(self.api)),
+                apis=dict_decrypt(self.api),
                 safeName=self.safeName,
                 connector=connector,
                 **kwargs,
             )
 
-    def _memorize(self, *args, safeName: str, secrets: dict, connector: str, **kwargs):
+    def _memorize(self, *args, secrets: dict, connector: str, **kwargs) -> str:
         """
         when 'jo serve' is called, all secrets have to be saved inside a encrypted
         dictionary
@@ -193,9 +192,7 @@ class Joringel:
             f"FROM {soc.get_hostname()}.{connector.upper()}: "
             + self._get_recent_logfile(connector, *args, **kwargs).split("\n")[0]
         )
-        self.secrets = dict_encrypt(
-            dict_values_encrypt(secrets, os.environ.get("DATAKEY")), os.environ.get("DATASAFEKEY")
-        )
+        self.secrets = dict_encrypt(secrets)
         return self.secrets
 
     def _from_memory(self, entry: str, *args, **kwargs) -> str:
@@ -208,29 +205,29 @@ class Joringel:
         If found, the value is selected, encrypted like {entryName, value} and returned.
         """
         entryName = text_decrypt(entry, os.environ.get("DATASAFEKEY"))
-        found = dict_decrypt(self.secrets).get(entryName)
-        if found is None:
+        entry = dict_decrypt(self.secrets).get(entryName)
+        if entry is None:
             return None
         else:
-            return dict_encrypt({entryName: found})
+            return dict_encrypt({entryName: entry})
 
-    def _invoke_application(self, entry: str, apiName: str, *args, **kwargs) -> str:
+    def _invoke_application(self, payload: str, connector: str, *args, **kwargs) -> str:
         """
         gets a api index from a post request and passes it on to api_handler.py
-        entry: request data coming from the client containing the
-                api index and api payload
-        safeName: requestedItem coming as url extension like domain/requesteItem
+        payload: dictionary as encrypted string from request data coming from client
+                 containing the api index and api payload, see (Readme.md 2. API CALL)
+        connector: requestedItem coming as url extension like domain/requesteItem
         """
-        entry = dict_values_decrypt(dict_decrypt(entry))
-        connector = text_decrypt(apiName, os.environ.get("DATASAFEKEY"))
-        # entry = json.loads(text_decrypt(entry, os.environ.get("DATAKEY")).replace("'", '"'))
+        payload = dict_decrypt(payload)
+        apiName = text_decrypt(connector, os.environ.get("DATASAFEKEY"))
+        # payload = json.loads(text_decrypt(payload, os.environ.get("DATAKEY")).replace("'", '"'))
         response = self.apiHand.run_api(
-            entry["api"], entry["payload"], *args, connector=connector, **kwargs
+            payload["api"], payload["payload"], *args, connector=apiName, **kwargs
         )
         if response is None:
             return None
         else:
-            return dict_encrypt(dict_values_encrypt(response))
+            return dict_encrypt(response)
 
     def _serve(self, *args, **kwargs):
         """
@@ -248,11 +245,11 @@ class Joringel:
                 magic.HTTPServer(self.AF_INET, handler).serve_forever()
             except OSError as e:
                 msg = f"Joringels._serve: {self.AF_INET} with {e}"
-                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                print(f"{RED}{msg}{COL_RM}")
                 raise
             except TypeError as e:
                 msg = f"Joringels._serve: {self.AF_INET} with {e}"
-                print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
+                print(f"{RED}{msg}{COL_RM}")
                 raise
 
 

@@ -19,6 +19,7 @@ def checks(*args, **kwargs):
 def check_secrets_path(*args, **kwargs):
     if os.name == "nt":
         secretsPath = sts.unalias_path(os.environ.get("secrets"))
+        # print(f"secretsPath: {secretsPath}")
         # assert that secretsPath is actually a path that does exist
         msg = f"{color.Fore.RED}secretsPath: {secretsPath} not valid!{color.Style.RESET_ALL}"
         assert os.path.exists(secretsPath), msg

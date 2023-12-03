@@ -10,6 +10,15 @@ from Crypto import Random
 
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
+from joringels.src.encryption_dict_handler import (
+    text_decrypt,
+    text_encrypt,
+    dict_encrypt,
+    dict_decrypt,
+    dict_values_decrypt,
+    dict_values_encrypt,
+)
+
 
 # touch "decrypted_test_hint.yml" "TestJoringels: pyCallTestString"
 
@@ -33,140 +42,137 @@ class Handler:
             secrets = yaml.safe_load(f.read())
     """
 
-    def __init__(self, encryptPath, *args, key, retain=False, verbose=0, **kwargs):
+    def __init__(
+        self,
+        *args,
+        key=None,
+        keyV=None,
+        action=None,
+        retain=False,
+        write=False,
+        verbose=0,
+        **kwargs,
+    ):
         self.verbose = verbose
-        self.decryptedExists = None
-        self.encryptPath, self.decryptPath = self.mk_paths(encryptPath, *args, **kwargs)
-        self.key = key
-        self.retain = retain
+        self.key, self.keyV = key, keyV
+        self.action = action
+        self.encryptPath, self.decryptPath = self._mk_secrets_paths(*args, **kwargs)
+        self.retain, self.write = retain, write
+        self._get_file_data(*args, **kwargs)
 
     def __enter__(self, *args, **kwargs):
         """
         decrypts file and saves it to self.decryptPath
         """
-        self.file_decrypt(*args, **kwargs)
-        self.data_cleanup(self.decryptPath, "dec")
+        self.cryptonize(*args, **kwargs)
+        if self.write:
+            self.write_decrypted(*args, **kwargs)
         return self
 
     def __exit__(self, *args, **kwargs):
         """
-        removes decrypted file on exit
+        restore state
         """
-        self.data_cleanup(self.decryptPath, "enc")
-        encryptSuccess = None
-        if self.decryptedExists:
-            encryptSuccess = self.file_encrypt(*args, **kwargs)
-        self.exit_cleanup(encryptSuccess, *args, **kwargs)
+        self.cleanup(*args, **kwargs)
 
-    def exit_cleanup(self, encryptSuccess, *args, **kwargs):
-        if encryptSuccess == False or not self.retain:
-            if os.path.isfile(self.encryptPath):
-                os.remove(self.encryptPath)
-        if os.path.isfile(self.decryptPath):
-            os.remove(self.decryptPath)
-
-    def mk_paths(self, secretPath: str, *args, **kwargs) -> tuple[str]:
+    def cleanup(self, *args, **kwargs):
         """
-        takes a valid secretPath and creates the missing counter secretPath
-        if encryptPath is given it creates the decryptPath
-        if decryptPath is given it creates the encryptPath
-
+        writes encrypted file and removes decrypted file on exit
         """
-        secretsDir, secretsFileName = os.path.split(secretPath)
-        if secretsFileName.startswith(sts.decPrefix):
-            decFileName = secretsFileName
-            secretsFileName = secretsFileName.replace(sts.decPrefix, "")
-        decFileName = f"{sts.decPrefix}{secretsFileName}"
-        decryptPath = os.path.join(secretsDir, decFileName)
-        encryptPath = os.path.join(secretsDir, secretsFileName)
-        if (not os.path.isfile(decryptPath)) and (not os.path.isfile(encryptPath)):
-            msg = f"\njoringels.encryption_handler, secretPath not found: {secretPath}\n"
-            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
-            raise FileNotFoundError
-        elif os.path.isfile(decryptPath):
-            self.decryptedExists = True
+        # encrypted file is only removed if specifically asked for
+        if self.action == "rm":
+            self.remove_encrypted(*args, **kwargs)
+            self.remove_decrypted(*args, **kwargs)
         else:
-            self.decryptedExists = False
+            self.write_encrypted(*args, **kwargs)
+        # decrypted file is only preserved if specifically asked for
+        if not self.retain:
+            self.remove_decrypted(*args, **kwargs)
+
+    def _mk_secrets_paths(self, filePath, *args, **kwargs) -> str:
+        self.fileName, _, self.ext = os.path.basename(filePath).partition(".")
+        if self.ext == sts.eext[1:]:
+            encryptPath = filePath
+            decryptPath = filePath.replace(sts.eext, sts.fext)
+        elif self.ext == sts.fext[1:]:
+            encryptPath = filePath.replace(sts.fext, sts.eext)
+            decryptPath = filePath
+        else:
+            raise ValueError(f"wrong file extension: {self.ext}")
         return encryptPath, decryptPath
 
-    def file_encrypt(self, *args, **kwargs):
+    def _get_file_data(self, _, secrets=None, *args, **kwargs):
         """
-        ###Takes a file and encrypts its content.
-        saves the encrpyted text to self.encryptPath
+        reads file and returns data
         """
-        try:
-            IV = Random.new().read(16)
-            sha = SHA256.new(self.key.encode("utf-8")).digest()
-            enc = AES.new(sha, AES.MODE_CBC, IV)
-            with open(self.decryptPath, "rb") as inFile:
-                with open(self.encryptPath, "wb") as outFile:
-                    outFile.write(IV)
-                    while chunk := inFile.read(chunksize):
-                        if len(chunk) % 16:
-                            chunk += b" " * (16 - (len(chunk) % 16))
-                        outFile.write(enc.encrypt(chunk))
-            return True
-        except Exception as e:
-            msg = f"encryption_handler.file_encrypt, Encryption failed ! : {e}"
-            print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
-            print(f"filePath: {self.encryptPath}")
-            return False
+        self.data = {}
+        if secrets is not None:
+            try:
+                self.isEncrypted = not bool(secrets.keys())
+                self.data["encrypted"] = None
+                self.data["decrypted"] = secrets
+            except:
+                self.isEncrypted = False
+                self.data["decrypted"] = None
+                self.data["encrypted"] = secrets
+        elif os.path.isfile(self.encryptPath):
+            self.data["decrypted"] = None
+            with open(self.encryptPath, "r") as f:
+                self.data["encrypted"] = f.read()
+                self.isEncrypted = True
+        elif os.path.isfile(self.decryptPath):
+            self.data["encrypted"] = None
+            with open(self.decryptPath, "r") as f:
+                self.data["decrypted"] = yaml.safe_load(f.read())
+                self.isEncrypted = False
+                self.decryptedExists = True
+        else:
+            raise FileNotFoundError(f"file not found: {self.encryptPath}")
 
-    def file_decrypt(self, *args, **kwargs) -> bool:
-        if self.decryptedExists:
-            return None
+    def cryptonize(self, *args, key=None, keyV=None, **kwargs):
         """
-            reads a encrypted file from self.encryptPath and decrypts its content,
-            saves extracted readable text to self.decryptPath file
+        decrypts or encrypts file
         """
-        try:
-            with open(self.encryptPath, "rb") as inFile:
-                IV = inFile.read(16)
-                sha = SHA256.new(self.key.encode("utf-8")).digest()
-                dec = AES.new(sha, AES.MODE_CBC, IV)
-                with open(self.decryptPath, "wb") as outFile:
-                    while chunk := inFile.read(chunksize):
-                        outFile.write(dec.decrypt(chunk))
-                with open(self.decryptPath, "rb") as f:
-                    if fileSize := len(f.read()) == 0:
-                        raise Exception(f"decrypted fileSize: {fileSize}")
-            return True
-        except Exception as e:
-            print(f"file_decrypt, Exception: {e}")
-            return False
+        # keys can not be provided as **kwargs if whith decryptor is used, hence __init__
+        kwargs["key"] = key if key is not None else self.key
+        kwargs["keyV"] = keyV if keyV is not None else self.keyV
+        # assert self.key is not None, f"no key provided for {self.encryptPath}"
+        assert self.data["decrypted"] or self.data["encrypted"], f"no data {self.encryptPath}"
+        # encrypted file takes precedence, if it exists, existing decrypted file is ignored
+        if self.data["decrypted"] is None:
+            self.data["decrypted"] = dict_decrypt(self.data["encrypted"], **kwargs)
+        # decrypted file is only checked and handled if not encrypted exists
+        elif self.data["encrypted"] is None:
+            self.data["encrypted"] = dict_encrypt(self.data["decrypted"], **kwargs)
 
-    def data_cleanup(self, filePath: str, data: str, *args, **kwargs) -> bool:
+    def change_key(self, newKey, newKeyV, *args, **kwargs):
+        self.data["encrypted"] = dict_encrypt(self.data["decrypted"], newKey, newKeyV)
+
+    def write_encrypted(self, *args, **kwargs):
         """
-        cleans text and tokenizes decrypted file text
-        notAllowed values such as & are replaced
-        isValid allowes to confirm, that decryption result is readable
+        writes encrypted file
         """
-        try:
-            isValid, validator = True, "text_is_valid"
-            with open(filePath, "r+") as f:
-                text = f.read().strip()
-                if data == "enc":
-                    text = text.replace(validator, "")
-                    text = text + validator
-                elif data == "dec":
-                    isValid = text.strip().endswith(validator)
-                    text = text.replace(validator, "")
-                for k, v in tokenizers.items():
-                    text = text.replace(k, v) if data == "enc" else text.replace(v, k)
-                f.seek(0)
-                f.truncate()
-                f.write(text.strip())
-                time.sleep(0.1)
-            # validate cleanup results
-            if fileSize := str(len(text)).zfill(16) == 0:
-                raise Exception(f"{data}: fileSize: {fileSize}")
-            if not isValid:
-                raise Exception(f"{data}: isValid: {isValid}")
-            self.decryptedExists = True
-        except UnicodeDecodeError as e:
-            if self.verbose:
-                print(f"Decryption Failed: {e}")
-            self.decryptedExists = False
-        except Exception as e:
-            print(f"data_cleanup Error with data {data}: {e}")
-            self.decryptedExists = False
+        with open(self.encryptPath, "w") as f:
+            f.write(self.data["encrypted"])
+
+    def write_decrypted(self, *args, **kwargs):
+        """
+        writes decrypted file
+        """
+        with open(self.decryptPath, "w") as f:
+            f.write(yaml.dump(self.data["decrypted"]))
+
+    def remove_decrypted(self, *args, **kwargs):
+        """
+        removes decrypted file
+        """
+        if not self.retain:
+            if os.path.isfile(self.decryptPath):
+                os.remove(self.decryptPath)
+
+    def remove_encrypted(self, *args, **kwargs):
+        """
+        removes encrypted file
+        """
+        if os.path.isfile(self.encryptPath):
+            os.remove(self.encryptPath)

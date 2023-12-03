@@ -12,7 +12,6 @@ import unittest
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import os
-from joringels.src.actions import fetch
 
 # print(f"\n__file__: {__file__}")
 
@@ -20,15 +19,7 @@ from joringels.src.actions import fetch
 class Test_UnitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
-        cls.verbose = 0
-        # cls.testData = cls.get_test_data(*args, **kwargs)
-        cls.safeName = "safe_one"
-        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
-        cls.productName = "haimdall"
-        cls.clusterName = "testing_cluster"
-        cls.exportDir = os.path.join(sts.testDataDir, "actions")
-        os.environ["secrets"] = os.path.join(sts.testDataDir, "joringels.kdbx")
-        sts.encryptDir = sts.testDataDir
+        cls.safeName, cls.productName, cls.clusterName = "safe_one", None, None
         cls.kwargs = {
             "safeName": cls.safeName,
             "entryName": "safe_one",
@@ -40,14 +31,16 @@ class Test_UnitTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        if os.path.exists(cls.encryptPath):
-            os.remove(cls.encryptPath)
+        pass
 
-    ########## TEST START ##########
+    @classmethod
+    def prep_enc_path(cls, *args, **kwargs):
+        pass
 
-    def test_alloc(self, *args, **kwargs):
-        out = fetch.alloc(*[], **self.kwargs)
-        self.assertEqual("testing", out.get("password"))
+    def test_mk_encrypt_path(self, *args, **kwargs):
+        encryptPath, decryptPath = helpers.mk_encrypt_path(self.safeName, *args, **kwargs)
+        self.assertTrue(encryptPath.endswith(sts.eext))
+        self.assertTrue(decryptPath.endswith(sts.fext))
 
 
 if __name__ == "__main__":

@@ -61,8 +61,10 @@ to jorinde.py, which creates the post request to the target machine.
     print(sys.executable)
 
     # runs a remote server micro-service
+    # example payload dictionary for oamailer api
     payload = {   
             'api': 0,
+            # payload here is equivalent to **kwargs for the remote application call
             'payload':{
                     'sendTo': 'mysamplemail@gmail.com', 
                     'subject': f"hello from jo.py {__file__}",

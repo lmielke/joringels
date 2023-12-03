@@ -26,6 +26,24 @@ def local(*args, entryName, **kwargs) -> dict:
     return j.secrets.get(entryName)
 
 
+def get_nested_value(nested_dict, keys):
+    """
+    you can fetch a value like this:
+        jo fetch -e testing.cluster_params._joringels.DATASAFEIP
+    In this case fetch will split the dotted string and follow the resulting path to
+    the lowest key.
+
+    """
+    current_value = nested_dict
+    try:
+        for key in keys:
+            current_value = current_value[key]
+        return current_value
+    except (KeyError, TypeError):
+        return False
+    return False
+
+
 def alloc(*args, host=None, **kwargs):
     if host == "loc" or host is None:
         if secret := local(*args, **kwargs):
@@ -45,7 +63,13 @@ def main(*args, entryName, **kwargs) -> None:
     then runs upload process using imported source an connector
     """
     assert entryName is not None, f"missing value for '-e entryName'"
-    if entryName.isnumeric():
-        entryName = int(entryName)
-    secret = alloc(*args, entryName=entryName, **kwargs)
-    return f"{secret}"
+    entries = entryName.split(".", 1)
+    subSecret = None
+    if entries[0].isnumeric():
+        entryName = int(entries[0])
+    secret = alloc(*args, entryName=entries[0], **kwargs)
+    if len(entries) >= 2:
+        # jo fetch -e testing.cluster_params._joringels.DATASAFEIP
+        # the dotted string above results in a list of keys that can be followed down the dict
+        subSecret = get_nested_value(secret, entries[1].split("."))
+    return f"{secret}" if subSecret is None else f"{subSecret}"

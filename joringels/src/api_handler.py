@@ -57,7 +57,12 @@ class ApiHandler:
                 modules[connector]["testLogDir"] = testLogDir
         return modules
 
-    def run_api(self, api, payload, *args, connector, **kwargs):
+    def run_api(self, api: int, payload: dict, *args, connector: str, **kwargs):
+        """
+        gets a pre imported module from self.modules by its name (connector)
+        selects the execuable function/action by its index (api)
+        calls the target package function passing in payload like **kwargs
+        """
         r = getattr(self.modules[connector][api]["module"], self.apis[connector][api]["action"])(
             **payload
         )

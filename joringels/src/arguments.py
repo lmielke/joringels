@@ -20,6 +20,17 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-kv",
+        "--keyV",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="keyV to encrypt/decrypt dictionary values",
+    )
+
+    parser.add_argument(
         "-nk",
         "--newKey",
         required=False,
@@ -28,6 +39,17 @@ def mk_args():
         type=str,
         default=None,
         help="provide a source for new key, i.e. os",
+    )
+
+    parser.add_argument(
+        "-nkv",
+        "--newKeyV",
+        required=False,
+        nargs=None,
+        const=None,
+        type=str,
+        default=None,
+        help="provide a source for new keyV, i.e. os",
     )
 
     # currently not used but should be used in upload instead of host
@@ -174,6 +196,17 @@ def mk_args():
         type=bool,
         default=False,
         help="retain (keep) secrets after reading",
+    )
+
+    parser.add_argument(
+        "-w",
+        "--write",
+        required=False,
+        nargs="?",
+        const=True,
+        type=bool,
+        default=False,
+        help="write secrets after reading, NOTE: to keep file also use -rt retain",
     )
 
     parser.add_argument(

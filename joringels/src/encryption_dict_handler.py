@@ -24,42 +24,66 @@ def generateSalt32Byte():
     return get_random_bytes(32)
 
 
-def dict_values_encrypt(encrypted, password: str = os.environ.get("DATAKEY")):
-    return {k: text_encrypt(json.dumps(vs), password) for k, vs in encrypted.items()}
+# encrypts and decrypts values and keys of a dictionary (entire dict)
+def dict_encrypt(decrypted: dict, key: str = None, keyV: str = None) -> str:
+    key = key if key is not None else os.environ.get("DATASAFEKEY")
+    keyV = keyV if keyV is not None else os.environ.get("DATAKEY")
+    if type(decrypted) is not dict:
+        return None
+    return dict_keys_encrypt(dict_values_encrypt(decrypted, key=keyV), key=key)
 
 
-def dict_values_decrypt(decrypted, password: str = os.environ.get("DATAKEY")):
-    return {k: json.loads(str(text_decrypt(vs, password))) for k, vs in decrypted.items()}
+def dict_decrypt(encrypted: str, key: str = None, keyV: str = None) -> dict:
+    key = key if key is not None else os.environ.get("DATASAFEKEY")
+    keyV = keyV if keyV is not None else os.environ.get("DATAKEY")
+    if type(encrypted) is not str:
+        return None
+    return dict_values_decrypt(dict_keys_decrypt(encrypted, key=key), key=keyV)
 
 
-def dict_encrypt(decrypted, password: str = os.environ.get("DATASAFEKEY")):
-    """
-    decrypts a dictionary which has been encrpyted with dict_encrypt
-    """
+# encrypts and decrypts the values of a dictionary but leaves the key in plane text
+def dict_values_encrypt(encrypted: dict, key: str = None) -> dict:
+    key = key if key is not None else os.environ.get("DATAKEY")
+    if type(encrypted) is not dict:
+        return None
+    return {k: text_encrypt(json.dumps(vs), key) for k, vs in encrypted.items()}
+
+
+def dict_values_decrypt(decrypted: dict, key: str = None) -> dict:
+    key = key if key is not None else os.environ.get("DATAKEY")
+    if type(decrypted) is not dict:
+        return None
+    return {k: json.loads(str(text_decrypt(vs, key))) for k, vs in decrypted.items()}
+
+
+# encrypts and decrypts a stringified dictionary (NOTE: values might still be encrypted)
+def dict_keys_encrypt(decrypted: dict, key: str = None) -> str:
+    key = key if key is not None else os.environ.get("DATASAFEKEY")
+    if type(decrypted) is not dict:
+        return None
     jsonStr = json.dumps(decrypted, ensure_ascii=False)
-    decrypted.update(
-        {"encryption_dict_handler_checksum": hashlib.md5(jsonStr.encode("utf-8")).hexdigest()}
-    )
-    return text_encrypt(json.dumps(decrypted, ensure_ascii=False), password)
+    decrypted.update({"checkSum": mk_checksum(jsonStr)})
+    return text_encrypt(json.dumps(decrypted, ensure_ascii=False), key)
 
 
-def dict_decrypt(encrypted: str, password: str = os.environ.get("DATASAFEKEY")) -> dict:
-    out = text_decrypt(encrypted, password)
-    decrypted = json.loads(out)
-    checksum = decrypted["encryption_dict_handler_checksum"]
-    del decrypted["encryption_dict_handler_checksum"]
-    expected = hashlib.md5(json.dumps(decrypted, ensure_ascii=False).encode("utf-8")).hexdigest()
-    if expected != checksum:
-        decrypted = None
-    decrypted = {int(k) if k.isnumeric() else k: vs for k, vs in decrypted.items()}
-    return decrypted
+def dict_keys_decrypt(encrypted: str, key: str = None) -> dict:
+    key = key if key is not None else os.environ.get("DATASAFEKEY")
+    if type(encrypted) is not str:
+        return None
+    decrypted = json.loads(text_decrypt(encrypted, key))
+    checkSum = decrypted["checkSum"]
+    decrypted = {k: vs for k, vs in decrypted.items() if k != "checkSum"}
+    if mk_checksum(json.dumps(decrypted, ensure_ascii=False)) != checkSum:
+        return None
+    else:
+        return {int(k) if k.isnumeric() else k: vs for k, vs in decrypted.items()}
 
 
-def text_encrypt(plaintext, password: str = None):
+def text_encrypt(plaintext, key: str):
     salt = generateSalt32Byte()
     PBKDF2_ITERATIONS = 15000
     encryptionKey = PBKDF2(
-        get_password(password), salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
+        get_password(key), salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
     )
     cipher = AES.new(encryptionKey, AES.MODE_CBC)
     ciphertext = cipher.encrypt(pad(str(plaintext).encode("ascii"), AES.block_size))
@@ -69,14 +93,14 @@ def text_encrypt(plaintext, password: str = None):
     return saltBase64 + ":" + ivBase64 + ":" + ciphertextBase64
 
 
-def text_decrypt(ciphertextBase64, password: str = None):
+def text_decrypt(ciphertextBase64, key: str):
     data = ciphertextBase64.split(":")
     salt = base64Decoding(data[0])
     iv = base64Decoding(data[1])
     ciphertext = base64Decoding(data[2])
     PBKDF2_ITERATIONS = 15000
     decryptionKey = PBKDF2(
-        get_password(password), salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
+        get_password(key), salt, 32, count=PBKDF2_ITERATIONS, hmac_hash_module=SHA256
     )
     cipher = AES.new(decryptionKey, AES.MODE_CBC, iv)
     decryptedtext = unpad(cipher.decrypt(ciphertext), AES.block_size)
@@ -86,26 +110,25 @@ def text_decrypt(ciphertextBase64, password: str = None):
     return decryptedtextP
 
 
-def get_password(password) -> str:
-    if password is None:
-        password = os.environ.get("DATAKEY")
-    return password.encode("ascii")
+def get_password(key) -> str:
+    if key is None:
+        key = os.environ.get("DATAKEY")
+    return key.encode("ascii")
 
 
-def mk_checksum(*ags, **kwargs):
-    pass
+def mk_checksum(jsonStr, *ags, **kwargs):
+    return hashlib.md5(jsonStr.encode("utf-8")).hexdigest()
 
 
-def main(params, password):
+def main(params, key):
     # entcryption starts here
-    print("SO AES CBC 256 encryption with PBKDF2 key derivation")
     encrypted = {
-        k: text_encrypt(json.dumps(vs, ensure_ascii=False), password) for k, vs in params.items()
+        k: text_encrypt(json.dumps(vs, ensure_ascii=False), key) for k, vs in params.items()
     }
     # decryption starts here
     decrypted = {}
     for k, ciphertextBase64 in encrypted.items():
-        decryptedtext = text_decrypt(ciphertextBase64, password)
+        decryptedtext = text_decrypt(ciphertextBase64, key)
         decrypted[k] = json.loads(decryptedtext)
 
 

@@ -13,7 +13,7 @@ def local(*args, **kwargs) -> None:
         # if not j.authorized:
         #     raise Exception(f"Not authorized!")
     except Exception as e:
-        print(f"show.local: {e}")
+        print(f"ERROR show.local: {e}")
         return None
     return json.dumps(j.secrets, indent=4)
 

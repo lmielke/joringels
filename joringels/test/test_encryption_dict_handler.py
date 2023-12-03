@@ -11,6 +11,16 @@ import unittest
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import joringels.src.encryption_dict_handler as handler
+from joringels.src.encryption_dict_handler import (
+    text_decrypt,
+    text_encrypt,
+    dict_decrypt,
+    dict_encrypt,
+    dict_keys_encrypt,
+    dict_keys_decrypt,
+    dict_values_decrypt,
+    dict_values_encrypt,
+)
 
 
 # print(f"\n__file__: {__file__}")
@@ -24,7 +34,6 @@ class Test_UnitTest(unittest.TestCase):
         cls.testDataDir = os.path.join(sts.testDataDir, "encryption_dict_handler.yml")
         with open(cls.testDataDir, "r") as f:
             cls.testData = yaml.safe_load(f)
-        cls.password = "8B62D98CB4BCE07F896EC6F30A146E00"
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
@@ -36,47 +45,51 @@ class Test_UnitTest(unittest.TestCase):
         cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
         if os.path.exists(cls.encryptPath):
             return True
-        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
-        # copying this file is needed because pre-commit fails on changes
-        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
     def test_text_encrpyt(self, *args, **kwargs):
         decrypted, length = "Hello World!", 94
-        encrypted = handler.text_encrypt(decrypted, self.password)
+        encrypted = text_encrypt(decrypted, sts.testKey)
         self.assertNotEqual(decrypted, encrypted)
         self.assertNotIn(decrypted, encrypted)
         self.assertEqual(length, len(encrypted))
 
     def test_text_decrypt(self, *args, **kwargs):
-        encrypted = """
-                    VMVxRPoG9+qAOlyvJCKj3U/GZlgYIC9GQzanpAsTsow=:ExucUB7YAft+CFlZn+lJSw==
-                    :FZiDZkGihg8WNeCzRmxHmg==
-                    """.replace(
-            " ", ""
-        ).replace(
-            "\n", ""
+        encrypted = (
+            f"iUhrFVZaKgwKqE0PaUM2xW6i64465e6WX8DUKCLoG8c=:seEPTkYYnxWYtU+hsUx0Kw==:"
+            f"WumOPbNkIQXC8eFwb9kWDw=="
         )
-        decrypted = handler.text_decrypt(encrypted, self.password)
+        decrypted = text_decrypt(encrypted, sts.testKey)
         self.assertNotEqual(decrypted, encrypted)
         self.assertEqual(decrypted, "Hello World!")
 
-    def test_dict_encrypt(self, *args, **kwargs):
-        encrypted = handler.dict_encrypt(self.testData, self.password)
-
-    def test_dict_decrypt(self, *args, **kwargs):
-        encrypted = """
-                    06nQNI425/p2osgZ11IUr0XYSNbyvZe2uyOWdAQ1+Ag=:VYw1b4C5gIFUlDh4AQBZMg==:
-                    5b4lA8QfqgxvBfH2h80f0gRGSMoy32JvIkPJp6w6tMvTb/Dh/Sfqhh4ZeKA6tiejbzuKxP
-                    9ZKwqxCEYMRDSGQBPFudafbHLr0gHvrsmN2dVjsviMskLUp+Hk0NvdVS5S2uG6WJUbvtxf
-                    EuF5Pop4+2u5lyeO56isYnuorR+0EVpZJwN91XFFkxU+RNP0cJ3VMbC2+Tg22CD/uhn2C+
-                    ARYzTXQ7TZlYViojC94UknJK8os6vyMUKRAQS26JqDVUGIF8nnoC5yhlFCrxU7Irljeo+4
-                    OIiPqiOkLTUZgiPmciXJQ+xDi04P03MjMhGSnjgR
-                    """.replace(
-            " ", ""
-        ).replace(
-            "\n", ""
+    def test_dict_values_encrypt(self, *args, **kwargs):
+        encrypted = dict_values_encrypt(self.testData, sts.testKey)
+        # the following test should raise valueError
+        self.assertEqual(
+            self.testData["encryption_dict_handler"]["lavel_1_key_1"], "level_1_value_1"
         )
-        decrypted = handler.dict_decrypt(encrypted, self.password)
+        with self.assertRaises(TypeError) as context:
+            # keys should not yet be encrypted
+            self.assertEqual(encrypted.keys(), self.testData.keys())
+            # values should be encrypted
+            self.assertEqual(
+                encrypted["encryption_dict_handler"]["lavel_1_key_1"], "level_1_value_1"
+            )
+        decrypted = dict_values_decrypt(encrypted, sts.testKey)
+        self.assertEqual(decrypted, self.testData)
+
+    def test_dict_keys_decrypt(self, *args, **kwargs):
+        encrypted = (
+            f"lOp+GJI+5mAXs03ltOhMGxR0d9OxZKoEYG4bUxZgxbA=:63BtEJFHiz6RUgDwoMezzg==:"
+            f"y6+nvxJLreZYjZGnXy2Bm72xnLYZHibQyIqTEobNnWVCrdsriEPubcQRojmcwdaRWgid3s"
+            f"Dj08eQjKj71wdUxdADBrhkA6yU5H/WqfY/vNTwWmFSJ6Yl+FiLtv2vq1NQJ2FtF4TZFjGy"
+            f"MXWlX2zUIMe7LRZtjB+jZH5WG0GeDibgqOalzUvhLAhl4BhjZusNezW7nO59J/QcnZYFg+"
+            f"aFOIHEn7DvmYMtpBu/QUleZ6tU81ngi/1lrIfU7vPzXOOfGnTqDG/s12VAvPjS2JW23ivG"
+            f"dzpwykNJr6UL+XGB9HJXoBSZlZeZpavUjxJSWI8N5g+m8le8VRhp/TLy3prbvsn+EbTrgx"
+            f"9mwS8wBzHkS2iClOBFbAXrEekXmsUzLlsJ7pZ6IiS3QFLooKBN4ZUkTU0nBOOvLvhsasWW"
+            f"5ec18FKRKOqc5OyEsAQzYL+jpED5sbp4zCpoqCP0tmjXFzzvTQ=="
+        )
+        decrypted = dict_decrypt(encrypted, key=sts.testKey, keyV=sts.testKey)
         self.assertEqual(decrypted, self.testData)
 
 

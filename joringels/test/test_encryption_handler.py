@@ -4,6 +4,7 @@ import colorama as color
 color.init()
 
 import os, re, shutil, sys, time
+import json
 import yaml
 import unittest
 
@@ -11,76 +12,62 @@ import unittest
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 from joringels.src.encryption_handler import Handler as Handler
+from joringels.src.encryption_dict_handler import dict_decrypt
 
 
 # print(f"\n__file__: {__file__}")
 
 
 class Test_UnitTest(unittest.TestCase):
+
+    # test setup and teardown section
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 0
-        cls.prep_enc_path(*args, **kwargs)
-        cls.tempDataPath = os.path.join(sts.testDataDir, "temp")
-        cls.testKey = "testKey"
-        time.sleep(1)
+        cls.tempDirName = "temp_test_encryption_handler"
+        cls.tempDataDir = helpers.mk_test_dir(cls.tempDirName)
 
     @classmethod
     def tearDownClass(cls, *args, **kwargs):
-        try:
-            shutil.rmtree(cls.tempDataPath, ignore_errors=False, onerror=None)
-            # pass
-        except Exception as e:
-            print(f"UnitTest, tearDownClass, e: {e}")
-        if os.path.exists(cls.encryptPath):
-            os.remove(cls.encryptPath)
+        helpers.rm_test_dir(cls.tempDataDir)
 
-    @classmethod
-    def prep_enc_path(cls, *args, **kwargs):
-        cls.encryptPath = os.path.join(sts.testDataDir, "safe_one.yml")
-        if os.path.exists(cls.encryptPath):
-            return True
-        cls.encryptBackup = os.path.join(sts.testDataDir, "#safe_one.yml")
-        # copying this file is needed because pre-commit fails on changes
-        shutil.copyfile(cls.encryptBackup, cls.encryptPath)
+    # test section starts here
+    def test__mk_secrets_paths(self, *args, **kwargs):
+        testPath = helpers.mk_test_file(self.tempDataDir, "test__mk_secrets_paths.yml")
+        inst = Handler(testPath, *args, key=sts.testKey)
+        encryptPath, decryptPath = inst._mk_secrets_paths(testPath)
+        self.assertTrue(encryptPath.endswith(sts.eext))
+        self.assertTrue(decryptPath.endswith(sts.fext))
 
-    def mk_test_data(cls, fileDir, fileName="test_secrets", *args, **kwargs):
-        if not os.path.isdir(fileDir):
-            os.makedirs(fileDir)
-        testFileName = f"{sts.decPrefix}{fileName}.yml"
-        testData = {"Joringel": "Jorinde"}
-        with open(os.path.join(fileDir, testFileName), "w") as f:
-            f.write(yaml.dump(testData))
-        return os.path.join(fileDir, testFileName)
+    def test__get_file_data(self, *args, **kwargs):
+        testPath = helpers.mk_test_file(self.tempDataDir, "test__get_file_data.yml")
+        inst = Handler(testPath, *args, key=sts.testKey)
+        inst._get_file_data(None, *args, **kwargs)
+        self.assertEqual(inst.data["decrypted"], sts.testDataDict)
 
-    def test_mk_paths(self, *args, **kwargs):
-        ### finds parameter fieles by serching throu relevant joringels/app folders and packages
-        testPath = self.mk_test_data(self.tempDataPath, "mk_paths", *args, **kwargs)
-        inst = Handler(testPath, *args, key=self.testKey)
-        self.assertEqual(
-            (
-                os.path.join(self.tempDataPath, "mk_paths.yml"),
-                os.path.join(self.tempDataPath, "decrypted_mk_paths.yml"),
-            ),
-            inst.mk_paths(testPath),
+    def test_cryptonize(self, *args, **kwargs):
+        testPath = helpers.mk_test_file(
+            self.tempDataDir, "test_cryptonize.json", testDataStr=sts.cryptonizeDataStr
         )
+        # testPath = Test_UnitTest.prep_enc_path(testFileName, *args, **kwargs)
+        inst = Handler(testPath)
+        inst.cryptonize(*args, **kwargs)
+        encrypted = inst.data["encrypted"]
+        self.assertTrue(len(encrypted) >= len(str(sts.testDataDict)) and not " " in encrypted)
 
-    def test_file_encrypt(self, *args, **kwargs):
-        testPath = self.mk_test_data(self.tempDataPath, "file_encrypt", *args, **kwargs)
-        inst = Handler(testPath, *args, key=self.testKey)
-        inst.file_encrypt(*args, **kwargs)
-        assert os.path.isfile(inst.encryptPath)
-        # not working
-        # with open(inst.encryptPath, 'r') as enc:
-        #     self.assertRaises(UnicodeDecodeError, enc.read())
-
-    def test_file_decrypt(self, *args, **kwargs):
-        testPath = self.mk_test_data(self.tempDataPath, "file_decrypt", *args, **kwargs)
-        inst = Handler(testPath, self.testKey, *args, key=self.testKey)
-        inst.file_encrypt(*args, **kwargs)
-        inst.file_decrypt(*args, **kwargs)
-        with open(inst.decryptPath, "r") as dec:
-            self.assertEqual(dec.read().strip(), "Joringel: Jorinde")
+    def test_cleanup(self, *args, **kwargs):
+        testPath = helpers.mk_test_file(self.tempDataDir, "test_cleanup.json")
+        # testPath = Test_UnitTest.prep_enc_path(testFileName, *args, **kwargs)
+        inst = Handler(testPath)
+        inst.cryptonize(*args, key=sts.testKey, keyV=sts.testKey, **kwargs)
+        self.assertTrue(os.path.isfile(inst.encryptPath))
+        inst.write_decrypted(*args, **kwargs)
+        time.sleep(0.1)
+        self.assertTrue(os.path.isfile(inst.decryptPath))
+        time.sleep(0.1)
+        inst.cleanup(*args, **kwargs)
+        self.assertTrue(not os.path.isfile(inst.decryptPath))
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":

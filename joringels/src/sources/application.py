@@ -16,7 +16,6 @@ class Applcation:
     def __init__(self, action, *args, verbose=0, key=None, **kwargs):
         self.verbose = verbose
         self.secrets = {}
-        self.encrpytKey = os.environ.get("DATASAFEKEY")
 
     def get_api_enpoint_path(self, safeName, *args, **kwargs):
         with open(helpers.unalias_path(sts.available_appsPath), "r") as apps:
