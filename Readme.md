@@ -1,16 +1,17 @@
-# Joringels manages your rest api access points to remote applications.
+# Joringels manages your rest api calls (RPC calls) to connected machines.
+This is a test push to github. The package is not yet been released, so be patient :).
 
 ## up next
 Topics to be implemented:
-- invoke.py: host, port derivation is not in the correct module ! should be in get_soc.py
-- unittest must run on testserver docker
+- Readme.md changes
+
 
 ### run in Shell
 jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)
 ```
     # Examples
     # serving joringels
-    jo serve -n digiserver -con joringels -cn testing -rt -t
+    jo serve -n saveName -con joringels -cn testing -rt -t
     # loading a datasafe from kdbx source to .ssp folder
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
     jo fetch -e _joringel.yml
@@ -21,36 +22,50 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
 
 ```
 ## Installation
+Install joringels insice the package environment for the package which you want to serve as a microservice.
+
 ```
     pipenv install joringels
-    # now follow setup steps further down
 
 ```
+
+### Environment variables (mandatory)
+- secrets: path to your local secrets file (i.e. passwords.kdbx secrets hosting machine)
+- DATASAFEKEY: password to your encrypted secrets (outer encryption for REST data)
+- DATAKEY: password to your encrypted secrets values (inner encryption only dict values)
+- DATASAFENAME: default name of your dataSafe
+- DATASAFEIP: ip address of your dataSafe server (if joringels microservice is used)
 
 # API Endpoint use
-## Example mail application oamailer on port 7007:
+## Example of a mail application server (oamailer) on port 7007:
+This example hosts a mail application server as a microservice. A connected client machine can call the oamailer.mail.send(\*\*kwargs) method. Calling method and kwargs are send via encrypted json data. The target machine (oamailer) then uses decrypted kwargs to compose and send the mail.
 
-### 1. API INIT
+### 1. API INIT (commands to setup server and client)
 ```
-    # Upload aip-endpoint (change to loadloc script)
+    # Upload aip-endpoint to server (oamailer)
     jo load -n oamailer -src application
     
     # Serve aip-endpoint NOTE: -p port parameter is not accepted
-    jo serve -n digiserver -con joringels -cn testing -rt -t
-    jo serve -n digiserver -con oamailer -cn testing -rt -t
+    jo serve -n saveName -con joringels -cn testing -rt -t
+    jo serve -n saveName -con oamailer -cn testing -rt -t
 
     # Test availability aip-endpoint
     jo fetch -e apiEndpointDir -n oamailer -ip 192.168.0.174 -p 7007
     jo fetch -e 0 -n oamailer -ip 192.168.0.174 -p 7007
+
+    # Test correctness of aip-endpoint
+    jo fetch -e logunittest -n oamailer -ip 192.168.0.174 -p 7007
 
     # Run api-endpoint
     jo invoke 
 
 ```
 
-### 2. API CALL
-API uses the joringels.src.actions.invoke module to call the API. This is then pushed
+### 2. API CALL to running API
+API uses the joringels.src.actions.invoke module to call the oamailer API. This is then pushed
 to jorinde.py, which creates the post request to the target machine.
+
+Here is a code example for the calling machine (client machine).
 
 ```python
     # jo.py 09_05_2022__17_35_20
@@ -85,6 +100,8 @@ to jorinde.py, which creates the post request to the target machine.
 
 
 ### create a API access Point inside oamailer package (yaml file)
+Here is a param file example for the target machine (joringels server machine).
+
 ```yml
     # appPath is needed for app import
     # possible actions to be performed with default parameters
