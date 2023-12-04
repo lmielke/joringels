@@ -1,19 +1,16 @@
 # serve.py
 # jo serve -n $DATASAFENAME -con $PROJECTNAME -rt
-from joringels.src.joringels import Joringel
+import os
+from joringels.src.joringels_server import JoringelsServer
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import joringels.src.arguments as arguments
 
 
 def run(*args, host=None, **kwargs) -> None:
-    if host is None:
+    if host is None or os.name == "nt":
         kwargs["host"] = sts.defaultHost
-    j = Joringel(*args, **kwargs)
-    j._digest(*args, **kwargs)
-    j._initialize_api_endpoint(*args, secrets=j.secrets, **kwargs)
-    j._memorize(*args, secrets=j.secrets, **kwargs)
-    j._serve(*args, **kwargs)
+    JoringelsServer(*args, **kwargs).server(*args, **kwargs)
 
 
 def main(*args, **kwargs) -> None:

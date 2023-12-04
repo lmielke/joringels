@@ -79,7 +79,7 @@ def get_ip(apiParams=None, *args, host, **kwargs):
     return host
 
 
-def get_port(apiParams=None, *args, port=None, connector: str = None, **kwargs):
+def get_port(apiParams=None, port=None, *args, connector: str = None, **kwargs):
     if port is not None:
         return int(port)
     if connector is None or connector == sts.appName:
@@ -109,12 +109,12 @@ def get_api_params(*args, clusterName=None, safeName=None, **kwargs):
     return apiParams
 
 
-def get_host(*args, host=None, **kwargs):
+def get_host(api, host=None, *args, **kwargs):
     isIp = r"\d{1,3}\.\d{1,3}\.\d{1,3}"
     if host is None:
         host = derrive_host(*args, **kwargs)
-    if not re.search(isIp, host):
+    if re.search(isIp, host) is None:
         host = resolve_host_alias(*args, host=host, **kwargs)
-    if not re.search(isIp, host):
-        host = get_ip(*args, host=host, **kwargs)
+    if re.search(isIp, host) is None:
+        host = get_ip(api, *args, host=host, **kwargs)
     return host

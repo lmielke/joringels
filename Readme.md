@@ -1,6 +1,11 @@
 # Joringels manages your rest api calls (RPC calls) to connected machines.
 This is a test push to github. The package is not yet been released, so be patient :).
 
+Joringels is a light weight remote function call (RPC) package. It uses REST data (json string) to transmit kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
+
+NOTE: Joringels does not serialize python objects. For that you might look for more complex packages like Pyro4.
+
+
 ## up next
 Topics to be implemented:
 - Readme.md changes

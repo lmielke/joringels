@@ -15,6 +15,7 @@ def remote(*args, **kwargs) -> dict:
 
 
 def local(*args, entryName, **kwargs) -> dict:
+    print(f"fetch.local, entryName: {entryName}")
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
@@ -47,13 +48,17 @@ def get_nested_value(nested_dict, keys):
 def alloc(*args, host=None, **kwargs):
     if host == "loc" or host is None:
         if secret := local(*args, **kwargs):
+            print(f"fetch.alloc.0: {secret}")
             return secret
         elif host == "loc":
             print(f"fetch.alloc, Entry not found locally: {secret = }")
+            print(f"fetch.alloc.None: {secret}")
             return None
     if secret := remote(*args, host=host, **kwargs):
+        print(f"fetch.alloc.remote: {secret}")
         return secret
     else:
+        print(f"fetch.alloc.remote.None: {secret}")
         return None
 
 
@@ -72,4 +77,4 @@ def main(*args, entryName, **kwargs) -> None:
         # jo fetch -e testing.cluster_params._joringels.DATASAFEIP
         # the dotted string above results in a list of keys that can be followed down the dict
         subSecret = get_nested_value(secret, entries[1].split("."))
-    return f"{secret}" if subSecret is None else f"{subSecret}"
+    return secret if subSecret is None else subSecret

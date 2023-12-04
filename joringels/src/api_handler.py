@@ -53,8 +53,8 @@ class ApiHandler:
             if ix == 0:
                 package = module.__package__.split(".")[-1]
                 # testLogDir = os.path.join(module.__file__.split(package)[0], "test", "logs")
-                testLogDir = get_testlogsdir()
-                modules[connector]["testLogDir"] = testLogDir
+                # modules[connector]["testLogDir"] = testLogDir
+        modules[connector]["logunittest"] = self._get_recent_logfile(*args, **kwargs)
         return modules
 
     def run_api(self, api: int, payload: dict, *args, connector: str, **kwargs):
@@ -68,7 +68,26 @@ class ApiHandler:
         )
         return r
 
+    def _get_recent_logfile(self, *args, **kwargs):
+        """
+        This is part of the serve/up strategy and allowes to remotely check
+        if upping was successfull and joringels runs without errors by checking
+        unittest result logs.
+        relies on logunittest to be installed and run before 'jo serve'
+        jo fetch -e logunittest -ip hostip
+        """
+        from logunittest.logunittest import Coverage
+        from logunittest.actions import stats
+
+        # get header from latest test logfile
+        testLogDir = get_testlogsdir()
+        cov = Coverage(logDir=testLogDir)
+        cov.get_stats()
+        logResults = f" | {cov.latest[0]} | [{stats.main().split('[')[-1]}"
+        return logResults
+
     def run_api_subprocess(self, api, payload, *args, connector, **kwargs):
+
         """
         runs api endpoint as a subprocess
 

@@ -11,7 +11,7 @@ import unittest
 # test package imports
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
-from joringels.src.joringels import Joringel
+from joringels.src.joringels_server import JoringelsServer
 from joringels.src.encryption_dict_handler import (
     text_decrypt,
     text_encrypt,
@@ -26,7 +26,7 @@ from logunittest.settings import get_testlogsdir as logunittest_logs_dir
 # print(f"\n__file__: {__file__}")
 
 
-class Test_Joringel(unittest.TestCase):
+class Test_JoringelsServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 1
@@ -54,18 +54,6 @@ class Test_Joringel(unittest.TestCase):
         except:
             pass
 
-    def test__memorize(self, *args, **kwargs):
-        testData = helpers.load_yml(helpers.mk_test_file(self.tempDataDir, "test__memorize.yml"))
-        j = Joringel(*args, **kwargs)
-        j.secrets = testData
-        j._memorize(connector="joringels")
-        # j.secrets string is result, should not contain readable infos
-        self.assertTrue(type(j.secrets) == str)
-        self.assertTrue(len(j.secrets) > 100)
-        self.assertFalse("Joringel" in j.secrets)
-        # this only decrypts the keys, but not the values
-        self.assertEqual(list(dict_keys_decrypt(j.secrets).keys()), ["Joringel"])
-
     def test__from_memory(self, *args, **kwargs):
         """
         this tests if a entryName can be given in an encycpted form and a
@@ -92,8 +80,8 @@ class Test_Joringel(unittest.TestCase):
         nonExistentVal = text_decrypt(nonExistent, os.environ.get("DATASAFEKEY"))
         self.assertEqual(nonExistentVal, "NONEXISTENT")
         # test starts here
-        js = Joringel(**params)
-        Test_Joringel.deletePaths.extend([js.encryptPath, js.decryptPath])
+        js = JoringelsServer(**params)
+        Test_JoringelsServer.deletePaths.extend([js.encryptPath, js.decryptPath])
         p, s = js._digest(testDataPath)
         js._memorize(secrets=js.secrets, connector="joringels")
         # decycptable but nonExistent entry returns None
@@ -106,38 +94,6 @@ class Test_Joringel(unittest.TestCase):
             os.remove(js.encryptPath)
         if os.path.exists(js.decryptPath):
             os.remove(js.decryptPath)
-
-    def test_get_cluster_name(self, *args, **kwargs):
-        j = Joringel(*args, **kwargs)
-        with open(os.path.join(sts.testDataDir, "#safe_one.yml"), "r") as f:
-            j.secrets = yaml.safe_load(f)
-        self.assertEqual(j.get_cluster_name(j.secrets), "testing_cluster")
-
-    # def test__digest(self, *args, **kwargs):
-    #     # NOTE: THIS TEST WAS REMOVED BECAUSE IT INTERFERES WITH TEST__FROM_MEMORY
-    #     # FOR NO APPERENT REASON. J._MEMORIZE RETURNS SELF.SECRETS WHICH MAGICALLY
-    #     # DISAPPERS FROM J. AFTER RUNNING TEST__FROM_MEMORY
-
-    #     # NOTE: this test is using the .ssp folder to create test file
-    #     # this is due to the program avoiding to allow changing the encryptDir loction
-    #     testDataPath = helpers.copy_test_data(sts.encryptDir, f"{self.safeName}.yml")
-    #     j = Joringel(**self.params)
-    #     Test_Joringel.deletePaths.append(j.encryptPath)
-    #     j._digest(testDataPath)
-    #     self.assertEqual(j.encryptPath, sts.unalias_path(f"~/.ssp/{self.safeName}.json"))
-    #     self.assertEqual(list(j.secrets.keys())[:3], ['application_0', 'PRODUCTNAME',
-    #                                                                 'digi_postgres_login'])
-    #     if os.path.exists(j.encryptPath): os.remove(j.encryptPath)
-
-    def test__chkey(self, *args, **kwargs):
-        pass
-
-    def test__handle_integer_keys(self, *args, **kwargs):
-        data = {"1": "one", "two": "two", 3: "three", "3.14": "something"}
-        expected = [1, "two", 3, "3.14"]
-        j = Joringel(*args, **kwargs)
-        corrected = j._handle_integer_keys(data)
-        self.assertEqual(list(corrected.keys()), expected)
 
 
 @contextmanager

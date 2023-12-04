@@ -12,14 +12,22 @@ import joringels.src.get_soc as soc
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 from joringels.src.encryption_dict_handler import text_encrypt, dict_decrypt, dict_encrypt
+from joringels.src.actions import fetch
 
 
 class Jorinde:
-    def __init__(self, *args, host=None, **kwargs):
-        self.port = soc.get_port(*args, **kwargs)
-        self.host = soc.get_host(host=host, **kwargs)
+    def __init__(self, *args, host=None, port=None, **kwargs):
+        self.joringelsParams = self.get_joringels_params(*args, **kwargs)
+        self.host = self.joringelsParams.get("mappings").get("host")
+        self.port = self.joringelsParams.get("mappings").get("port") if port is None else port
         self.response = None
         self.secrets = None
+
+    def get_joringels_params(*args, entryName=None, **kwargs):
+        joringelsParams = fetch.main(
+            *args, host="loc", entryName="testing.cluster_params._joringels", **kwargs
+        )
+        return joringelsParams
 
     def _fetch(self, *args, connector: str = "joringels", **kwargs):
         """

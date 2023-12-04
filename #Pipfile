@@ -12,8 +12,8 @@ tabulate = "*"
 psutil = "*"
 ipwhois = "*"
 # context will change in lut ut before git add
-joringels = {git = "git@github.com:lmielke/joringels.git"}
-logunittest = {git = "git@github.com:lmielke/logunittest.git"}
+joringels = {editable = true, path = "."}
+logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
 pytest = "*"
 
 [dev-packages]
