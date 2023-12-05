@@ -30,7 +30,8 @@ class Test_UnitTest(unittest.TestCase):
             # 'productName': 'haimdall',
             "entryName": "haimdall_server",
             "safeName": "safe_one",
-            "key": "testing",
+            "key": sts.testKeyOuter,
+            "keyV": sts.testKeyInner,
         }
 
     @classmethod
@@ -68,6 +69,5 @@ class Test_UnitTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
-    print("done")
-    exit()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()

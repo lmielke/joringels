@@ -46,24 +46,34 @@ class Test_UnitTest(unittest.TestCase):
         if os.path.exists(cls.encryptPath):
             return True
 
+    def test_dict_encrypt(self, *args, **kwargs):
+        encrypted = dict_encrypt(sts.testDataDict, key=sts.testKeyOuter, keyV=sts.testKeyInner)
+        self.assertNotEqual(encrypted, sts.testDataDict)
+        self.assertTrue(len(encrypted) >= len(str(sts.testDataDict)) and not " " in encrypted)
+
+    def test_dict_decrypt(self, *args, **kwargs):
+        encrypted = sts.cryptonizeDataStr
+        decrypted = dict_decrypt(encrypted, key=sts.testKeyOuter, keyV=sts.testKeyInner)
+        self.assertEqual(decrypted, sts.testDataDict)
+
     def test_text_encrpyt(self, *args, **kwargs):
         decrypted, length = "Hello World!", 94
-        encrypted = text_encrypt(decrypted, sts.testKey)
+        encrypted = text_encrypt(decrypted, sts.testKeyInner)
         self.assertNotEqual(decrypted, encrypted)
         self.assertNotIn(decrypted, encrypted)
         self.assertEqual(length, len(encrypted))
 
     def test_text_decrypt(self, *args, **kwargs):
         encrypted = (
-            f"iUhrFVZaKgwKqE0PaUM2xW6i64465e6WX8DUKCLoG8c=:seEPTkYYnxWYtU+hsUx0Kw==:"
-            f"WumOPbNkIQXC8eFwb9kWDw=="
+            f"xTR83GcikFeXAUhzIBWrswFsDqLxUIFPc/azocBqV1w=:yoiQxBRuRNwrhPTqdx/fCA==:"
+            f"7X1c6iBoZslzZcqytJwHcQ=="
         )
-        decrypted = text_decrypt(encrypted, sts.testKey)
+        decrypted = text_decrypt(encrypted, sts.testKeyInner)
         self.assertNotEqual(decrypted, encrypted)
         self.assertEqual(decrypted, "Hello World!")
 
     def test_dict_values_encrypt(self, *args, **kwargs):
-        encrypted = dict_values_encrypt(self.testData, sts.testKey)
+        encrypted = dict_values_encrypt(self.testData, sts.testKeyInner)
         # the following test should raise valueError
         self.assertEqual(
             self.testData["encryption_dict_handler"]["lavel_1_key_1"], "level_1_value_1"
@@ -75,25 +85,26 @@ class Test_UnitTest(unittest.TestCase):
             self.assertEqual(
                 encrypted["encryption_dict_handler"]["lavel_1_key_1"], "level_1_value_1"
             )
-        decrypted = dict_values_decrypt(encrypted, sts.testKey)
+        decrypted = dict_values_decrypt(encrypted, sts.testKeyInner)
         self.assertEqual(decrypted, self.testData)
 
     def test_dict_keys_decrypt(self, *args, **kwargs):
+        # to regenerate encrypted uncomment below
+        # print(dict_encrypt(self.testData, key=sts.testKeyOuter, keyV=sts.testKeyInner))
         encrypted = (
-            f"lOp+GJI+5mAXs03ltOhMGxR0d9OxZKoEYG4bUxZgxbA=:63BtEJFHiz6RUgDwoMezzg==:"
-            f"y6+nvxJLreZYjZGnXy2Bm72xnLYZHibQyIqTEobNnWVCrdsriEPubcQRojmcwdaRWgid3s"
-            f"Dj08eQjKj71wdUxdADBrhkA6yU5H/WqfY/vNTwWmFSJ6Yl+FiLtv2vq1NQJ2FtF4TZFjGy"
-            f"MXWlX2zUIMe7LRZtjB+jZH5WG0GeDibgqOalzUvhLAhl4BhjZusNezW7nO59J/QcnZYFg+"
-            f"aFOIHEn7DvmYMtpBu/QUleZ6tU81ngi/1lrIfU7vPzXOOfGnTqDG/s12VAvPjS2JW23ivG"
-            f"dzpwykNJr6UL+XGB9HJXoBSZlZeZpavUjxJSWI8N5g+m8le8VRhp/TLy3prbvsn+EbTrgx"
-            f"9mwS8wBzHkS2iClOBFbAXrEekXmsUzLlsJ7pZ6IiS3QFLooKBN4ZUkTU0nBOOvLvhsasWW"
-            f"5ec18FKRKOqc5OyEsAQzYL+jpED5sbp4zCpoqCP0tmjXFzzvTQ=="
+            f"IRKVeqr+0yCI5Cy1pH007vp2iZQyo+N719+FF+FR6kg=:yLBlNqd60/y2oIU4yCxgBg==:"
+            f"K+22bfVKHezAFY2YpKooGmTj1KUzDHQfnzfvr0Qcdeq5J6LgRQCULAAsCHqcSb1MdMqmir"
+            f"lLNzhKcT2nkcpKDgx+7loPoLNuhn2oxRICxpWH04/tS0UKZJfgBEheuxMeJqQAxOkTHfpX"
+            f"KcPArasGZDztAAUiI18zzwl40wxhGqriJYW/A27bXatXdyzrGxrA7IBFWNspdV0iZ6alvy"
+            f"PwjggWFFfZWKf3JSmuOpnRPAZ26z7ZBmRwjpmO+ImOgKyVdY04RhmW6EP3M2Bl2tA6rjdK"
+            f"C+ik02Ms7FbJuzbb9LcvXMSAU7tWa3IAnDleda9vn/+t6tI3JrLos8cn7wIjeb6Ra86l8N"
+            f"q8IZQ9ouTd5RMjW02YHj06wcUlTdUZdxkje2iGsESGiEOFvxV31gQTWhMRhzpngcgU+Y1n"
+            f"/ouwZ+jcBGSxmy/b6WFrqQzcbwhXHIvj5HxsezsFBpBI5vk/gA=="
         )
-        decrypted = dict_decrypt(encrypted, key=sts.testKey, keyV=sts.testKey)
+        decrypted = dict_decrypt(encrypted, key=sts.testKeyOuter, keyV=sts.testKeyInner)
         self.assertEqual(decrypted, self.testData)
 
 
 if __name__ == "__main__":
-    unittest.main()
-    print("done")
-    exit()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()

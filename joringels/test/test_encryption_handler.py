@@ -19,7 +19,6 @@ from joringels.src.encryption_dict_handler import dict_decrypt
 
 
 class Test_UnitTest(unittest.TestCase):
-
     # test setup and teardown section
     @classmethod
     def setUpClass(cls, *args, **kwargs):
@@ -34,14 +33,14 @@ class Test_UnitTest(unittest.TestCase):
     # test section starts here
     def test__mk_secrets_paths(self, *args, **kwargs):
         testPath = helpers.mk_test_file(self.tempDataDir, "test__mk_secrets_paths.yml")
-        inst = Handler(testPath, *args, key=sts.testKey)
+        inst = Handler(testPath, *args, key=sts.testKeyOuter, keyV=sts.testKeyInner)
         encryptPath, decryptPath = inst._mk_secrets_paths(testPath)
         self.assertTrue(encryptPath.endswith(sts.eext))
         self.assertTrue(decryptPath.endswith(sts.fext))
 
     def test__get_file_data(self, *args, **kwargs):
         testPath = helpers.mk_test_file(self.tempDataDir, "test__get_file_data.yml")
-        inst = Handler(testPath, *args, key=sts.testKey)
+        inst = Handler(testPath, *args, key=sts.testKeyOuter, keyV=sts.testKeyInner)
         inst._get_file_data(None, *args, **kwargs)
         self.assertEqual(inst.data["decrypted"], sts.testDataDict)
 
@@ -50,16 +49,18 @@ class Test_UnitTest(unittest.TestCase):
             self.tempDataDir, "test_cryptonize.json", testDataStr=sts.cryptonizeDataStr
         )
         # testPath = Test_UnitTest.prep_enc_path(testFileName, *args, **kwargs)
-        inst = Handler(testPath)
+        inst = Handler(testPath, key=sts.testKeyOuter, keyV=sts.testKeyInner)
         inst.cryptonize(*args, **kwargs)
         encrypted = inst.data["encrypted"]
         self.assertTrue(len(encrypted) >= len(str(sts.testDataDict)) and not " " in encrypted)
 
     def test_cleanup(self, *args, **kwargs):
-        testPath = helpers.mk_test_file(self.tempDataDir, "test_cleanup.json")
+        testPath = helpers.mk_test_file(
+            self.tempDataDir, "test_cleanup.json", testDataStr=sts.cryptonizeDataStr
+        )
         # testPath = Test_UnitTest.prep_enc_path(testFileName, *args, **kwargs)
         inst = Handler(testPath)
-        inst.cryptonize(*args, key=sts.testKey, keyV=sts.testKey, **kwargs)
+        inst.cryptonize(*args, key=sts.testKeyOuter, keyV=sts.testKeyInner, **kwargs)
         self.assertTrue(os.path.isfile(inst.encryptPath))
         inst.write_decrypted(*args, **kwargs)
         time.sleep(0.1)
@@ -71,6 +72,5 @@ class Test_UnitTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
-    print("done")
-    exit()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()

@@ -14,6 +14,7 @@ ipwhois = "*"
 # context will change in lut ut before git add
 joringels = {editable = true, path = "."}
 logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
+# logunittest = {git = "https://${GIT_ACCESS_TOKEN}@gitlab.com/larsmielke2/logunittest.git"}
 pytest = "*"
 
 [dev-packages]

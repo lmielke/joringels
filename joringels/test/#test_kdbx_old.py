@@ -30,7 +30,8 @@ class Test_KeePassSecrets(unittest.TestCase):
             "safeName": cls.safeName,
             "productName": cls.productName,
             "clusterName": cls.clusterName,
-            "key": "testing",
+            "key": sts.testKeyOuter,
+            "keyV": sts.testKeyInner,
         }
         cls.KP = kdbx.KeePassSecrets("load", *args, **cls.kwargs)
 

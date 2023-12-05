@@ -15,14 +15,13 @@ def remote(*args, **kwargs) -> dict:
 
 
 def local(*args, entryName, **kwargs) -> dict:
-    print(f"fetch.local, entryName: {entryName}")
     try:
         j = Joringel(*args, **kwargs)
         j._digest(*args, **kwargs)
         if not j.authorized:
-            raise Exception(f"fetch.local, Not authorized!")
+            raise Exception(f"ERROR: fetch.local, Not authorized!")
     except Exception as e:
-        print(f"fetch.local: {e}")
+        print(f"ERROR: fetch.local: {e}")
         return None
     return j.secrets.get(entryName)
 
@@ -48,17 +47,12 @@ def get_nested_value(nested_dict, keys):
 def alloc(*args, host=None, **kwargs):
     if host == "loc" or host is None:
         if secret := local(*args, **kwargs):
-            print(f"fetch.alloc.0: {secret}")
             return secret
         elif host == "loc":
-            print(f"fetch.alloc, Entry not found locally: {secret = }")
-            print(f"fetch.alloc.None: {secret}")
             return None
     if secret := remote(*args, host=host, **kwargs):
-        print(f"fetch.alloc.remote: {secret}")
         return secret
     else:
-        print(f"fetch.alloc.remote.None: {secret}")
         return None
 
 

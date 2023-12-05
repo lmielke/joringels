@@ -68,22 +68,16 @@ testPath = os.path.join(srcPath, "test")
 testDataDir = os.path.join(testPath, "data")
 testLogDir = os.path.join(testPath, "logs")
 # tests use these inputs to create test data for joringels
-testKey = "testKey"  # key to enycrypt test data
+testKeyOuter = "testKeyOuter"  # key to enycrypt test data keys
+testKeyInner = "testKeyInner"  # key to enycrypt test data
 testDataDict = {"Joringel": "Jorinde"}  # decrypted test data to be encrypted
-# encrypted test data, NOTE: decryption using testKey='testKey' results in testDataDict
-testDataStr = (
-    f"gv2b6OhLiCUbc5OrVrvXVDpvgBzi/Zi05nXsSYD93NA=:tw49vW9rg0v1clTo92lM7w==:"
-    f"m66Dwox/axAaUP4JGPUAR6oUi91e9A38VSyep8W46B3PImE7VLddvbAr5qC2A40Dk4f74h"
-    f"w+YeBBsAufrMkBHj+MiPiPqSsE7r7tBeb6ezMSzLbaWvMABdiW3blyZmulBKahCptjZ0yM"
-    f"a1jjDwVa0SEeMrCW1MTYZViATmJJPZ6ty9s9Y7ZhIm9/7XkljE1DXmqeENS+rX/w5XXSN2"
-    f"tQlQ=="
-)
+# dict_encrpyt result of testDataDict using key=testKeyOuter, keyV=testKeyInner
 cryptonizeDataStr = (
-    f"aZwqGLxJ6kfKllpgmUbfm57mksEhJjxhphxPdJC+HrQ=:kAmDCc3JffxxxxP5nG2FyQ==:"
-    f"ox2XcWCW9fz84vM7brqdQFisUzV2MaFdepRR7CFuIF4pUjL8Gls1Rcherf3KEbOIDBr7f8"
-    f"1GcFJUwNPmPrqkxxLWf84+t9R1ssOnLWgCFqMYxpEpVYuoMxsOXXgIDd+LrYB2m9eGCIr0"
-    f"FKP2jZ9m4A/pW1dfNBYlyAmindfCsh93LRsFDijkMR9AVf0lwD+Y6OsPfruqDA9mGHRnNu"
-    f"+OjA=="
+    f"PM44pt6xgMZGD+/O/nlvwkiEgQVPl93DwaWa5aJ0Ycc=:duEwbtsdUpfkZ80z2y5/Cw==:"
+    f"E6HU428/PccO8mPCpKpRrZZs5Miky2D37XlXwgr4d7xvEP6GYfUFXVt89lAo8tGejaKiOF"
+    f"yMKWaOSAisRYHKqUSI1pydNaUMFl7OAE+KJZU4MBiV5vjHzaVDCrOrxrE0YRQbzJRw71Lr"
+    f"0hm9j/HWuoXOS8wPWGfbzIfZ7QF3ObJL84H8+2n/vwdEO1/yo0eu1gerS2CQc5Ob+tKTtf"
+    f"9Icg=="
 )
 # Path function settings
 # os seperator correction

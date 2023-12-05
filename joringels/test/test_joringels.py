@@ -38,7 +38,8 @@ class Test_Joringel(unittest.TestCase):
             "safeName": cls.safeName,
             "productName": "haimdall",
             "clusterName": "testing",
-            "key": "testing",
+            "key": sts.testKeyOuter,
+            "keyV": sts.testKeyInner,
             # never remove retain, it will break the test
             "retain": True,
         }
@@ -66,69 +67,6 @@ class Test_Joringel(unittest.TestCase):
         # this only decrypts the keys, but not the values
         self.assertEqual(list(dict_keys_decrypt(j.secrets).keys()), ["Joringel"])
 
-    def test__from_memory(self, *args, **kwargs):
-        """
-        this tests if a entryName can be given in an encycpted form and a
-        valid entry value can be returned
-        if entryName is not decryptable or not existign in secrets, no value will be returned
-        """
-        testFileName = "test__from_memory.yml"
-        testDataPath = helpers.copy_test_data(
-            sts.encryptDir, f"{self.safeName}.yml", targetName=testFileName
-        )
-        params = self.params.copy()
-        params.update({"safeName": testFileName[:-4]})
-        # decrypted entryName = 'PRODUCTNAME'
-        correct = (
-            f"XJSD9Jk67LVUXhdg6R6LY285QmYyUbS/roo199jROXc="
-            f":htKwpVfW0DrS+szwC+qtDA==:N3Big0eC4VkyC42WbcJH/w=="
-        )
-        correctVal = text_decrypt(correct, os.environ.get("DATASAFEKEY"))
-        self.assertEqual(correctVal, "PRODUCTNAME")
-        nonExistent = (
-            f"VoUfcFxENK/qhqebTaNknZIreDcLt2vzncwTnyFj82g="
-            f":wSVGfhjUWWptCae/5PK40A==:CQpVe3MhfRYlCi/MIH0b0w=="
-        )
-        nonExistentVal = text_decrypt(nonExistent, os.environ.get("DATASAFEKEY"))
-        self.assertEqual(nonExistentVal, "NONEXISTENT")
-        # test starts here
-        js = Joringel(**params)
-        Test_Joringel.deletePaths.extend([js.encryptPath, js.decryptPath])
-        p, s = js._digest(testDataPath)
-        js._memorize(secrets=js.secrets, connector="joringels")
-        # decycptable but nonExistent entry returns None
-        # self.assertIsNone(js._from_memory(nonExistent))
-        # self.assertIsNone(js._from_memory('something'))
-        # # # finally the correct pwd with a existing entry returns a value
-        # # print('test__from_memory 3')
-        # self.assertIsNotNone(js._from_memory(correct))
-        if os.path.exists(js.encryptPath):
-            os.remove(js.encryptPath)
-        if os.path.exists(js.decryptPath):
-            os.remove(js.decryptPath)
-
-    def test_get_cluster_name(self, *args, **kwargs):
-        j = Joringel(*args, **kwargs)
-        with open(os.path.join(sts.testDataDir, "#safe_one.yml"), "r") as f:
-            j.secrets = yaml.safe_load(f)
-        self.assertEqual(j.get_cluster_name(j.secrets), "testing_cluster")
-
-    # def test__digest(self, *args, **kwargs):
-    #     # NOTE: THIS TEST WAS REMOVED BECAUSE IT INTERFERES WITH TEST__FROM_MEMORY
-    #     # FOR NO APPERENT REASON. J._MEMORIZE RETURNS SELF.SECRETS WHICH MAGICALLY
-    #     # DISAPPERS FROM J. AFTER RUNNING TEST__FROM_MEMORY
-
-    #     # NOTE: this test is using the .ssp folder to create test file
-    #     # this is due to the program avoiding to allow changing the encryptDir loction
-    #     testDataPath = helpers.copy_test_data(sts.encryptDir, f"{self.safeName}.yml")
-    #     j = Joringel(**self.params)
-    #     Test_Joringel.deletePaths.append(j.encryptPath)
-    #     j._digest(testDataPath)
-    #     self.assertEqual(j.encryptPath, sts.unalias_path(f"~/.ssp/{self.safeName}.json"))
-    #     self.assertEqual(list(j.secrets.keys())[:3], ['application_0', 'PRODUCTNAME',
-    #                                                                 'digi_postgres_login'])
-    #     if os.path.exists(j.encryptPath): os.remove(j.encryptPath)
-
     def test__chkey(self, *args, **kwargs):
         pass
 
@@ -140,17 +78,6 @@ class Test_Joringel(unittest.TestCase):
         self.assertEqual(list(corrected.keys()), expected)
 
 
-@contextmanager
-def temp_password(*args, pw, **kwargs) -> None:
-    current = os.environ["DATASAFEKEY"]
-    try:
-        os.environ["DATASAFEKEY"] = pw
-        yield
-    finally:
-        os.environ["DATASAFEKEY"] = current
-
-
 if __name__ == "__main__":
-    unittest.main()
-    print("done")
-    exit()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()

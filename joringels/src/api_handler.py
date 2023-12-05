@@ -87,7 +87,6 @@ class ApiHandler:
         return logResults
 
     def run_api_subprocess(self, api, payload, *args, connector, **kwargs):
-
         """
         runs api endpoint as a subprocess
 

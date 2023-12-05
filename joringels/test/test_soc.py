@@ -102,6 +102,5 @@ class Test_UnitTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
-    print("done")
-    exit()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()

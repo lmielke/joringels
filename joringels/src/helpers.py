@@ -163,7 +163,7 @@ def mk_test_file(tempDataDir, fileName, testDataStr=None, *args, **kwargs):
     test files to be encrypted are created on the fly inside a temp directory
     """
     testFilePath = os.path.join(tempDataDir, fileName)
-    testDataStr = sts.testDataStr if testDataStr is None else testDataStr
+    testDataStr = sts.cryptonizeDataStr if testDataStr is None else testDataStr
     if testFilePath.endswith(".yml"):
         if not os.path.isfile(testFilePath):
             with open(testFilePath, "w") as f:
@@ -196,6 +196,7 @@ def mk_test_dir(tempDirName, *args, **kwargs):
 
 
 def copy_test_data(tempDirName, testFileName, *args, targetName=None, **kwargs):
+    print(testFileName)
     target = os.path.join(tempDirName, testFileName if targetName is None else targetName)
     shutil.copyfile(os.path.join(sts.testDataDir, testFileName), target)
     return target
@@ -209,3 +210,15 @@ def load_yml(testFilePath, *args, **kwargs):
 def load_str(testFilePath, *args, **kwargs):
     with open(testFilePath, "r") as f:
         return f.read()
+
+
+@contextmanager
+def temp_password(*args, pw, **kwargs) -> None:
+    current = os.environ["DATASAFEKEY"]
+    try:
+        os.environ["DATASAFEKEY"] = sts.testKeyOuter
+        os.environ["DATAKEY"] = sts.testKeyInner
+        yield
+    finally:
+        os.environ["DATASAFEKEY"] = sts.testKeyOuter
+        os.environ["DATAKEY"] = sts.testKeyInner

@@ -28,6 +28,7 @@ def generateSalt32Byte():
 def dict_encrypt(decrypted: dict, key: str = None, keyV: str = None) -> str:
     key = key if key is not None else os.environ.get("DATASAFEKEY")
     keyV = keyV if keyV is not None else os.environ.get("DATAKEY")
+    # print(f"dict_encrypt: {key = }, {keyV = }")
     if type(decrypted) is not dict:
         return None
     return dict_keys_encrypt(dict_values_encrypt(decrypted, key=keyV), key=key)
@@ -36,6 +37,7 @@ def dict_encrypt(decrypted: dict, key: str = None, keyV: str = None) -> str:
 def dict_decrypt(encrypted: str, key: str = None, keyV: str = None) -> dict:
     key = key if key is not None else os.environ.get("DATASAFEKEY")
     keyV = keyV if keyV is not None else os.environ.get("DATAKEY")
+    # print(f"dict_decrypt: {key = }, {keyV = }")
     if type(encrypted) is not str:
         return None
     return dict_values_decrypt(dict_keys_decrypt(encrypted, key=key), key=keyV)

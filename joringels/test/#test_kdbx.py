@@ -31,7 +31,8 @@ class Test_KeePassSecrets(unittest.TestCase):
             "safeName": cls.safeName,
             "productName": cls.productName,
             "clusterName": cls.clusterName,
-            "key": "testing",
+            "key": sts.testKeyOuter,
+            "keyV": sts.testKeyInner,
         }
         cls.KP = kdbx.KeePassSecrets("load", *args, **cls.kwargs)
         # cls.KP.mk_session(*args, **cls.kwargs)
@@ -96,6 +97,7 @@ class Test_KeePassSecrets(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()
     print("done")
     exit()

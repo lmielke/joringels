@@ -35,7 +35,8 @@ class Test_UnitTest(unittest.TestCase):
             "entryName": "safe_one",
             "productName": cls.productName,
             "clusterName": cls.clusterName,
-            "key": "testing",
+            "key": sts.testKeyOuter,
+            "keyV": sts.testKeyInner,
             "retain": True,
         }
 
@@ -63,6 +64,7 @@ class Test_UnitTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    with helpers.temp_password(pw=sts.testKeyOuter):
+        unittest.main()
     print("done")
     exit()
