@@ -5,8 +5,8 @@ import argparse
 
 
 def mk_args():
-    parser = argparse.ArgumentParser(description="run: python -m joringels.src.joringels info")
-    parser.add_argument("action", metavar="action", nargs=None, help="see joringels_code actions")
+    parser = argparse.ArgumentParser(description="run: python -m joringels.src.joringels.info")
+    parser.add_argument("action", metavar="action", nargs=None, help="see joringels.src.actions")
 
     parser.add_argument(
         "-k",

@@ -175,6 +175,8 @@ Here is a param file example for the target machine (joringels server machine).
 
 ### Install using repo Pipfile (NOTE: handle install issues as described in pt 7 !)
 - pipenv install (NOTE: this installs joringels as editable, change Pipfile if needed)
+logunittest = \{git = "git@github.com:lmielke/logunittest.git"\}
+joringels = \{git = "git@github.com:lmielke/joringels.git"\}
 
 ## 3 Setup
 ### secret host machine setup (mandatory)
