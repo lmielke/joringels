@@ -122,6 +122,7 @@ class Joringel:
         mappings["port"] = mappings[connector]["ports"][1]
         mappings["host"] = soc.get_local_ip()
         joringelsParams["mappings"] = mappings
+        sts.appParams["mappings"] = mappings
         return secrets
 
     def get_cluster_name(self, d, current_key=None):

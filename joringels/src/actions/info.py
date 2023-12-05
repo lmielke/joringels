@@ -22,11 +22,15 @@ def main(*args, **kwargs):
     # check dataSafes
     msg = f"\nChecking dataSafes in {sts.encryptDir}..."
     print(f"{WHITE}{msg}{COL_RM}")
-    for ds in os.listdir(sts.encryptDir):
-        if os.path.splitext(ds)[-1] == sts.fext:
-            print(f"{YELLOW}\t{ds} -> not encrypted{COL_RM}")
-        else:
-            print(f"{GREEN}\t{ds}{COL_RM}")
+    safes = os.listdir(sts.encryptDir)
+    if not safes:
+        print(f"{YELLOW}No dataSafe found in {sts.encryptDir}{COL_RM}")
+    else:
+        for ds in safes:
+            if os.path.splitext(ds)[-1] == sts.fext:
+                print(f"{YELLOW}\t{ds} -> not encrypted{COL_RM}")
+            else:
+                print(f"{GREEN}\t{ds}{COL_RM}")
     # check secret keys
     msg = f"\nChecking keys in os.environ..."
     print(f"{WHITE}{msg}{COL_RM}")
@@ -38,7 +42,7 @@ def main(*args, **kwargs):
     # check other env Vars
     msg = f"\nChecking safe params in os.environ..."
     print(f"{WHITE}{msg}{COL_RM}")
-    for name in ("DATASAFEIP", "DATASAFENAME", "JORINGELSPATH"):
+    for name in ("DATASAFEIP", "DATASAFENAME"):
         if os.environ.get(name) is None:
             print(f"\t{RED}Environment variable {name} not set!{COL_RM}")
         else:

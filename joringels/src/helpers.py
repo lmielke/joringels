@@ -148,8 +148,14 @@ def temp_safe_rename(*args, safeName: str, prefix: str = "#", **kwargs) -> None:
 
 
 def get_api_enpoint_dir(connector, *args, **kwargs):
-    with open(unalias_path(sts.available_appsPaths), "r") as apps:
-        available_apps = json.load(apps)
+    avAppsPath = unalias_path(sts.available_appsPaths)
+    if os.path.isfile(avAppsPath):
+        with open(avAppsPath, "r") as apps:
+            available_apps = json.load(apps)
+    else:
+        appPath = os.getcwd()
+        available_apps = {os.path.basename(appPath): [None, appPath]}
+        connector = os.path.basename(appPath)
     app = available_apps.get(connector)
     if not app:
         raise Exception(f"no app found in available_appssts.fext named {connector}")

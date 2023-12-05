@@ -140,8 +140,8 @@ class JoringelsServer(Joringel):
         flower.py will then handle the http part
         """
         # host = host if host is not None else soc.get_local_ip()
-        host = self.joringelsParams.get("mappings").get("host")
-        port = self.joringelsParams.get("mappings").get("port")
+        host = sts.appParams.get("mappings").get("host")
+        port = sts.appParams.get("mappings").get("port")
         self.AF_INET = (host, port)
         handler = magic.MagicFlower(self)
         if self.secrets:

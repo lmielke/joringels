@@ -27,4 +27,4 @@ python_version = "3.11"
 
 [scripts]
 git_sync = "lut ut -g"
-serve = "jo serve -n digiserver_sometext -con joringels -cn testing -rt -t"
+serve = "jo serve -n digiserver -con joringels -cn testing -rt -t"
