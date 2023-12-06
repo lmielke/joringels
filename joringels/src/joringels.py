@@ -106,23 +106,31 @@ class Joringel:
         # secureHosts and allowed Clients are populated with all cluster ips and ports
         # mappings are colleced for fast readout during select (host, port)
         secureHosts, allowedClients, mappings = [], [], dict()
+        localIp = soc.get_local_ip()
         for k, vs in clusterParams.get("services").items():
             ip_address = vs["networks"]["illuminati"]["ipv4_address"]
             allowedClients.append(ip_address)
+            # if run in a docker container a docker bridge network is used, which has own IP
+            if localIp.startswith(sts.bridgeIpFirstOctet):
+                # network Ip is the first ip in the subnetwork
+                networkIp = f"{localIp.split('/')[0][:-1]}1"
+                allowedClients.append(networkIp)
+                secureHosts.append(networkIp)
+            # get ip addresses of all cluster nodes
             mappings[k] = {
                 "ip_address": ip_address,
                 "ports": [int(p) for p in vs.get("ports")[0].split(":")],
             }
-            allowedClients.append(soc.get_local_ip())
+            allowedClients.append(localIp)
             allowedClients.append(soc.get_hostname())
-            secureHosts.append(soc.get_local_ip())
+            secureHosts.append(localIp)
             secureHosts.append(soc.get_hostname())
         secureHosts.append(os.environ.get("NODEMASTERIP"))
         allowedClients.append(os.environ.get("NODEMASTERIP"))
         joringelsParams["allowedClients"] = list(set(allowedClients))
         joringelsParams["secureHosts"] = list(set(secureHosts))
         mappings["port"] = mappings[connector]["ports"][1]
-        mappings["host"] = soc.get_local_ip()
+        mappings["host"] = localIp
         joringelsParams["mappings"] = mappings
         sts.appParams["mappings"] = mappings
         return secrets

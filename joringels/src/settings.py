@@ -49,6 +49,7 @@ assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 defaultSafeIp = os.environ.get("DATASAFEIP")
 defaultHost = "0.0.0.0"
 defaultPort = 7000
+bridgeIpFirstOctet = "172"
 # encryption/decryption helper
 decPrefix = ""
 validator = "text_is_valid"
