@@ -89,7 +89,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
         if p.endswith(".py") and p != "__init__.py" and p != "tempfile.py"
     ]
     if not action in actions:
-        msg = f"\ninvalid action '{action}'! Available actions: {actions}"
+        msg = f"\ninvalid action '{action}'! Available actions: {actions}, see {actionsPath}"
         print(f"{RED}{msg}{COL_RM}")
         return None
     else:

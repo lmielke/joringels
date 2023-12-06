@@ -60,6 +60,7 @@ validator = "text_is_valid"
 settingsPath = os.path.split(__file__)[0]
 srcPath = os.path.split(settingsPath)[0]
 appBasePath = os.path.split(srcPath)[0]
+dockerPath = os.path.join(appBasePath, "docker")
 logDir = os.path.join(srcPath, "logs")
 appParamsPath = prep_path(os.path.join(encryptDir, appParamsFileName))
 

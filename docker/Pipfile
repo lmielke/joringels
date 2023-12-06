@@ -12,8 +12,8 @@ tabulate = "*"
 psutil = "*"
 ipwhois = "*"
 # context will change in lut ut before git add
-joringels = {editable = true, path = "."}
-logunittest = {editable = true, path = "/Users/Lars/python_venvs/packages/logunittest"}
+joringels = {git = "https://github.com/lmielke/joringels.git"}
+logunittest = {git = "https://github.com/lmielke/logunittest.git"}
 pytest = "*"
 
 [dev-packages]
@@ -21,10 +21,9 @@ pykeepass = "*"
 black = "*"
 pre-commit = "*"
 toml = "*"
-docker = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.10"
 
 [scripts]
 git_sync = "lut ut -g"
