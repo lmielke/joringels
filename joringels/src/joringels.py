@@ -117,6 +117,8 @@ class Joringel:
             allowedClients.append(soc.get_hostname())
             secureHosts.append(soc.get_local_ip())
             secureHosts.append(soc.get_hostname())
+        secureHosts.append(os.environ.get("NODEMASTERIP"))
+        allowedClients.append(os.environ.get("NODEMASTERIP"))
         joringelsParams["allowedClients"] = list(set(allowedClients))
         joringelsParams["secureHosts"] = list(set(secureHosts))
         mappings["port"] = mappings[connector]["ports"][1]

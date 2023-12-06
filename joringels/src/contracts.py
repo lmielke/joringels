@@ -1,6 +1,7 @@
 # contracts.py
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
+import joringels.src.get_soc as soc
 import os, sys
 
 # colors for printing
@@ -19,6 +20,7 @@ def checks(*args, **kwargs):
     error_upload_all(*args, **kwargs)
     kwargs = warn_deletion(*args, **kwargs)
     check_secrets_path(*args, **kwargs)
+    set_master_ip(*args, **kwargs)
     return kwargs
 
 
@@ -117,3 +119,7 @@ def error_check_params(*args, action, source, connector, **kwargs):
     else:
         kwargs["source"] = source
     return kwargs
+
+
+def set_master_ip(*args, **kwargs):
+    os.environ["NODEMASTERIP"] = os.environ.get("NODEMASTERIP", soc.get_local_ip())
