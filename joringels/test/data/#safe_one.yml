@@ -22,7 +22,6 @@ safe_one:
   safe_params:
     entries:
     - python_venvs/databases/aws_postgres
-    targets:
     - python_venvs/physical_machines/haimdall_server
     - python_venvs/physical_machines/joringels_server
   title: safe_one

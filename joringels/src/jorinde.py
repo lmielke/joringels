@@ -17,17 +17,10 @@ from joringels.src.actions import fetch
 
 class Jorinde:
     def __init__(self, *args, host=None, port=None, **kwargs):
-        self.joringelsParams = self.get_joringels_params(*args, **kwargs)
-        self.host = sts.appParams.get("mappings").get("host")
-        self.port = sts.appParams.get("mappings").get("port") if port is None else port
+        self.host = sts.appParams.host
+        self.port = sts.appParams.port if port is None else port
         self.response = None
         self.secrets = None
-
-    def get_joringels_params(*args, entryName=None, **kwargs):
-        joringelsParams = fetch.main(
-            *args, host="loc", entryName="testing.cluster_params._joringels", **kwargs
-        )
-        return joringelsParams
 
     def _fetch(self, *args, connector: str = "joringels", **kwargs):
         """

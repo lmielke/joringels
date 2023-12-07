@@ -11,7 +11,6 @@ import joringels.src.helpers as helpers
 from joringels.src.actions import fetch
 
 
-# :)L0veMi11i0n$
 class Applcation:
     def __init__(self, action, *args, verbose=0, key=None, **kwargs):
         self.verbose = verbose

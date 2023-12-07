@@ -28,11 +28,6 @@ def authorize_client(clients, authIp=None, *args, **kwargs):
 def authorize_host(authIp=None, *args, **kwargs):
     if authIp is None:
         authIp = soc.get_local_ip()
-    if (
-        authIp in sts.appParams[sts.secureHosts]
-        or soc.get_hostname() in sts.appParams[sts.secureHosts]
-    ):
-        # print(f"authIp in secureHosts: {authIp} in {sts.appParams[sts.secureHosts]}")
+    if authIp in sts.appParams.secureHosts or soc.get_hostname() in sts.appParams.secureHosts:
         return True
-    # print(f"authIp not in secureHosts: {authIp} not in {sts.appParams[sts.secureHosts]}")
     return False

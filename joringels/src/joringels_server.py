@@ -36,12 +36,6 @@ class JoringelsServer(Joringel):
         self.sessions = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
         self.apiHand = ApiHandler(*args, **kwargs)
 
-    @property
-    def joringelsParams(self, *args, **kwargs):
-        return dict_decrypt(self.secrets)[self.clusterName][sts.cluster_params][
-            sts.appParamsFileName
-        ]
-
     def server(self, *args, host: str, port: int, **kwargs):
         """
         starts the http server
@@ -77,6 +71,8 @@ class JoringelsServer(Joringel):
             # self.port = soc.get_port(api, self.port, *args, connector=self.connector, **kwargs)
         # joringels basic runntime params like allowedHosts must be loaded from secrets
         if clusterParams.get(sts.appParamsFileName):
+            print("\nupdating")
+            # sts.appParams.update(clusterParams[sts.appParamsFileName])
             sts.appParams.update(clusterParams[sts.appParamsFileName])
         self.sessions.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
         return True
@@ -140,8 +136,8 @@ class JoringelsServer(Joringel):
         flower.py will then handle the http part
         """
         # host = host if host is not None else soc.get_local_ip()
-        host = sts.appParams.get("mappings").get("host")
-        port = sts.appParams.get("mappings").get("port")
+        host = sts.appParams.host
+        port = sts.appParams.port
         self.AF_INET = (host, port)
         handler = magic.MagicFlower(self)
         if self.secrets:

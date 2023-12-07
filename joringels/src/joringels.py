@@ -72,70 +72,40 @@ class Joringel:
                 exit()
         return True
 
-    def create(self, *args, key: str = None, keyV: str = None, **kwargs) -> None:
-        with decryptor(*args, key=key, keyV=keyV, **kwargs) as h:
-            self.secrets = self.prep_cluster_params(h.data["decrypted"], *args, **kwargs)
+    def create(self, *args, **kwargs) -> dict:
+        if not auth_checker.authorize_host():
+            return None
+        self.authorized = True
+        with decryptor(self.encryptPath, *args, **kwargs) as h:
+            self.secrets = h.data["decrypted"]
+            self.clusterName = self.get_cluster_name(self.secrets)
+            self.secrets["appParams"] = self.cluster_params(
+                self.secrets[self.clusterName][sts.cluster_params], *args, **kwargs
+            )
         return self.secrets
 
-    def _digest(self, *args, key: str = None, keyV: str = None, **kwargs) -> tuple[str, dict]:
+    def _digest(self, *args, **kwargs) -> tuple[str, dict]:
         """
         gets the decrypted content from a encrypted file and returns it
         because self.secrets also contains runntime information for joringels
         some of those parameters are added here as well
         """
-        if not auth_checker.authorize_host():
-            return None, None
-        self.authorized = True
         # secrets will decryped and returned
-        # key = key if key is not None else os.environ.get("DATASAFEKEY")
-        with decryptor(self.encryptPath, key=key, keyV=keyV) as h:
-            self.secrets = self.prep_cluster_params(h.data["decrypted"], *args, **kwargs)
-        return h.encryptPath, self.secrets
+        self.create(*args, **kwargs)
+        return self.encryptPath, self.secrets
 
-    def prep_cluster_params(self, secrets, *args, clusterName=None, connector=None, **kwargs):
+    def cluster_params(self, clusterParams, *args, connector=sts.appName, **kwargs) -> dict:
         """
         cluster params are needed to identify the relevant available APIs as well as their
         corresponding ip_address and ports.
         allowedClients and secureHosts are changed in self.secrets in place
         mappings are added like self.secrets['mappings']
         """
-        connector = sts.appName if connector is None else connector
-        clusterName = clusterName if clusterName is not None else self.get_cluster_name(secrets)
-        clusterParams = secrets[clusterName][sts.cluster_params]
-        joringelsParams = clusterParams[sts.appParamsFileName]
+        sts.appParams.source_services(clusterParams["services"], connector)
         # secureHosts and allowed Clients are populated with all cluster ips and ports
-        # mappings are colleced for fast readout during select (host, port)
-        secureHosts, allowedClients, mappings = [], [], dict()
-        localIp = soc.get_local_ip()
-        for k, vs in clusterParams.get("services").items():
-            ip_address = vs["networks"]["illuminati"]["ipv4_address"]
-            allowedClients.append(ip_address)
-            # if run in a docker container a docker bridge network is used, which has own IP
-            if localIp.startswith(sts.bridgeIpFirstOctet):
-                # network Ip is the first ip in the subnetwork
-                networkIp = f"{localIp.split('/')[0][:-1]}1"
-                allowedClients.append(networkIp)
-                secureHosts.append(networkIp)
-            # get ip addresses of all cluster nodes
-            mappings[k] = {
-                "ip_address": ip_address,
-                "ports": [int(p) for p in vs.get("ports")[0].split(":")],
-            }
-            allowedClients.append(localIp)
-            allowedClients.append(soc.get_hostname())
-            secureHosts.append(localIp)
-            secureHosts.append(soc.get_hostname())
-        secureHosts.append(os.environ.get("NODEMASTERIP"))
-        allowedClients.append(os.environ.get("NODEMASTERIP"))
-        joringelsParams["allowedClients"] = list(set(allowedClients))
-        joringelsParams["secureHosts"] = list(set(secureHosts))
-        mappings["port"] = mappings[connector]["ports"][1]
-        mappings["host"] = localIp
-        joringelsParams["mappings"] = mappings
-        sts.appParams["mappings"] = mappings
-        return secrets
+        return sts.appParams.__dict__
 
-    def get_cluster_name(self, d, current_key=None):
+    def get_cluster_name(self, d, current_key=None) -> str:
         if isinstance(d, dict):
             for key, value in d.items():
                 if key == sts.cluster_params:
@@ -146,7 +116,7 @@ class Joringel:
                         return result
         return None
 
-    def _handle_integer_keys(self, apiParams):
+    def _handle_integer_keys(self, apiParams) -> dict:
         """
         helper function for api calls
         api endpoint calls are called by providing the relevant api action index

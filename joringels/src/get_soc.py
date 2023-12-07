@@ -1,16 +1,29 @@
-# get_soc.py -> import joringels.src.get_soc as soc
+# get_py -> import joringels.src.get_soc as soc
 import os, re, requests, socket
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import joringels.src.logger as logger
 
+# importin cache
+from functools import lru_cache as cache
 
+
+@cache
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     socName = s.getsockname()[0]
     s.close()
     return socName
+
+
+def get_local_docker_network_ip():
+    localIp = get_local_ip()
+    if localIp.startswith(sts.bridgeIpFirstOctet):
+        # network Ip is the first ip in the subnetwork
+        return f"{localIp.split('/')[0][:-1]}1"
+    else:
+        return localIp
 
 
 # marked for deletion, not used !?
@@ -21,6 +34,7 @@ def get_external_ip_from_env():
     return ip_address
 
 
+@cache
 def get_external_ip():
     try:
         r = requests.get("https://api.ipify.org")
@@ -34,11 +48,31 @@ def get_hostname():
     return socket.gethostname().upper()
 
 
+def update_secure_hosts(*args, **kwargs):
+    secureHosts = []
+    secureHosts.append(get_local_ip())
+    secureHosts.append(get_hostname())
+    secureHosts.append(os.environ.get("NODEMASTERIP", get_local_ip()))
+    return list(set(secureHosts))
+
+
+def update_allowed_clients(services, *args, **kwargs):
+    allowedClients = []
+    for k, vs in services.items():
+        allowedClients.append(vs["networks"]["illuminati"]["ipv4_address"])
+    # if run in a docker container a docker bridge network is used, which has own IP
+    networkIp = get_local_docker_network_ip()
+    allowedClients.append(networkIp)
+    allowedClients.append(get_hostname())
+    allowedClients.append(os.environ.get("NODEMASTERIP", get_local_ip()))
+    return list(set(allowedClients))
+
+
 def get_allowed_clients(*args, **kwargs):
-    allowedClients = sts.appParams.get(sts.allowedClients)
-    if get_hostname() in sts.appParams.get(sts.secureHosts):
+    allowedClients = sts.appParams.allowedClients
+    if get_hostname() in sts.appParams.secureHosts:
         allowedClients.append(get_local_ip())
-    return allowedClients
+    return list(set(allowedClients))
 
 
 def derrive_host(*args, connector: str = None, **kwargs):
@@ -95,7 +129,7 @@ def get_api_params(*args, clusterName=None, safeName=None, **kwargs):
     if clusterName is None:
         clusterName = os.environ.get("CLUSTERNAME")
         assert clusterName, (
-            f"\nget_soc.get_api_params:"
+            f"\nget_get_api_params:"
             f" hostName {kwargs['host']} could not be resolved,"
             f" and clusterName is {clusterName}!"
             f" Check spelling of hostName ! {kwargs['host']}"

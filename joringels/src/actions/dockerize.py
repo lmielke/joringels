@@ -32,15 +32,13 @@ info = (
 
 
 def run(*args, host=None, entryName, **kwargs) -> None:
-    appParams = fetch.main(
-        *args, host="loc", entryName="testing.cluster_params._joringels.mappings", **kwargs
-    ).get(sts.appName)
+    appParams = fetch.main(*args, host="loc", entryName="appParams", **kwargs)
     with helpers.temp_chdir(path=sts.dockerPath) as p:
         data = prep_data(*args, **kwargs)
         if input(info) == "y":
             docker_bulid(appParams, *data)
         if input(f"\n{YELLOW}Do you whish to run the container{COL_RM} [y/n]? : ") == "y":
-            docker_run(*args, **appParams, **kwargs)
+            docker_run(*args, **appParams)
 
 
 def prep_data(*args, safeName=None, **kwargs):
@@ -84,8 +82,27 @@ def prep_files(*args, **kwargs):
             f.write(text)
 
 
+# # currently not used because python docker installed
+# def docker_build_image(safeName, pgDir, *args, **kwargs):
+#     buildCmd = (
+#                     f"docker build --progress=plain --no-cache "
+#                     f"--build-arg DATASAFENAME={os.path.splitext(safeName)[0]} "
+#                     f"--build-arg GIT_ACCESS_TOKEN={os.environ.get('GIT_ACCESS_TOKEN')} "
+#                     f"--build-arg PACKAGEDIR={pgDir} "
+#                     f"-t {sts.appName} ."
+#         )
+#     print(f"Building: {os.getcwd()}: {os.listdir()}\n{buildCmd = }")
+#     if input(f"\n{YELLOW}Do you whish to continue{COL_RM} [y/n]? : ") == 'y':
+#         subprocess.run(buildCmd, shell=True)
+#     return buildCmd
+
+
 def docker_build_image(safeName, pgDir, *args, **kwargs):
-    client = docker.from_env()
+    try:
+        client = docker.from_env()
+    except docker.errors.DockerException:
+        print(f"{RED}Docker not running or not installed !{COL_RM}")
+        exit()
     build_args = {
         "DATASAFENAME": os.path.splitext(safeName)[0],
         "GIT_ACCESS_TOKEN": os.environ.get("GIT_ACCESS_TOKEN"),
@@ -106,15 +123,17 @@ def docker_build_image(safeName, pgDir, *args, **kwargs):
             return None
 
 
-def docker_run(*args, ip_address, ports, **kwargs):
+def docker_run(*args, host, portMapping, network, **kwargs):
     # Assuming pgName and prDir are passed as arguments to the function
+    networkName = list(network.keys())[0]
+    networkIp = list(network.values())[0].get("ipv4_address")
     dockerCommand = (
         f"docker run -itd --rm --name {sts.appName[:2]} --privileged "
         f"-e \"DATAKEY={os.environ.get('DATAKEY')}\" "
         f"-e \"DATASAFEKEY={os.environ.get('DATASAFEKEY')}\" "
         f"-e \"NODEMASTERIP={os.environ.get('DATASAFEIP')}\" "
         f"-e \"DATASAFENAME={os.environ.get('DATASAFENAME')}\" "
-        f"--network illuminati -p {':'.join([str(p) for p in ports])} --ip {ip_address} "
+        f"--network {networkName} -p {portMapping} --ip {networkIp} "
         f"{sts.appName}"
     )
     print(
@@ -132,20 +151,6 @@ def main(*args, **kwargs) -> None:
 
 if __name__ == "__main__":
     main(**arguments.mk_args().__dict__)
-
-# # currently not used because python docker installed
-# def _docker_build_image(safeName, pgDir, *args, **kwargs):
-#     buildCmd = (
-#                     f"docker build --progress=plain --no-cache "
-#                     f"--build-arg DATASAFENAME={os.path.splitext(safeName)[0]} "
-#                     f"--build-arg GIT_ACCESS_TOKEN={os.environ.get('GIT_ACCESS_TOKEN')} "
-#                     f"--build-arg PACKAGEDIR={pgDir} "
-#                     f"-t {sts.appName} ."
-#         )
-#     print(f"Building: {os.getcwd()}: {os.listdir()}\n{buildCmd = }")
-#     if input(f"\n{YELLOW}Do you whish to continue{COL_RM} [y/n]? : ") == 'y':
-#         subprocess.run(buildCmd, shell=True)
-#     return buildCmd
 
 # # not working TypeError: run() got an unexpected keyword argument 'ip'
 # def _docker_run(*args, ip_address, ports, **kwargs):

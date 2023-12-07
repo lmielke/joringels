@@ -19,7 +19,7 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     jo serve -n saveName -con joringels -cn testing -rt -t
     # loading a datasafe from kdbx source to .ssp folder
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
-    jo fetch -e _joringel.yml
+    jo fetch -e _joringels
     # load to local docker export dir
     jo upload -src kdbx -con docker -pr joringels -n safe_one -pd wobbles -c testing
     # load to remote server
@@ -27,19 +27,34 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
 
 ```
 ## Installation
-Install joringels insice the package environment for the package which you want to serve as a microservice.
+Install joringels inside the package environment for the package which you want to serve as a microservice.
 
+Recommended install:
+Copy the Pipfile from joringels.docker to your install folder.
+Alternatively clone the repo and use the Pipfile from joringels package directory (directory where the setup.py file lives)
+```
+    # enter your package folder then run the following
+    pipenv install
+    pipenv shell
+    jo info
+```
+
+NOTE: joringels is available on pypi, however it contains one dependency package 'logunittest'
+which currently is NOT available on pypi. You have to manually install it to use joringels.
 ```
     pipenv install joringels
 
 ```
 
 ### Environment variables (mandatory)
-- secrets: path to your local secrets file (i.e. passwords.kdbx secrets hosting machine)
+#### Mandatory environment variables:
 - DATASAFEKEY: password to your encrypted secrets (outer encryption for REST data)
 - DATAKEY: password to your encrypted secrets values (inner encryption only dict values)
 - DATASAFENAME: default name of your dataSafe
 - DATASAFEIP: ip address of your dataSafe server (if joringels microservice is used)
+
+#### Optional environment variables:
+- secrets: path to your local secrets file (i.e. passwords.kdbx secrets hosting machine)
 
 # API Endpoint use
 ## Example of a mail application server (oamailer) on port 7007:
@@ -111,7 +126,7 @@ Here is a param file example for the target machine (joringels server machine).
     # appPath is needed for app import
     # possible actions to be performed with default parameters
     # steps
-    # jo load -pr oamailer -src application -con '...\oamailer\joringels\params.yml'
+    # jo load -pr oamailer -src application -con '...\oamailer\joringels\params.json'
     
     projectName: oamailer
     contentType: application/oamailer
@@ -133,7 +148,7 @@ Here is a param file example for the target machine (joringels server machine).
 ```
 ### load the yaml file to joringels
 ```
-    jo load -pr oamailer -src application -con '...\oamailer\joringels\params.yml'
+    jo load -pr oamailer -src application -con '...\oamailer\joringels\params.json'
 ```
 
 ### serve your api access point
@@ -159,8 +174,6 @@ Here is a param file example for the target machine (joringels server machine).
 - Currently kdbx (password-manager) is the only supported secret source
 - scp is used as connector for secrets file transfer to server
 
-
-
 ## 1 What joringels does
 - efficiently manage your secrets while maintaining it in a save location i.e. kdbx
 - create dataSafes (bundles of secrets) using combined entries in your source (i.e. kdbx)
@@ -170,27 +183,26 @@ Here is a param file example for the target machine (joringels server machine).
 - extracts and uploads your encrypted dataSafes to multiple remote server simultaneously
 
 ## 2 Download and install from gitlab
-- python3.9 +
-- git clone https://gitlab.com/larsmielke2/joringels.git
-
-### Install using repo Pipfile (NOTE: handle install issues as described in pt 7 !)
-- pipenv install (NOTE: this installs joringels as editable, change Pipfile if needed)
-logunittest = \{git = "git@github.com:lmielke/logunittest.git"\}
-joringels = \{git = "git@github.com:lmielke/joringels.git"\}
+- see install instructions above
 
 ## 3 Setup
 ### secret host machine setup (mandatory)
 - install password manager # Currently only keepass is supported !
-- define some neccessary password environment variables
-    - 'yourSafeName': 'pwd' (encrypts safeName.yml file when it is saved-locally or scp-send)
-    - JORINGELS: 'pwd' (encrypts http secrets NOTE: must be equal on server and all clients)
+You have to setup two keepass entries specific to joringels:
+    - 'dataSafe': 'pwd' (encrypts safeName.json file when it is saved-locally or scp-send)
+    - 'cluster': contains cluster parameters for the cluster where joringels is working in
+#### KDBX setup
+- create a kdbx file (i.e. passwords.kdbx) and add a group named data_safes)
+- create one or multiple entries within the data_safes group
+- Inside the 'advanced' tab create a attachment 'safe_params.yml'
+
+##### safe_params.yml
+tbd
 
 ### secret host machine setup (optional)
 - define some helpful environment variables to avoid typing kwargs all the time
     - DATASAFEIP: ip the host server uses to serve secrets (ipv4 address of your server)
     - DATASAFENAME: name of dataSafe you want to use in a network
-    - DATASAFEROLE: server or client
-    - JORINGELSPATH: full path to where the Pipfile lives
 
 
 ### Joringels package setup (mandatory)
@@ -198,7 +210,7 @@ joringels = \{git = "git@github.com:lmielke/joringels.git"\}
 - in keepass add Group -> name it like settings.py / groupName (i.e. joringels_data_safes)
 - in keepass, inside the Group create a dataSafe entry (i.e. myfirstdatasafe) with generated password
 
-- for each dataSafe create a soures/targets .yml file as shown in example below
+- for each dataSafe create a soures/targets .json file as shown in example below
 - NOTE: targets AND entries contain full paths to keepass entries
 ````
     # entries for single or multiple target server logins (server using the dataSafe secrets)
@@ -213,7 +225,7 @@ joringels = \{git = "git@github.com:lmielke/joringels.git"\}
       - pyenvs/provider/google_oauth
 ````
 - attach the new file to your dataSafe entry (myfirstdatasafe): keepass>>advanced>>attach
-- also attach the following \_joringels.yml (runtime parameters) file in the same dataSafe as above
+- also attach the following \_joringels.json (runtime parameters) file in the same dataSafe as above
 ```
     # only these hosts are allowed to request a secret
     allowedClients:
@@ -230,7 +242,7 @@ joringels = \{git = "git@github.com:lmielke/joringels.git"\}
         - BLUE-MOON_1
         - BLUE-MOON_2
 ```
-- remove the unprotected .yml files, so they only exist in kdbx now
+- remove the unprotected .json files, so they only exist in kdbx now
 
 ### Joringels setup (optional)
 - if you wish, change relevant names and dirs in joringels/src/settings.py
@@ -276,7 +288,7 @@ joringels = \{git = "git@github.com:lmielke/joringels.git"\}
 ## 7 Known issues
 - as of 06/2022 python10.5 not installing (use python10.4 instead)
 - FileNotFoundError: [Errno 2] No such file or directory <- create folder/file as shown below
-.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\resources\\\_joringels.yml
+.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\resources\\\_joringels.json
 ```
     # defaults used for startup sequence
     decPrefix: decrypted_

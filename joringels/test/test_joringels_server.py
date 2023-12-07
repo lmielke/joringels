@@ -30,7 +30,7 @@ class Test_JoringelsServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 1
-        cls.tempDirName = "temp_test_joringels"
+        cls.tempDirName = "temp_test_joringels_server"
         cls.tempDataDir = helpers.mk_test_dir(cls.tempDirName)
         cls.logDir = os.path.join(logunittest_logs_dir(), "joringels")
         cls.safeName = "test_joringels_safe"

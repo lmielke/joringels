@@ -132,9 +132,3 @@ def main(params, key):
     for k, ciphertextBase64 in encrypted.items():
         decryptedtext = text_decrypt(ciphertextBase64, key)
         decrypted[k] = json.loads(decryptedtext)
-
-
-if __name__ == "__main__":
-    with open(os.path.join(r"C:\Users\lars\.ssp", "_joringels.yml"), "r") as f:
-        params = json.loads(f)
-    main(params, "6789045129812345")

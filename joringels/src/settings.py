@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import joringels.src.get_soc as soc
 from joringels.src.helpers import unalias_path as unalias_path
 from joringels.src.helpers import prep_path as prep_path
+import joringels.src.data as data
 
 # ****************** MUST CHANGE PARAMS ***********************#
 """ 
@@ -22,7 +23,6 @@ kps_sep = "/"
 
 # kdbx-file.dataSafes.dataSafe.attachments.safe_params.yml
 safeParamsFileName = f"safe_params"
-
 # kdbx.products.product.clusterEntry.attachments.cluster_params.yml
 cluster_params = "cluster_params"
 allowedClients = "allowedClients"
@@ -45,10 +45,7 @@ encryptDir = unalias_path("~/.ssp")
 assert os.path.isdir(encryptDir), f"Not found encryptDir: {encryptDir}"
 
 # path sepeator for path to find your secret inside its source i.e. kdbx
-# default ip to fetch dataSafe from
-defaultSafeIp = os.environ.get("DATASAFEIP")
-defaultHost = "0.0.0.0"
-defaultPort = 7000
+
 bridgeIpFirstOctet = "172"
 # encryption/decryption helper
 decPrefix = ""
@@ -81,20 +78,13 @@ cryptonizeDataStr = (
     f"0hm9j/HWuoXOS8wPWGfbzIfZ7QF3ObJL84H8+2n/vwdEO1/yo0eu1gerS2CQc5Ob+tKTtf"
     f"9Icg=="
 )
-# Path function settings
-# os seperator correction
-os_sep = lambda x: os.path.abspath(x)
 
-
-startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
-try:
-    appParams = {}
-    with open(appParamsPath.replace(fext, ".json"), "r") as f:
-        appParams.update(yaml.safe_load(f))
-except FileNotFoundError:
-    appParams[secureHosts] = [soc.get_local_ip()]
-    appParams[allowedClients] = [soc.get_local_ip()]
-    appParams["port"] = defaultPort
+# startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
+# default ip to fetch dataSafe from
+defaultHost = "0.0.0.0"
+dockerHostPrefix = "172."
+defaultPort = 7000
+appParams = data.AppParams()
 
 
 # api endpoints settings
