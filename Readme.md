@@ -19,7 +19,6 @@ jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, inv
     jo serve -n saveName -con joringels -cn testing -rt -t
     # loading a datasafe from kdbx source to .ssp folder
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
-    jo fetch -e _joringels
     # load to local docker export dir
     jo upload -src kdbx -con docker -pr joringels -n safe_one -pd wobbles -c testing
     # load to remote server
@@ -225,7 +224,7 @@ tbd
       - pyenvs/provider/google_oauth
 ````
 - attach the new file to your dataSafe entry (myfirstdatasafe): keepass>>advanced>>attach
-- also attach the following \_joringels.json (runtime parameters) file in the same dataSafe as above
+
 ```
     # only these hosts are allowed to request a secret
     allowedClients:
@@ -288,7 +287,6 @@ tbd
 ## 7 Known issues
 - as of 06/2022 python10.5 not installing (use python10.4 instead)
 - FileNotFoundError: [Errno 2] No such file or directory <- create folder/file as shown below
-.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\resources\\\_joringels.json
 ```
     # defaults used for startup sequence
     decPrefix: decrypted_

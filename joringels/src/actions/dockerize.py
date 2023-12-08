@@ -133,7 +133,6 @@ def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
         f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
         f'-e "DATAKEY=$env:DATAKEY" '
         f'-e "DATASAFEKEY=$env:DATASAFEKEY" '
-        f'-e "NODEMASTERIP=$env:DATASAFEIP" '
         f'-e "DATASAFENAME=$env:DATASAFENAME" '
         f"--network {networkName} -p {portMapping} --ip {networkIp} "
         f"{sts.appName}"

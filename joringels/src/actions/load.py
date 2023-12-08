@@ -26,8 +26,8 @@ def run(srcAdapt: object, action: str, *args, **kwargs) -> None:
     j = Joringel(*args, **kwargs)
     # get secret
     with srcAdapt.KeePassSecrets("load", *args, **kwargs) as src:
-        secrets = src.read_source(*args, **kwargs)
-        j.create(j.encryptPath, secrets, *args, **kwargs)
+        decrypted = src.read_source(*args, **kwargs)
+        j.create(j.encryptPath, decrypted, *args, **kwargs)
 
 
 def main(*args, source: str, **kwargs) -> None:

@@ -1,9 +1,16 @@
 # encryption_handler.py
 
 import os, time, yaml
+
+# colors for printing
 import colorama as color
 
 color.init()
+COL_RM = color.Style.RESET_ALL
+YELLOW = color.Fore.YELLOW
+GREEN = color.Fore.GREEN
+RED = color.Fore.RED
+
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto import Random

@@ -1,4 +1,5 @@
 import os
+from itertools import count
 from dataclasses import dataclass, field
 from typing import List, Dict, Any
 import joringels.src.settings as sts
@@ -38,7 +39,6 @@ class DataSafe:
         if not all(isinstance(entry, str) for entry in self.entries):
             raise TypeError("All 'entries' must be of type str")
         if not isinstance(self.dataSafeKey, str):
-            print(f"{self.dataSafeKey = }")
             raise TypeError(
                 f"Expected 'dataSafeKey' to be a str, got {type(self.dataSafeKey).__name__}"
             )
@@ -77,6 +77,7 @@ class DataSafe:
 
 @dataclass
 class AppParams:
+    identifier: int = field(default_factory=count().__next__)
     nodeMasterIp: str = None
     secureHosts: List[str] = field(default_factory=list)
     allowedClients: List[str] = field(default_factory=list)
@@ -122,19 +123,17 @@ class AppParams:
                 f"Expected 'nodeMasterIp' to be an str, got {type(self.nodeMasterIp).__name__}"
             )
 
-    @classmethod
-    def source_kwargs(cls, kwargs: Dict[str, Any]):
+    def source_kwargs(self, kwargs: Dict[str, Any]):
         # Extract data from the kwargs dictionary
-        secureHosts = kwargs.get("secureHosts")
-        allowedClients = kwargs.get("allowedClients")
-        host = kwargs.get("host")
-        port = kwargs.get("port")
-        return cls(secureHosts, allowedClients, host, port)
+        self.secureHosts.extend(kwargs.get("secureHosts"))
+        self.allowedClients.extend(kwargs.get("allowedClients"))
+        self.host = kwargs.get("host")
+        self.port = kwargs.get("port")
 
     def source_services(self, services: Dict[str, Any], connector):
         # Extract data from the services dictionary (part of cluster params)
-        self.secureHosts = soc.update_secure_hosts()
-        self.allowedClients = soc.update_allowed_clients(services)
+        self.secureHosts.extend(soc.update_secure_hosts())
+        self.allowedClients.extend(soc.update_allowed_clients(services))
         self.host = soc.get_local_ip()
         self.port = int(services.get(connector).get("ports")[0].split(":")[0])
         self.network = services.get(connector).get("networks")

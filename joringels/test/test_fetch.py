@@ -34,6 +34,7 @@ class Test_UnitTest(unittest.TestCase):
             "entryName": "safe_one",
             "productName": cls.productName,
             "clusterName": cls.clusterName,
+            "keykdbx": "testing",
             "key": sts.testKeyOuter,
             "keyV": sts.testKeyInner,
             "retain": True,

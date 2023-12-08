@@ -46,11 +46,11 @@ class JoringelsServer(Joringel):
         self._memorize(*args, **kwargs)
         self._serve(*args, **kwargs)
 
-    def _prep_params(self, *args, clusterName: str = None, **kwargs):
+    def _prep_params(self, *args, clusterName: str = None, connector: str = None, **kwargs):
         """
         extracts runntime infos from secrets to be used by api endpoint
         for example host, port and network infos
-        clusterParams has these infos under _joringels, services
+        clusterParams has these infos under appParams, services
         """
         if "serving" in self.sessions:
             return False
@@ -59,7 +59,6 @@ class JoringelsServer(Joringel):
             return False
         # hanle all parameter settings and gettings
         clusterParams = self.secrets[clusterName][sts.cluster_params]
-        # print(f"\n_prep_params: {clusterParams = }")
         if clusterParams.get(sts.apiParamsFileName):
             # this extracts api params from clusterParams and stores a encrypted copy
             # api params are needed to identify and run the api as requested by jorinde
@@ -67,13 +66,9 @@ class JoringelsServer(Joringel):
             clusterParams[sts.apiParamsFileName] = api
             # if services are present, they contain serving host and port info
             self.api = dict_encrypt(api)
-            # self.host = soc.get_host(api, self.host, *args, **kwargs)
-            # self.port = soc.get_port(api, self.port, *args, connector=self.connector, **kwargs)
         # joringels basic runntime params like allowedHosts must be loaded from secrets
-        if clusterParams.get(sts.appParamsFileName):
-            print("\nupdating")
-            # sts.appParams.update(clusterParams[sts.appParamsFileName])
-            sts.appParams.update(clusterParams[sts.appParamsFileName])
+        if clusterParams.get(sts.appParamsFileName) and connector is not None:
+            sts.appParams.source_app_params(clusterParams[sts.appParamsFileName], connector)
         self.sessions.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
         return True
 

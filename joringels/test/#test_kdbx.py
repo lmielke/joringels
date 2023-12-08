@@ -31,6 +31,7 @@ class Test_KeePassSecrets(unittest.TestCase):
             "safeName": cls.safeName,
             "productName": cls.productName,
             "clusterName": cls.clusterName,
+            "keykdbx": "testing",
             "key": sts.testKeyOuter,
             "keyV": sts.testKeyInner,
         }

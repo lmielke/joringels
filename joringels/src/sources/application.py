@@ -48,12 +48,12 @@ class Applcation:
             f.write(yaml.dump(self.secrets))
 
     def add_api_enpoint_params(self, apiEndpointDir, *args, safeName, **kwargs):
-        _joringels = fetch.alloc(entryName="_joringels.yml", retain=True)
-        _joringels["DATASAFENAME"] = safeName
-        _joringels["port"] = self.secrets.get("port")
-        _joringels["application"] = safeName
-        del _joringels["kPath"]
-        self.secrets[sts.appParamsFileName] = _joringels
+        appParams = fetch.alloc(entryName=f"{sts.appParams}.yml", retain=True)
+        appParams["DATASAFENAME"] = safeName
+        appParams["port"] = self.secrets.get("port")
+        appParams["application"] = safeName
+        del appParams["kPath"]
+        self.secrets[sts.appParamsFileName] = appParams
         self.secrets["apiEndpointDir"] = apiEndpointDir
 
 

@@ -25,7 +25,9 @@ class KeePassSecrets:
         self.secretsPath = self.get_source(*args, **kwargs)
         self.session = keePass(self.secretsPath, self.get_creds(*args, **kwargs))
 
-    def get_creds(self, *args, key=None, **kwargs):
+    def get_creds(self, *args, key=None, keykdbx=None, **kwargs):
+        # sometimes key and keyV are already in use
+        key = key if keykdbx is None else keykdbx
         creds = Creds(uName="KeePass", kName="Login key").set(key=key) if key is None else key
         return creds
 

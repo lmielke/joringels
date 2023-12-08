@@ -28,7 +28,7 @@ safeParamsFileName = f"safe_params"
 cluster_params = "cluster_params"
 allowedClients = "allowedClients"
 secureHosts = "secureHosts"
-appParamsFileName = f"_joringels"
+appParamsFileName = f"appParams"
 apiParamsFileName = f"services"
 providerHost = "ipv4_address"
 # dev computer names
@@ -85,6 +85,8 @@ cryptonizeDataStr = (
 defaultHost = "0.0.0.0"
 dockerHostPrefix = "172."
 defaultPort = 7000
+
+global appParams
 appParams = data.AppParams()
 
 

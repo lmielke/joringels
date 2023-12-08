@@ -89,23 +89,24 @@ class Joringel:
                 exit()
         return True
 
-    def create(self, *args, **kwargs) -> dict:
+    def _digest(self, encryptPath: str = None, *args, **kwargs) -> dict:
         if not auth_checker.authorize_host():
             return None
         self.authorized = True
-        with decryptor(self.encryptPath, *args, **kwargs) as h:
+        encryptPath = self.encryptPath if encryptPath is None else encryptPath
+        with decryptor(encryptPath, *args, **kwargs) as h:
             self.secrets = h.data["decrypted"]
             self.secrets["appParams"] = self.cluster_params(self.secrets, *args, **kwargs)
         return self.secrets
 
-    def _digest(self, *args, **kwargs) -> tuple[str, dict]:
+    def create(self, *args, **kwargs) -> tuple[str, dict]:
         """
         gets the decrypted content from a encrypted file and returns it
         because self.secrets also contains runntime information for joringels
         some of those parameters are added here as well
         """
-        # secrets will decryped and returned
-        self.create(*args, **kwargs)
+        # create uses two *args (encryptPath, secrets) secrets is linked through by _digest
+        self._digest(*args, **kwargs)
         return self.encryptPath, self.secrets
 
     def cluster_params(self, secrets, *args, connector=sts.appName, **kwargs) -> dict:
