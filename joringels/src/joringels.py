@@ -24,7 +24,6 @@ GREEN = color.Fore.GREEN
 RED = color.Fore.RED
 
 import joringels.src.settings as sts
-import joringels.src.get_soc as soc
 import joringels.src.helpers as helpers
 from joringels.src.encryption_handler import Handler as decryptor
 from joringels.src.encryption_dict_handler import text_decrypt, dict_encrypt, dict_decrypt

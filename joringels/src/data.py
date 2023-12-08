@@ -18,7 +18,7 @@ class DataSafe:
         if not self.safeName:
             self.safeName = os.environ.get("DATASAFENAME")
         if not self.safeIp:
-            self.safeIp = os.environ.get("DATASAFEIP")
+            self.safeIp = os.environ.get("DATASAFEIP", soc.get_local_ip())
         if not self.dataKey:
             self.dataKey = os.getenv("DATAKEY", "default_datakey")
         if not self.dataSafeKey:

@@ -131,10 +131,10 @@ def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
     # construct docker run command
     dockerRun = (
         f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
-        f"-e \"DATAKEY={os.environ.get('DATAKEY')}\" "
-        f"-e \"DATASAFEKEY={os.environ.get('DATASAFEKEY')}\" "
-        f"-e \"NODEMASTERIP={os.environ.get('DATASAFEIP')}\" "
-        f"-e \"DATASAFENAME={os.environ.get('DATASAFENAME')}\" "
+        f'-e "DATAKEY=$env:DATAKEY" '
+        f'-e "DATASAFEKEY=$env:DATASAFEKEY" '
+        f'-e "NODEMASTERIP$env:DATASAFEIP" '
+        f'-e "DATASAFENAME=$env:DATASAFENAME" '
         f"--network {networkName} -p {portMapping} --ip {networkIp} "
         f"{sts.appName}"
     )
