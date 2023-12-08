@@ -11,6 +11,7 @@ uses imported modules to run funcitons like
 """
 
 import os, re
+import secrets as lib_secrets
 from datetime import datetime as dt
 
 # colors for printing
@@ -30,15 +31,30 @@ from joringels.src.encryption_dict_handler import text_decrypt, dict_encrypt, di
 from joringels.src.get_creds import Creds
 import joringels.src.auth_checker as auth_checker
 from logunittest.settings import get_testlogsdir
+import joringels.src.data as data
 
 
 class Joringel:
     def __init__(self, *args, safeName=None, secrets=None, verbose=0, **kwargs):
+        self.rtk = self._mk_runntime_key(*args, **kwargs)
         self.verbose = verbose
-        self.safeName = safeName if safeName else os.environ.get("DATASAFENAME")
-        self.encryptPath, self.decryptPath = helpers.mk_encrypt_path(self.safeName)
         self.secrets = secrets
         self.authorized = False
+        self._update_safe_params(*args, safeName=safeName, **kwargs)
+        self.encryptPath, self.decryptPath = helpers.mk_encrypt_path(self.dataSafe.safeName)
+
+    def _mk_runntime_key(self, *args, **kwargs):
+        """
+        creates a runntime key which is used to encrypt/decrypt runntimeParams
+        NOTE: this is currently not in use
+        """
+        self.rtkn = lib_secrets.token_urlsafe(10)
+        self.rtk = {self.rtkn: lib_secrets.token_urlsafe(32)}
+        return self.rtk
+
+    def _update_safe_params(self, *args, **kwargs):
+        self.dataSafe = data.DataSafe()
+        self.dataSafe.source_kwargs(kwargs)
 
     def _get_pwd(self, *args, key, keyV, newKey=None, newKeyV=None, **kwargs):
         """
@@ -48,11 +64,13 @@ class Joringel:
         """
         # confim key change authorization
         # keys for dict_keys
-        key = Creds(uName=self.safeName, kName="key").set(key=key)
-        newKey = Creds(uName=self.safeName, kName="newKey").set(key=newKey, confirmed=0)
+        key = Creds(uName=self.dataSafe.safeName, kName="key").set(key=key)
+        newKey = Creds(uName=self.dataSafe.safeName, kName="newKey").set(key=newKey, confirmed=0)
         # keys for dict_values_encrypt
-        keyV = Creds(uName=self.safeName, kName="keyV").set(key=keyV)
-        newKeyV = Creds(uName=self.safeName, kName="newKeyV").set(key=newKeyV, confirmed=0)
+        keyV = Creds(uName=self.dataSafe.safeName, kName="keyV").set(key=keyV)
+        newKeyV = Creds(uName=self.dataSafe.safeName, kName="newKeyV").set(
+            key=newKeyV, confirmed=0
+        )
         return {"key": key, "keyV": keyV, "newKey": newKey, "newKeyV": newKeyV}
 
     def chkey(self, *args, **kwargs):
@@ -78,10 +96,7 @@ class Joringel:
         self.authorized = True
         with decryptor(self.encryptPath, *args, **kwargs) as h:
             self.secrets = h.data["decrypted"]
-            self.clusterName = self.get_cluster_name(self.secrets)
-            self.secrets["appParams"] = self.cluster_params(
-                self.secrets[self.clusterName][sts.cluster_params], *args, **kwargs
-            )
+            self.secrets["appParams"] = self.cluster_params(self.secrets, *args, **kwargs)
         return self.secrets
 
     def _digest(self, *args, **kwargs) -> tuple[str, dict]:
@@ -94,15 +109,25 @@ class Joringel:
         self.create(*args, **kwargs)
         return self.encryptPath, self.secrets
 
-    def cluster_params(self, clusterParams, *args, connector=sts.appName, **kwargs) -> dict:
+    def cluster_params(self, secrets, *args, connector=sts.appName, **kwargs) -> dict:
         """
         cluster params are needed to identify the relevant available APIs as well as their
         corresponding ip_address and ports.
         allowedClients and secureHosts are changed in self.secrets in place
         mappings are added like self.secrets['mappings']
         """
-        sts.appParams.source_services(clusterParams["services"], connector)
-        # secureHosts and allowed Clients are populated with all cluster ips and ports
+        self.clusterName = self.get_cluster_name(self.secrets)
+        sts.appParams.source_services(
+            secrets[self.clusterName][sts.cluster_params]["services"], connector
+        )
+        sts.appParams.source_app_params(
+            secrets[self.clusterName][sts.cluster_params][sts.appParamsFileName], connector
+        )
+        self.dataSafe.source_secrets(secrets, connector)
+        # self.dataSafe.source_cluster(
+        #                 secrets[self.clusterName][sts.cluster_params],
+        #                 connector
+        #                                 )
         return sts.appParams.__dict__
 
     def get_cluster_name(self, d, current_key=None) -> str:

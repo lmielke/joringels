@@ -16,7 +16,6 @@ GREEN = color.Fore.GREEN
 RED = color.Fore.RED
 WHITE = color.Fore.WHITE
 
-from joringels.src.joringels_server import JoringelsServer
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 import joringels.src.arguments as arguments
@@ -32,7 +31,7 @@ info = (
 
 
 def run(*args, host=None, entryName, **kwargs) -> None:
-    appParams = fetch.main(*args, host="loc", entryName="appParams", **kwargs)
+    appParams = fetch.main(*args, entryName="appParams", **kwargs)
     with helpers.temp_chdir(path=sts.dockerPath) as p:
         data = prep_data(*args, **kwargs)
         if input(info) == "y":
@@ -53,7 +52,7 @@ def prep_data(*args, safeName=None, **kwargs):
 def docker_bulid(appParams, safeName, pgDir, *args, **kwargs):
     copy_secrets(safeName, *args, **kwargs)
     prep_files(safeName, *args, **kwargs)
-    buildCmd = docker_build_image(safeName, pgDir, *args, **kwargs)
+    docker_build_image(safeName, pgDir, *args, **kwargs)
     cleanup(safeName, *args, **kwargs)
 
 
@@ -123,12 +122,15 @@ def docker_build_image(safeName, pgDir, *args, **kwargs):
             return None
 
 
-def docker_run(*args, host, portMapping, network, **kwargs):
+def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
     # Assuming pgName and prDir are passed as arguments to the function
     networkName = list(network.keys())[0]
     networkIp = list(network.values())[0].get("ipv4_address")
-    dockerCommand = (
-        f"docker run -itd --rm --name {sts.appName[:2]} --privileged "
+    # if retain is set to true using jo dockerize -rt then the container will not be removed
+    rm = "--rm" if retain == False else ""
+    # construct docker run command
+    dockerRun = (
+        f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
         f"-e \"DATAKEY={os.environ.get('DATAKEY')}\" "
         f"-e \"DATASAFEKEY={os.environ.get('DATASAFEKEY')}\" "
         f"-e \"NODEMASTERIP={os.environ.get('DATASAFEIP')}\" "
@@ -140,9 +142,9 @@ def docker_run(*args, host, portMapping, network, **kwargs):
         f"{GREEN}\n\nDONE: \nCopy the build command:{COL_RM}\n"
         f"{YELLOW}CHANGE DIRECTORY to or stay Joringels directory{COL_RM}\n"
         f"{WHITE}paste to run the container...{COL_RM}\n"
-        f"{dockerCommand}"
+        f"{dockerRun}"
     )
-    return dockerCommand
+    return dockerRun
 
 
 def main(*args, **kwargs) -> None:

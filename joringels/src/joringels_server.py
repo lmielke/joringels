@@ -86,7 +86,7 @@ class JoringelsServer(Joringel):
         self.apiHand.initialize(
             *args,
             apis=dict_decrypt(self.api),
-            safeName=self.safeName,
+            safeName=self.dataSafe.safeName,
             connector=self.connector,
             **kwargs,
         )
@@ -141,7 +141,7 @@ class JoringelsServer(Joringel):
         self.AF_INET = (host, port)
         handler = magic.MagicFlower(self)
         if self.secrets:
-            self.sessions[self.safeName] = self.AF_INET
+            self.sessions[self.dataSafe.safeName] = self.AF_INET
             if self.verbose:
                 print(f"Joringels._serve: {self.sessions = }")
             try:

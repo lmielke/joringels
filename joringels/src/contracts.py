@@ -51,7 +51,9 @@ def check_serve(*args, host=None, port=None, connector=None, **kwargs):
 
 
 def warn_deletion(*args, retain, hard, **kwargs):
-    if kwargs["action"] == "serve":
+    if kwargs["action"] in {
+        "serve",
+    }:
         if retain == False and hard == False:
             msg = f"Retain is set to {retain}. Your secrets.yml will be deleted after reading !"
             print(f"{RED}{msg}{COL_RM}")

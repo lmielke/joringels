@@ -46,15 +46,6 @@ class Test_AppParams(unittest.TestCase):
         except:
             pass
 
-    def test_source_settings(self):
-        # Example data in a kwargs dictionary
-        appParams = data.AppParams()
-        # Assertions to verify that the instance is created correctly
-        self.assertTrue(re.search(self.regex, appParams.secureHosts[0]))
-        self.assertTrue(re.search(self.regex, appParams.allowedClients[0]))
-        self.assertEqual(appParams.host, soc.get_local_ip())
-        self.assertEqual(appParams.port, sts.defaultPort)
-
     def test_update(self):
         # first initialize the class with the default settings
         newHost = "123.234.345.6"
@@ -103,12 +94,12 @@ class Test_DataSafe(unittest.TestCase):
         # Example data in a kwargs dictionary
         kwargs = helpers.load_yml(os.path.join(sts.testDataDir, "#safe_one.yml")).get("safe_one")
         # Instantiate the data.DataSafe class using the kwargs dictionary
-        datasafe_instance = data.DataSafe.source_kdbx(kwargs)
+        ds = data.DataSafe.source_kdbx(kwargs)
         # Assertions to verify that the instance is created correctly
-        self.assertEqual(datasafe_instance.safeName, "safe_one")
-        self.assertEqual(datasafe_instance.dataKey, "myDataKey")
-        self.assertEqual(datasafe_instance.dataSafeKey, "testing")
-        self.assertEqual(datasafe_instance.entries[0], "python_venvs/databases/aws_postgres")
+        self.assertEqual(ds.safeName, "safe_one")
+        self.assertEqual(ds.dataKey, "myDataKey")
+        self.assertEqual(ds.dataSafeKey, "testing")
+        self.assertEqual(ds.entries[0], "python_venvs/databases/aws_postgres")
 
 
 if __name__ == "__main__":

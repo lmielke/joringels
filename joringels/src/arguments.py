@@ -122,6 +122,17 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-s",
+        "--safeIp",
+        required=False,
+        nargs="?",
+        const=None,
+        type=str,
+        default=None,
+        help="dataSafe title in kdbx",
+    )
+
+    parser.add_argument(
         "-e",
         "--entryName",
         required=False,
