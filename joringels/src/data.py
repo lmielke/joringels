@@ -87,7 +87,7 @@ class AppParams:
 
     def __post_init__(self):
         if not self.nodeMasterIp:
-            self.nodeMasterIp = os.environ.get("NODEMASTERIP", os.environ.get("DATASAFEIP"))
+            self.nodeMasterIp = os.environ.get("NODEMASTERIP", soc.get_local_ip())
         if not self.secureHosts:
             self.secureHosts = [soc.get_local_ip()]
         if not self.allowedClients:
