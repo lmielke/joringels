@@ -17,10 +17,25 @@ from joringels.src.actions import fetch
 
 class Jorinde:
     def __init__(self, *args, host=None, port=None, **kwargs):
-        self.host = sts.appParams.host
-        self.port = sts.appParams.port if port is None else port
+        self.tgtHost = sts.clParams.host
+        self.tgtPort = sts.clParams.port if port is None else port
         self.response = None
         self.secrets = None
+
+    def get_service_params(self, *args, connector, entryName=None, host=None, port=None, **kwargs):
+        self.serviceParams = fetch.main(
+            *args,
+            entryName=f"clParams",
+            host=sts.dataSafe.safeIp,
+            port=sts.dataSafe.safePort,
+        )
+
+    def mk_targets(self, *args, connector, **kwargs):
+        if os.name == "nt":
+            self.tgtHost = soc.get_local_ip()
+        else:
+            self.tgtHost = self.serviceParams["services"].get(connector).get("host")
+        self.tgtPort = self.serviceParams["services"].get(connector).get("port")
 
     def _fetch(self, *args, connector: str = "joringels", **kwargs):
         """
@@ -30,6 +45,8 @@ class Jorinde:
             if connector == "joringels" or connector is None:
                 self.get_request(connector, *args, **kwargs)
             else:
+                self.get_service_params(*args, connector=connector, **kwargs)
+                self.mk_targets(*args, connector=connector, **kwargs)
                 self.post_request(connector, *args, **kwargs)
             self.validate_response(*args, **kwargs)
         except Exception as e:
@@ -38,7 +55,7 @@ class Jorinde:
             except:
                 statusCode = "000 pre self.response EXCEPT"
             finally:
-                self.secrets = f"Jorinde._fetch ERROR status: {statusCode}, host: {self.host}, port: {self.port}: {e}"
+                self.secrets = f"Jorinde._fetch ERROR status: {statusCode}, host: {self.tgtHost}, port: {self.tgtPort}: {e}"
                 print(f"{color.Fore.RED}{self.secrets}{color.Style.RESET_ALL}")
         return self.clean_response(connector, *args, **kwargs)
 
@@ -47,7 +64,7 @@ class Jorinde:
         sends an encrypted post request to the specified host/port server
         """
         entry = text_encrypt(connector, os.environ.get("DATASAFEKEY"))
-        url = f"http://{self.host}:{self.port}/{entry}"
+        url = f"http://{self.tgtHost}:{self.tgtPort}/{entry}"
         if not type(entryName) == dict:
             raise Exception(f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}")
         payload = dict_encrypt(entryName)
@@ -55,7 +72,7 @@ class Jorinde:
 
     def get_request(self, connector, *args, entryName, **kwargs):
         entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
-        url = f"http://{self.host}:{self.port}/{entry}"
+        url = f"http://{self.tgtHost}:{self.tgtPort}/{entry}"
         self.response = requests.get(url, headers={"Content-Type": f"{connector}"})
 
     def validate_response(self, *args, **kwargs):
@@ -67,11 +84,11 @@ class Jorinde:
 
     def clean_response(self, connector, *args, entryName, **kwargs):
         if type(self.secrets) == str:
-            msg = f"Jorinde._fetch ERROR, {connector}: {self.host}, self.port: {self.port}, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR, {connector}: {self.tgtHost}, self.tgtPort: {self.tgtPort}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == "joringels" and not self.secrets.get(entryName):
-            msg = f"Jorinde._fetch ERROR, {connector}: {self.host}, self.port: {self.port}, Not found: {entryName}"
+            msg = f"Jorinde._fetch ERROR, {connector}: {self.tgtHost}, self.tgtPort: {self.tgtPort}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")
             return None
         elif connector == "joringels":

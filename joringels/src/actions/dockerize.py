@@ -36,8 +36,7 @@ def run(*args, host=None, entryName, **kwargs) -> None:
         data = prep_data(*args, **kwargs)
         if input(info) == "y":
             docker_bulid(appParams, *data)
-        if input(f"\n{YELLOW}Do you whish to run the container{COL_RM} [y/n]? : ") == "y":
-            docker_run(*args, **appParams)
+        docker_run(*args, **appParams)
 
 
 def prep_data(*args, safeName=None, **kwargs):
@@ -134,6 +133,8 @@ def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
         f'-e "DATAKEY=$env:DATAKEY" '
         f'-e "DATASAFEKEY=$env:DATASAFEKEY" '
         f'-e "DATASAFENAME=$env:DATASAFENAME" '
+        f'-e "DATASAFEIP=$env:DATASAFEIP" '
+        f'-e "DATASAFEPORT=$env:DATASAFEPORT" '
         f"--network {networkName} -p {portMapping} --ip {networkIp} "
         f"{sts.appName}"
     )

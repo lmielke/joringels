@@ -9,31 +9,13 @@ from logunittest.settings import get_testlogsdir
 
 
 class ApiHandler:
-    def __init__(self, *args, verbose=0, **kwargs):
+    def __init__(self, *args, connector, verbose=0, **kwargs):
+        self.connector = connector
+        self.apiEndpointDir = helpers.get_api_enpoint_dir(connector)
+        # self.safeName = safeName
         self.verbose = verbose
-        self.modules = {}
-        self.apis = {}
 
-    def initialize(self, *args, apis: dict, **kwargs) -> None:
-        if self.verbose:
-            print(f"\njoringels.api_handler.initialize: {apis = }\n")
-        self.apis.update(self._initialize_apis(*args, apis=apis, **kwargs))
-        self.modules.update(self._import_api_modules(*args, apis=apis, **kwargs))
-
-    def _initialize_apis(self, *args, apis: dict, connector: str, **kwargs) -> None:
-        """fills self.apis with all api entries in apiActions (entries with numeric key)
-        als calls _import_api_modules fill self.modules with imported modules
-        result looks like: {
-                            0: {'action': 'send', 'import': 'oamailer.actions.send', ...},
-                            1: ...
-                            }
-        """
-        apiActions = apis.get(connector)
-        actions = {}
-        actions[connector] = {int(k): vs for k, vs in apiActions.items() if k.isnumeric()}
-        return actions
-
-    def _import_api_modules(self, *args, connector: str, **kwargs) -> None:
+    def _import_api_modules(self, *args, apis, **kwargs) -> None:
         """fills self.modules with imported modules from api import string
         self.modules is used to keep imported modules and avoid import on demand
         result looks like: {
@@ -41,21 +23,16 @@ class ApiHandler:
                 1: ...
                 }
         """
-        self.apiEndpointDir = helpers.get_api_enpoint_dir(connector)
         sys.path.append(self.apiEndpointDir)
-        modules = {connector: {}}
-        # modules[connector] = modules.get(connector, {})
-        for ix, api in self.apis[connector].items():
+        self.modules, self.apis = {}, apis
+        for ix, api in self.apis.items():
             # import_module without package parameter. Hence provide full path like:
             # oamailer.actions.send
             module = import_module(api["import"])
-            modules[connector][ix] = {"module": module}
+            self.modules[ix] = {"module": module}
             if ix == 0:
                 package = module.__package__.split(".")[-1]
-                # testLogDir = os.path.join(module.__file__.split(package)[0], "test", "logs")
-                # modules[connector]["testLogDir"] = testLogDir
-        modules[connector]["logunittest"] = self._get_recent_logfile(*args, **kwargs)
-        return modules
+        self.modules["logunittest"] = self._get_recent_logfile(*args, **kwargs)
 
     def run_api(self, api: int, payload: dict, *args, connector: str, **kwargs):
         """
@@ -63,9 +40,7 @@ class ApiHandler:
         selects the execuable function/action by its index (api)
         calls the target package function passing in payload like **kwargs
         """
-        r = getattr(self.modules[connector][api]["module"], self.apis[connector][api]["action"])(
-            **payload
-        )
+        r = getattr(self.modules[api]["module"], self.apis[api]["action"])(**payload)
         return r
 
     def _get_recent_logfile(self, *args, **kwargs):

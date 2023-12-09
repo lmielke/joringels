@@ -17,7 +17,7 @@ import joringels.src.get_soc as soc
 # print(f"\n__file__: {__file__}")
 
 
-class Test_AppParams(unittest.TestCase):
+class Test_ClusterParams(unittest.TestCase):
     @classmethod
     def setUpClass(cls, *args, **kwargs):
         cls.verbose = 1
@@ -49,7 +49,7 @@ class Test_AppParams(unittest.TestCase):
     def test_update(self):
         # first initialize the class with the default settings
         newHost = "123.234.345.6"
-        appParams = data.AppParams()
+        appParams = data.ClusterParams()
         self.assertTrue(re.search(self.regex, appParams.secureHosts[0]))
         self.assertEqual(appParams.host, soc.get_local_ip())
         # now update two one field using update method

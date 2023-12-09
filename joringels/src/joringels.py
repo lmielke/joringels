@@ -96,7 +96,7 @@ class Joringel:
         encryptPath = self.encryptPath if encryptPath is None else encryptPath
         with decryptor(encryptPath, *args, **kwargs) as h:
             self.secrets = h.data["decrypted"]
-            self.secrets["appParams"] = self.cluster_params(self.secrets, *args, **kwargs)
+            self.secrets["clParams"] = self.cluster_params(self.secrets, *args, **kwargs)
         return self.secrets
 
     def create(self, *args, **kwargs) -> tuple[str, dict]:
@@ -116,11 +116,11 @@ class Joringel:
         allowedClients and secureHosts are changed in self.secrets in place
         mappings are added like self.secrets['mappings']
         """
-        self.clusterName = self.get_cluster_name(self.secrets)
-        sts.appParams.source_services(
-            secrets[self.clusterName][sts.cluster_params]["services"], connector
-        )
-        sts.appParams.source_app_params(
+        self.clusterName = helpers.get_dict_entry(self.secrets, sts.cluster_params)
+        services = secrets[self.clusterName][sts.cluster_params]["services"]
+        services["services"] = self.prep_services(services)
+        sts.clParams.source_services(services, connector)
+        sts.clParams.source_app_params(
             secrets[self.clusterName][sts.cluster_params][sts.appParamsFileName], connector
         )
         self.dataSafe.source_secrets(secrets, connector)
@@ -128,18 +128,15 @@ class Joringel:
         #                 secrets[self.clusterName][sts.cluster_params],
         #                 connector
         #                                 )
-        return sts.appParams.__dict__
+        return sts.clParams.__dict__
 
-    def get_cluster_name(self, d, current_key=None) -> str:
-        if isinstance(d, dict):
-            for key, value in d.items():
-                if key == sts.cluster_params:
-                    return current_key
-                elif isinstance(value, dict):
-                    result = self.get_cluster_name(value, current_key=key)
-                    if result is not None:
-                        return result
-        return None
+    def prep_services(self, services):
+        out = {}
+        for k, vs in services.copy().items():
+            out[k] = {"name": k}
+            out[k]["host"] = helpers.get_dict_entry(vs, "ipv4_address", ret="value")
+            out[k]["port"] = helpers.get_dict_entry(vs, "ports", ret="value")[0].split(":")[-1]
+        return out
 
     def _handle_integer_keys(self, apiParams) -> dict:
         """

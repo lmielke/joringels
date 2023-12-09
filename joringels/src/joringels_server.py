@@ -18,6 +18,7 @@ from joringels.src.encryption_dict_handler import text_decrypt, dict_encrypt, di
 import joringels.src.flower as magic
 from joringels.src.joringels import Joringel
 from joringels.src.api_handler import ApiHandler
+import joringels.src.data as data
 
 
 class JoringelsServer(Joringel):
@@ -34,23 +35,26 @@ class JoringelsServer(Joringel):
         super().__init__(*args, **kwargs)
         self.connector, self.clusterName = connector, clusterName
         self.sessions = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
-        self.apiHand = ApiHandler(*args, **kwargs)
 
     def server(self, *args, host: str, port: int, **kwargs):
         """
         starts the http server
         """
-        self._digest(*args, **kwargs)
-        self._prep_params(*args, **kwargs)
-        self._initialize_api_endpoint(*args, **kwargs)
+        self.prep_params(*args, **kwargs)
+        if self.apiParams.api:
+            self._initialize_api_endpoint(*args, **kwargs)
         self._memorize(*args, **kwargs)
         self._serve(*args, **kwargs)
 
-    def _prep_params(self, *args, clusterName: str = None, connector: str = None, **kwargs):
+    def prep_params(self, *args, **kwargs):
+        self._digest(*args, **kwargs)
+        self._prep_api_params(*args, **kwargs)
+
+    def _prep_api_params(self, *args, clusterName: str = None, connector: str = None, **kwargs):
         """
         extracts runntime infos from secrets to be used by api endpoint
         for example host, port and network infos
-        clusterParams has these infos under appParams, services
+        clParams has these infos under appParams, services
         """
         if "serving" in self.sessions:
             return False
@@ -58,36 +62,26 @@ class JoringelsServer(Joringel):
         if not self.secrets.get(clusterName):
             return False
         # hanle all parameter settings and gettings
-        clusterParams = self.secrets[clusterName][sts.cluster_params]
-        if clusterParams.get(sts.apiParamsFileName):
-            # this extracts api params from clusterParams and stores a encrypted copy
-            # api params are needed to identify and run the api as requested by jorinde
-            api = self._handle_integer_keys(clusterParams[sts.apiParamsFileName])
-            clusterParams[sts.apiParamsFileName] = api
-            # if services are present, they contain serving host and port info
-            self.api = dict_encrypt(api)
+        clParams = self.secrets[clusterName][sts.cluster_params]["services"][connector]
+        self.apiParams = data.apiParams(
+            connector=connector,
+            api={int(k): vs for k, vs in clParams.items() if str(k).isnumeric()},
+        )
         # joringels basic runntime params like allowedHosts must be loaded from secrets
-        if clusterParams.get(sts.appParamsFileName) and connector is not None:
-            sts.appParams.source_app_params(clusterParams[sts.appParamsFileName], connector)
         self.sessions.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
         return True
 
-    def _initialize_api_endpoint(self, *args, connector, safeName=None, **kwargs):
+    def _initialize_api_endpoint(self, *args, connector, **kwargs):
         """
         calls the api_endpoint module which imports relevant api modules and
         executes them if requested
         joringels itself is not held as api because joringels is the base application
         """
-        self.apiHand.initialize(
-            *args,
-            apis=dict_decrypt(self.api),
-            safeName=self.dataSafe.safeName,
-            connector=self.connector,
-            **kwargs,
-        )
+        self.apiHand = ApiHandler(*args, connector=connector, **kwargs)
+        self.apiHand._import_api_modules(*args, apis=self.apiParams.api, **kwargs)
         self.secrets["logunittest"] = (
-            f"FROM {soc.get_hostname()}.{self.connector.upper()}: "
-            + self.apiHand.modules[self.connector]["logunittest"]
+            f"FROM {soc.get_hostname()}.{connector.upper()}: "
+            f" {self.apiHand.modules['logunittest']}"
         )
 
     def _invoke_application(self, payload: str, connector: str, *args, **kwargs) -> str:
@@ -131,8 +125,8 @@ class JoringelsServer(Joringel):
         flower.py will then handle the http part
         """
         # host = host if host is not None else soc.get_local_ip()
-        host = sts.appParams.host
-        port = sts.appParams.port
+        host = sts.clParams.host
+        port = sts.clParams.port
         self.AF_INET = (host, port)
         handler = magic.MagicFlower(self)
         if self.secrets:

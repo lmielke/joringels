@@ -59,6 +59,8 @@ def update_secure_hosts(*args, **kwargs):
 def update_allowed_clients(services, *args, **kwargs):
     allowedClients = []
     for k, vs in services.items():
+        if k == "services":
+            continue
         allowedClients.append(vs["networks"]["illuminati"]["ipv4_address"])
     # if run in a docker container a docker bridge network is used, which has own IP
     networkIp = get_local_docker_network_ip()
@@ -69,8 +71,8 @@ def update_allowed_clients(services, *args, **kwargs):
 
 
 def get_allowed_clients(*args, **kwargs):
-    allowedClients = sts.appParams.allowedClients
-    if get_hostname() in sts.appParams.secureHosts:
+    allowedClients = sts.clParams.allowedClients
+    if get_hostname() in sts.clParams.secureHosts:
         allowedClients.append(get_local_ip())
     return list(set(allowedClients))
 

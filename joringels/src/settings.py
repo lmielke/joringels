@@ -86,8 +86,11 @@ defaultHost = "0.0.0.0"
 dockerHostPrefix = "172."
 defaultPort = 7000
 
-global appParams
-appParams = data.AppParams()
+global dataSafe
+dataSafe = data.DataSafe()
+
+global clParams
+clParams = data.ClusterParams()
 
 
 # api endpoints settings

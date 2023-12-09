@@ -35,6 +35,18 @@ def prep_path(workPath: str, filePrefix=None) -> str:
     return f"{name}{extension}"
 
 
+def get_dict_entry(d, matcher, ret="key", current_key=None) -> str:
+    if isinstance(d, dict):
+        for key, value in d.items():
+            if key == matcher:
+                return current_key if ret == "key" else d[key]
+            elif isinstance(value, dict):
+                result = get_dict_entry(value, matcher, ret, current_key=key)
+                if result is not None:
+                    return result
+    return None
+
+
 def mk_encrypt_path(safeName: str) -> str:
     encrpytPath = os.path.join(
         sts.encryptDir,

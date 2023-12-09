@@ -42,39 +42,32 @@ class Test_UnitTest(unittest.TestCase):
         # copying this file is needed because pre-commit fails on changes
         shutil.copyfile(cls.encryptBackup, cls.encryptPath)
 
-    def test__initialize_apis(self, *args, name="_initialize_apis", **kwargs):
-        instance = ApiHandler(*args, **kwargs)
-        expected = {
-            "oamailer": {
-                0: {"import": "oamailer.actions.send", "action": "send", "response": None}
-            }
-        }
-        data = self.testData[sts.apiParamsFileName]
-        data["oamailer"] = {str(k): vs for k, vs in data["oamailer"].items()}
-        out = instance._initialize_apis(*args, apis=data, connector="oamailer", **kwargs)
-        self.assertEqual(expected, out)
-
     def test__import_api_modules(self, *args, name="_import_api_modules", **kwargs):
         """This test will throw an exception as shown in expected, because
         it has to be called from the oamailer executable. However, since this unittest
         uses joringels executable I only test, that joringels
         attempts to import the correct module. (oamailer with google_auth_authlib)
         """
-        instance = ApiHandler(*args, **kwargs)
+        kwargs = {
+            "clusterName": "testing",
+            "connector": "oamailer",
+            "host": "localhost",
+            "port": 7007,
+            "apis": {0: {"import": "oamailer.actions.send", "action": "send", "response": None}},
+        }
+        # instance.apis = {
+        #     "oamailer": {
+        #         0: {"import": "oamailer.actions.send", "action": "send", "response": None}
+        #     }
+        # }
         # path to import module
+        instance = ApiHandler(*args, **kwargs)
         instance.apiEndpointDir = r"C:/Users/lars/python_venvs/modules/oamailer"
         # api to import the module for with import statement and action
-        instance.apis = {
-            "oamailer": {
-                0: {"import": "oamailer.actions.send", "action": "send", "response": None}
-            }
-        }
         # oamailer import will fail in this test, but in reality it should NOT fail.
         expected = "ModuleNotFoundError: No module named 'google_auth_oauthlib'"
         with self.assertRaises(Exception) as context:
-            instance._import_api_modules(
-                *args, secrets=self.testData, safeName="oamailer", **kwargs
-            )
+            instance._import_api_modules(*args, **kwargs)
             self.assertTrue(expected in str(context.exception))
 
 
