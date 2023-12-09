@@ -221,7 +221,7 @@ def mk_args():
     )
 
     parser.add_argument(
-        "-hard",
+        "-hd",
         "--hard",
         required=False,
         nargs="?",

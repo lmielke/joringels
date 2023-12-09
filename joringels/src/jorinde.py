@@ -37,17 +37,17 @@ class Jorinde:
             self.tgtHost = self.serviceParams["services"].get(connector).get("host")
         self.tgtPort = self.serviceParams["services"].get(connector).get("port")
 
-    def _fetch(self, *args, connector: str = "joringels", **kwargs):
+    def _fetch(self, *args, **kwargs):
         """
         makes a get/post request to server and returns the self.response
         """
         try:
-            if connector == "joringels" or connector is None:
-                self.get_request(connector, *args, **kwargs)
+            if kwargs["connector"] == "joringels" or kwargs["connector"] is None:
+                self.get_request(*args, **kwargs)
             else:
-                self.get_service_params(*args, connector=connector, **kwargs)
-                self.mk_targets(*args, connector=connector, **kwargs)
-                self.post_request(connector, *args, **kwargs)
+                self.get_service_params(*args, **kwargs)
+                self.mk_targets(*args, **kwargs)
+                self.post_request(*args, **kwargs)
             self.validate_response(*args, **kwargs)
         except Exception as e:
             try:
@@ -57,9 +57,9 @@ class Jorinde:
             finally:
                 self.secrets = f"Jorinde._fetch ERROR status: {statusCode}, host: {self.tgtHost}, port: {self.tgtPort}: {e}"
                 print(f"{color.Fore.RED}{self.secrets}{color.Style.RESET_ALL}")
-        return self.clean_response(connector, *args, **kwargs)
+        return self.clean_response(*args, **kwargs)
 
-    def post_request(self, connector: str, *args, entryName, **kwargs):
+    def post_request(self, *args, entryName, connector: str, **kwargs):
         """
         sends an encrypted post request to the specified host/port server
         """
@@ -70,19 +70,19 @@ class Jorinde:
         payload = dict_encrypt(entryName)
         self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
 
-    def get_request(self, connector, *args, entryName, **kwargs):
+    def get_request(self, *args, entryName, connector, **kwargs):
         entry = text_encrypt(entryName, os.environ.get("DATASAFEKEY"))
         url = f"http://{self.tgtHost}:{self.tgtPort}/{entry}"
         self.response = requests.get(url, headers={"Content-Type": f"{connector}"})
 
-    def validate_response(self, *args, **kwargs):
+    def validate_response(self, *args, connector, **kwargs):
         # prepare self.response
         if self.response.status_code == 200:
             self.secrets = dict_decrypt(self.response.text)
         else:
             self.secrets = f"ERROR {self.response.status_code}: {self.response.text}"
 
-    def clean_response(self, connector, *args, entryName, **kwargs):
+    def clean_response(self, *args, entryName, connector, **kwargs):
         if type(self.secrets) == str:
             msg = f"Jorinde._fetch ERROR, {connector}: {self.tgtHost}, self.tgtPort: {self.tgtPort}, Not found: {entryName}"
             print(f"{color.Fore.RED}{msg}{color.Style.RESET_ALL}")

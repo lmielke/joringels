@@ -30,12 +30,14 @@ info = (
 )
 
 
-def run(*args, host=None, entryName, **kwargs) -> None:
-    appParams = fetch.main(*args, entryName="appParams", **kwargs)
+def run(*args, host=None, entryName, hard, **kwargs) -> None:
+    appParams = fetch.main(*args, entryName="clParams", **kwargs)
     with helpers.temp_chdir(path=sts.dockerPath) as p:
         data = prep_data(*args, **kwargs)
-        if input(info) == "y":
+        if hard:
             docker_bulid(appParams, *data)
+        else:
+            print(f"{YELLOW}Skipping build becaue hard parameter: -h {hard}{COL_RM}")
         docker_run(*args, **appParams)
 
 
@@ -139,10 +141,10 @@ def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
         f"{sts.appName}"
     )
     print(
-        f"{GREEN}\n\nDONE: \nCopy the build command:{COL_RM}\n"
-        f"{YELLOW}CHANGE DIRECTORY to or stay Joringels directory{COL_RM}\n"
-        f"{WHITE}paste to run the container...{COL_RM}\n"
+        f"{GREEN}\n\nCopy and paste the build command "
+        f"to run the container...{COL_RM}\n\n"
         f"{dockerRun}"
+        f"\n\n{GREEN}CHANGE DIRECTORY to or stay Joringels directory{COL_RM}\n"
     )
     return dockerRun
 

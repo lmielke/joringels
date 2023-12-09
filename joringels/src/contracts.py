@@ -51,6 +51,7 @@ def check_serve(*args, host=None, port=None, connector=None, **kwargs):
 
 
 def warn_deletion(*args, retain, hard, **kwargs):
+    kwargs["hard"] = hard
     if kwargs["action"] in {
         "serve",
     }:
