@@ -10,7 +10,9 @@ import joringels.src.arguments as arguments
 def run(*args, host=None, **kwargs) -> None:
     if host is None or os.name == "nt":
         kwargs["host"] = sts.defaultHost
-    JoringelsServer(*args, **kwargs).server(*args, **kwargs)
+    js = JoringelsServer(*args, **kwargs)
+    js.server(*args, **kwargs)
+    js.serve(*args, **kwargs)
 
 
 def main(*args, **kwargs) -> None:

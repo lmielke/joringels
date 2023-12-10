@@ -28,6 +28,7 @@ class Jorinde:
             entryName=f"clParams",
             host=sts.dataSafe.safeIp,
             port=sts.dataSafe.safePort,
+            **kwargs,
         )
 
     def mk_targets(self, *args, connector, **kwargs):
@@ -41,8 +42,9 @@ class Jorinde:
         """
         makes a get/post request to server and returns the self.response
         """
+        kwargs["connector"] = kwargs.get("connector", "joringels")
         try:
-            if kwargs["connector"] == "joringels" or kwargs["connector"] is None:
+            if kwargs.get("connector") == "joringels":
                 self.get_request(*args, **kwargs)
             else:
                 self.get_service_params(*args, **kwargs)
@@ -66,7 +68,7 @@ class Jorinde:
         entry = text_encrypt(connector, os.environ.get("DATASAFEKEY"))
         url = f"http://{self.tgtHost}:{self.tgtPort}/{entry}"
         if not type(entryName) == dict:
-            raise Exception(f"Jorinde._fetch ERROR payloaed must be dictionary: {entryName}")
+            raise Exception(f"Jorinde.post_request ERROR must be dictionary: {entryName}")
         payload = dict_encrypt(entryName)
         self.response = requests.post(url, headers={"Content-Type": f"{connector}"}, data=payload)
 

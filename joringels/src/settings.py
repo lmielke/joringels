@@ -61,7 +61,7 @@ appBasePath = os.path.split(srcPath)[0]
 dockerPath = os.path.join(appBasePath, "docker")
 logDir = os.path.join(srcPath, "logs")
 appParamsPath = prep_path(os.path.join(encryptDir, appParamsFileName))
-
+execsDir = unalias_path("~/.virtualenvs")
 
 # test paths and data used for unittesting
 testPath = os.path.join(srcPath, "test")

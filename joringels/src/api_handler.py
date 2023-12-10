@@ -1,6 +1,7 @@
 # api_handler.py
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
+from joringels.src.executable import Executable
 from importlib import import_module
 import os, sys
 from datetime import datetime as dt
@@ -28,20 +29,17 @@ class ApiHandler:
         for ix, api in self.apis.items():
             # import_module without package parameter. Hence provide full path like:
             # oamailer.actions.send
-            module = import_module(api["import"])
-            self.modules[ix] = {"module": module}
-            if ix == 0:
-                package = module.__package__.split(".")[-1]
+            self.modules[ix] = {}
+            try:
+                module = import_module(api["import"])
+                self.modules[ix] = {"module": module}
+            except Exception as e:
+                module = None
+                self.modules[ix]["executable"] = Executable(*args, packageDir=api["path"])
+                self.modules[ix]["subCmd"] = self.apis[ix].get("import")
+            finally:
+                self.modules[ix]["module"] = module
         self.modules["logunittest"] = self._get_recent_logfile(*args, **kwargs)
-
-    def run_api(self, api: int, payload: dict, *args, connector: str, **kwargs):
-        """
-        gets a pre imported module from self.modules by its name (connector)
-        selects the execuable function/action by its index (api)
-        calls the target package function passing in payload like **kwargs
-        """
-        r = getattr(self.modules[api]["module"], self.apis[api]["action"])(**payload)
-        return r
 
     def _get_recent_logfile(self, *args, **kwargs):
         """
@@ -61,29 +59,60 @@ class ApiHandler:
         logResults = f" | {cov.latest[0]} | [{stats.main().split('[')[-1]}"
         return logResults
 
-    def run_api_subprocess(self, api, payload, *args, connector, **kwargs):
+    def run_api(self, *args, api: int, **kwargs):
+        if self.modules.get(api) == None:
+            return {"error": f"api {api} not found"}
+        if self.modules.get(api).get("module"):
+            return self.run_api_from_imports(*args, api=api, **kwargs)
+        if isinstance(self.modules.get(api).get("executable"), Executable):
+            return self.run_api_from_subprocess(*args, api=api, **kwargs)
+        else:
+            return {"error": f"api {api} not found"}
+
+    def run_api_from_imports(self, *args, api: int, payload: dict, connector: str, **kwargs):
+        """
+        gets a pre imported module from self.modules by its name (connector)
+        selects the execuable function/action by its index (api)
+        calls the target package function passing in payload like **kwargs
+        """
+        r = getattr(self.modules[api]["module"], self.apis[api]["action"])(**payload)
+        return r
+
+    def run_api_from_subprocess(self, api, payload, *args, connector, **kwargs):
         """
         runs api endpoint as a subprocess
 
         """
-        logPath = os.path.join(sts.logDir, f"{connector}.log")
-        params = ["pipenv", "run", "python", "-m", "oamailer", "send"]
+        # create subprocess params
+        package = self.modules[api]["subCmd"].split(".actions.")
+        params = []
         for k, vs in payload.items():
-            params.extend([f"--{k}", vs])
-        with open(logPath, "a+") as f:
+            params.extend([f"--{k}", f"{str(vs)}"])
+        # run subprocess with logging
+        # create logs
+        with open(os.path.join(sts.logDir, f"{connector}_subprocess.log"), "a+") as f:
             f.write(f"\n{dt.now()}:\n")
-            f.write(f"cwd: {self.apiEndpointDir}\n")
-            # f.write(f"missing: {m}")
+            f.write(f"executable: {self.modules[api]['executable'].path}\n")
+            # now run the subprocess
             try:
-                response = "subprocess out: \n"
+                # if executable is omitted subprocess must use pipenv run python ...
+                # cmds = ["pipenv", "run", "python", "-m",]
                 r = subprocess.run(
-                    params,
-                    cwd=self.apiEndpointDir,
+                    [
+                        "python",
+                        "-m",
+                    ]
+                    + package
+                    + params,
+                    cwd=self.modules[api]["executable"].packageDir,
+                    executable=self.modules[api]["executable"].path,
                     capture_output=True,
                 )
+                response = "subprocess out: \n"
                 response += f"stdout: {r.stdout.decode('latin')}\n"
                 response += f"stderr: {r.stderr.decode('latin')}\n"
             except Exception as e:
+                print(f"response: {response}")
                 f.write(f"subprocess Exception: {e}\n")
             finally:
                 f.write(f"finally: {response}\n")

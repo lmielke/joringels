@@ -31,12 +31,11 @@ class JoringelsServer(Joringel):
 
     sessions = {}
 
-    def __init__(self, *args, clusterName, connector="joringels", host=None, port=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.connector, self.clusterName = connector, clusterName
         self.sessions = {"initial": re.sub(r"([: .])", r"-", str(dt.now()))}
 
-    def server(self, *args, host: str, port: int, **kwargs):
+    def server(self, *args, **kwargs):
         """
         starts the http server
         """
@@ -44,7 +43,7 @@ class JoringelsServer(Joringel):
         if self.apiParams.api:
             self._initialize_api_endpoint(*args, **kwargs)
         self._memorize(*args, **kwargs)
-        self._serve(*args, **kwargs)
+        # self._serve(*args, **kwargs)
 
     def prep_params(self, *args, **kwargs):
         self._digest(*args, **kwargs)
@@ -84,23 +83,24 @@ class JoringelsServer(Joringel):
             f" {self.apiHand.modules['logunittest']}"
         )
 
-    def _invoke_application(self, payload: str, connector: str, *args, **kwargs) -> str:
+    def _invoke_application(self, data: str, connector: str, *args, **kwargs) -> str:
         """
         gets a api index from a post request and passes it on to api_handler.py
-        payload: dictionary as encrypted string from request data coming from client
-                 containing the api index and api payload, see (Readme.md 2. API CALL)
+        data: dictionary as encrypted string from request data coming from client
+                 containing the api index and api data, see (Readme.md 2. API CALL)
         connector: requestedItem coming as url extension like domain/requesteItem
         """
-        payload = dict_decrypt(payload)
+        data = dict_decrypt(data)
         apiName = text_decrypt(connector, os.environ.get("DATASAFEKEY"))
-        # payload = json.loads(text_decrypt(payload, os.environ.get("DATAKEY")).replace("'", '"'))
-        response = self.apiHand.run_api(
-            payload["api"], payload["payload"], *args, connector=apiName, **kwargs
-        )
+        # data = json.loads(text_decrypt(data, os.environ.get("DATAKEY")).replace("'", '"'))
+        response = self.run_api(*args, connector=apiName, **data, **kwargs)
         if response is None:
             return None
         else:
             return dict_encrypt(response)
+
+    def run_api(self, *args, **kwargs):
+        return self.apiHand.run_api(*args, **kwargs)
 
     def _from_memory(self, entry: str, *args, **kwargs) -> str:
         """
@@ -118,7 +118,7 @@ class JoringelsServer(Joringel):
         else:
             return dict_encrypt({entryName: entry})
 
-    def _serve(self, *args, host=None, port=None, **kwargs):
+    def serve(self, *args, host=None, port=None, **kwargs):
         """
         takes secrets/api params and passes it on to the flower.py http server when
         'jo serve' is called
