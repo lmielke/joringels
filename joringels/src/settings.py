@@ -79,7 +79,13 @@ cryptonizeDataStr = (
     f"0hm9j/HWuoXOS8wPWGfbzIfZ7QF3ObJL84H8+2n/vwdEO1/yo0eu1gerS2CQc5Ob+tKTtf"
     f"9Icg=="
 )
-
+startUpVars = [
+    "DATAKEY",
+    "DATASAFEKEY",
+    "DATASAFENAME",
+    "DATASAFEIP",
+    "DATASAFEPORT",
+]
 # startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 # default ip to fetch dataSafe from
 defaultHost = "0.0.0.0"

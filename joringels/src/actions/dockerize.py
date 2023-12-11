@@ -1,8 +1,11 @@
 # dockerize.py
-# RUN like: jo dockerize
-import os, shutil, subprocess
+
+# RUN like:
+# jo dockerize -y --hard
+# --hard re-builds the image, -y runs the container without asking
+
+import os, re, shutil, subprocess
 import docker
-import os
 from docker.errors import BuildError
 from docker.errors import ContainerError, ImageNotFound, APIError
 
@@ -30,7 +33,7 @@ info = (
 )
 
 
-def run(*args, host=None, entryName, hard, **kwargs) -> None:
+def run(*args, host=None, port=None, entryName, hard, **kwargs) -> None:
     appParams = fetch.main(*args, entryName="clParams", **kwargs)
     with helpers.temp_chdir(path=sts.dockerPath) as p:
         data = prep_data(*args, **kwargs)
@@ -38,7 +41,7 @@ def run(*args, host=None, entryName, hard, **kwargs) -> None:
             docker_bulid(appParams, *data)
         else:
             print(f"{YELLOW}Skipping build becaue hard parameter: -h {hard}{COL_RM}")
-        docker_run(*args, **appParams)
+        docker_run(*args, **appParams, **kwargs)
 
 
 def prep_data(*args, safeName=None, **kwargs):
@@ -54,7 +57,7 @@ def docker_bulid(appParams, safeName, pgDir, *args, **kwargs):
     copy_secrets(safeName, *args, **kwargs)
     prep_files(safeName, *args, **kwargs)
     docker_build_image(safeName, pgDir, *args, **kwargs)
-    cleanup(safeName, *args, **kwargs)
+    # cleanup(safeName, *args, **kwargs)
 
 
 def copy_secrets(safeName, *args, **kwargs):
@@ -105,6 +108,7 @@ def docker_build_image(safeName, pgDir, *args, **kwargs):
         exit()
     build_args = {
         "DATASAFENAME": os.path.splitext(safeName)[0],
+        "ENCRYPTDIR": "/root/.ssp",
         "GIT_ACCESS_TOKEN": os.environ.get("GIT_ACCESS_TOKEN"),
         "PACKAGEDIR": pgDir,
     }
@@ -123,30 +127,64 @@ def docker_build_image(safeName, pgDir, *args, **kwargs):
             return None
 
 
-def docker_run(*args, host, portMapping, network, retain=False, **kwargs):
+def docker_run(*args, host, portMapping, network, retain=False, allYes=False, **kwargs):
     # Assuming pgName and prDir are passed as arguments to the function
     networkName = list(network.keys())[0]
     networkIp = list(network.values())[0].get("ipv4_address")
     # if retain is set to true using jo dockerize -rt then the container will not be removed
     rm = "--rm" if retain == False else ""
-    # construct docker run command
-    dockerRun = (
-        f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
-        f'-e "DATAKEY=$env:DATAKEY" '
-        f'-e "DATASAFEKEY=$env:DATASAFEKEY" '
-        f'-e "DATASAFENAME=$env:DATASAFENAME" '
-        f'-e "DATASAFEIP=$env:DATASAFEIP" '
-        f'-e "DATASAFEPORT=$env:DATASAFEPORT" '
-        f"--network {networkName} -p {portMapping} --ip {networkIp} "
-        f"{sts.appName}"
-    )
-    print(
-        f"{GREEN}\n\nCopy and paste the build command "
-        f"to run the container...{COL_RM}\n\n"
-        f"{dockerRun}"
-        f"\n\n{GREEN}CHANGE DIRECTORY to or stay Joringels directory{COL_RM}\n"
-    )
-    return dockerRun
+    # if jo dockerize was run with '-y' then run the container without asking
+    if allYes:
+        # not implemented short environment variable setting
+        # startUpVars = ' '.join([f'-e {varName}={os.environ.get(varName)} '
+        #                                                  for varName in sts.startUpVars])
+        # NOTE: This currently only works if no spaces exist within env vars.
+        cmd = (
+            (
+                f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
+                f"-e DATAKEY={os.environ.get('DATAKEY')} "
+                f"-e DATASAFEKEY={os.environ.get('DATASAFEKEY')} "
+                f"-e DATASAFENAME={os.environ.get('DATASAFENAME')} "
+                f"-e DATASAFEIP={os.environ.get('DATASAFEIP')} "
+                f"-e DATASAFEPORT={os.environ.get('DATASAFEPORT')} "
+                f"--network {networkName} -p {portMapping} --ip {networkIp} "
+                f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
+                f"{sts.appName}"
+            )
+            .replace("  ", " ")
+            .split(" ")
+        )
+        print(cmd)
+        # now run the container
+        r = subprocess.run(cmd, capture_output=True, shell=True)
+        stdout, stderr = r.stdout.decode(), r.stderr.decode()
+        # print the outputs if any
+        if stdout.replace(" ", ""):
+            print(
+                f"{GREEN}stdout: {stdout}{COL_RM}\n"
+                f"{GREEN}run:{COL_RM} docker exec -it {sts.appName[:2]} bash"
+            )
+        if stderr.replace(" ", ""):
+            print(f"{RED}stderr: {stderr}{COL_RM}")
+    else:
+        # if jo dockerize was run wihout '-y' then construct and print docker run command
+        dockerRun = (
+            f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
+            f'-e "DATAKEY=$env:DATAKEY" '
+            f'-e "DATASAFEKEY=$env:DATASAFEKEY" '
+            f'-e "DATASAFENAME=$env:DATASAFENAME" '
+            f'-e "DATASAFEIP=$env:DATASAFEIP" '
+            f'-e "DATASAFEPORT=$env:DATASAFEPORT" '
+            f"--network {networkName} -p {portMapping} --ip {networkIp} "
+            f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
+            f"{sts.appName}"
+        )  # construct docker run command
+        print(
+            f"{GREEN}\n\nCopy and paste the build command "
+            f"to run the container...{COL_RM}\n\n"
+            f"{dockerRun}"
+            f"\n\n{GREEN}CHANGE DIRECTORY to or stay Joringels directory{COL_RM}\n"
+        )
 
 
 def main(*args, **kwargs) -> None:
