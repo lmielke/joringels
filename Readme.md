@@ -1,28 +1,29 @@
 # Joringels manages your rest api calls (RPC calls) to connected machines.
-This is a test push to github. The package is not yet been released, so be patient :).
+This package is in alpha, so it will contain bugs and be limited in its functionality.
 
-Joringels is a light weight remote function call (RPC) package. It uses REST data (json string) to transmit kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
+Joringels is a light weight remote function call (RPC) toll. Jorinels turns your stand alone python package into a cluster of fully functioning web-services. Joringels uses REST data (json string) to transmit an api-id and kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
 
-NOTE: Joringels does not serialize python objects. For that you might look for more complex packages like Pyro4.
+Joringels combines multiple web-services into one single cluster (i.e. a web-server, a database and a mail server). Joringels will then serve all cluster web-services (web-services that share the same dataSafe) to a single network. Think of a cluster as multiple container instances inside a docker compose file.
+
+NOTE: Joringels does not serialize python objects. For that you might look for more complex packages like google rpc.
 
 
-## up next
-Topics to be implemented:
-- Readme.md changes
+<img src="https://drive.google.com/uc?id=1CIS09n1chfoNAgEJWSiWx3WqfcVP2Wtb" alt="joringels_thumb_from_gpt" class="plain" height="300px" width="500px">
 
+<small><small>Unaltered generated image to honor our future ai overloards.</small></small>
 
 ### run in Shell
-jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, invoke)
+jo action [-n safeName] -e entryName # (actions: load, upload, fetch, serve, call)
 ```
     # Examples
+    # getting parameter data from joringels
+    jo fetch -e parameterKey [-ip targetHost] [-p targetPort]
     # serving joringels
     jo serve -n saveName -con joringels -cn testing -rt -t
     # loading a datasafe from kdbx source to .ssp folder
     jo load -n oamailer -src application, jo load -n mydatasafe -src kdbx
-    # load to local docker export dir
-    jo upload -src kdbx -con docker -pr joringels -n safe_one -pd wobbles -c testing
-    # load to remote server
-    jo upload -src kdbx -con scp -pr joringels -n safe_one -pd wobbles -c testing
+    # calling a remote api
+    jo call -a apiIndex -con targetApplication -e kwargs
 
 ```
 ## Installation
@@ -40,20 +41,26 @@ Alternatively clone the repo and use the Pipfile from joringels package director
 
 NOTE: joringels is available on pypi, however it contains one dependency package 'logunittest'
 which currently is NOT available on pypi. You have to manually install it to use joringels.
-```
-    pipenv install joringels
 
-```
+## After install Setup
+0. setup environment variables (see below)
+1. create a \~/.ssp directory (this will contain any en/decrpyted files)
+2. maintain your secrets in a kdbx file (i.e. passwords.kdbx)
+3. create a dataSafe with jo load -n safeName -pd product -cl cluster -src kdbx
 
-### Environment variables (mandatory)
+### 0. Environment variables (mandatory)
 #### Mandatory environment variables:
-- DATASAFEKEY: password to your encrypted secrets (outer encryption for REST data)
+- secrets: path to your secrets source (i.e. kdbx file)
 - DATAKEY: password to your encrypted secrets values (inner encryption only dict values)
+- DATASAFEKEY: password to your encrypted secrets (outer encryption for REST data)
 - DATASAFENAME: default name of your dataSafe
 - DATASAFEIP: ip address of your dataSafe server (if joringels microservice is used)
 
 #### Optional environment variables:
 - secrets: path to your local secrets file (i.e. passwords.kdbx secrets hosting machine)
+- DATASAFEPORT: if not provided sts.defaultPort is used or derrived from cluster params
+- NODEMASTERIP: if not provided soc.get_local_ip() is used
+
 
 # API Endpoint use
 ## Example of a mail application server (oamailer) on port 7007:
@@ -76,45 +83,38 @@ This example hosts a mail application server as a microservice. A connected clie
     jo fetch -e logunittest -n oamailer -ip 192.168.0.174 -p 7007
 
     # Run api-endpoint
-    jo invoke 
+    jo call 
 
 ```
 
 ### 2. API CALL to running API
-API uses the joringels.src.actions.invoke module to call the oamailer API. This is then pushed
+API uses the joringels.src.actions.call module to call the oamailer API. This is then pushed
 to jorinde.py, which creates the post request to the target machine.
 
-Here is a code example for the calling machine (client machine).
+Here is a code example for calling a remote server.
 
 ```python
-    # jo.py 09_05_2022__17_35_20
-    # python C:\Users\lars\python_venvs\utils\experimental\09_05_2022__17_35_20_jo.py
 
-    import os, sys
-    from joringels.src.actions import invoke
+    import os, sys, socket
+    from joringels.src.actions import call
     print(sys.executable)
-
-    # runs a remote server micro-service
-    # example payload dictionary for oamailer api
-    payload = {   
+    """
+    Remove linebreaks and indents and try this command
+    jo call         -a 0 -con oamailer
+                    -e "{
+                    'sendTo': 'yourMail@gmail.com', 
+                    'subject': 'hello from test', 
+                    'text': 'Hello World!,\\nThis is a testmail from WHILE-AI-2'}" 
+    """
+    # runs a remote server micro-service using api id and kwargs
+    data = {   
             'api': 0,
-            # payload here is equivalent to **kwargs for the remote application call
-            'payload':{
-                    'sendTo': 'mysamplemail@gmail.com', 
-                    'subject': f"hello from jo.py {__file__}",
-                    'text': f"Hello World!,\nThis is a testmail from {os.environ['COMPUTERNAME']}"},
+            'kwargs':{
+                    'a': 5
+                    'b': 5
             }
-
-    # define oamailer parmeter
-    kwargs = {
-            'apiName': 'oamailer',
-            'connector': 'application',
-            'data': payload,
-            'host': 'localhost',
-            'port': 7007,
-    }
-    print(f"jo.file: {kwargs = }")
-    params = invoke.api(**kwargs, retain=True)
+    call.main(connector='adder', data=data)
+    # out 10
 ```
 
 

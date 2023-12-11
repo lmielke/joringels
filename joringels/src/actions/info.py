@@ -42,13 +42,21 @@ def main(*args, **kwargs):
     # check other env Vars
     msg = f"\nChecking safe params in os.environ..."
     print(f"{WHITE}{msg}{COL_RM}")
-    for name in ("DATASAFEIP", "DATASAFENAME", "NODEMASTERIP"):
+    for name in (
+        "DATASAFENAME",
+        "DATASAFEIP",
+        "DATASAFEPORT",
+        "secrets",
+        "NODEMASTERIP",
+    ):
         if os.environ.get(name) is None:
             print(f"\t{RED}Environment variable {name} not set!{COL_RM}")
         else:
             print(f"\t{GREEN}Environment variable {name} set{COL_RM}")
     if name == "NODEMASTERIP" and os.environ.get("DATASAFEIP") == os.environ.get("NODEMASTERIP"):
-        print(f"\t\t{YELLOW}NOTE: DATASAFEIP == NODEMASTERIP! check your IPs!{COL_RM}")
+        print(
+            f"\t\t{YELLOW}NOTE: DATASAFEIP currently equal to NODEMASTERIP! check your IPs!{COL_RM}"
+        )
 
 
 if __name__ == "__main__":

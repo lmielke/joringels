@@ -111,6 +111,17 @@ def mk_args():
     )
 
     parser.add_argument(
+        "-a",
+        "--api",
+        required=False,
+        nargs="?",
+        const=None,
+        type=int,
+        default=None,
+        help="api index to be called",
+    )
+
+    parser.add_argument(
         "-n",
         "--safeName",
         required=False,

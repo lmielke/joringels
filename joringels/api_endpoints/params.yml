@@ -1,9 +1,0 @@
-# available api endpoint actions to be performed with default parameters
-
-host: null
-port: null
-
-0:
-  import: null
-  action: null
-  response: null

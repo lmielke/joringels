@@ -88,9 +88,9 @@ startUpVars = [
 ]
 # startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
 # default ip to fetch dataSafe from
-defaultHost = "0.0.0.0"
-dockerHostPrefix = "172."
+defaultHost = soc.get_local_ip()
 defaultPort = 7000
+dockerHostPrefix = "172."
 
 global dataSafe
 dataSafe = data.DataSafe()

@@ -57,7 +57,7 @@ def docker_bulid(appParams, safeName, pgDir, *args, **kwargs):
     copy_secrets(safeName, *args, **kwargs)
     prep_files(safeName, *args, **kwargs)
     docker_build_image(safeName, pgDir, *args, **kwargs)
-    # cleanup(safeName, *args, **kwargs)
+    cleanup(safeName, *args, **kwargs)
 
 
 def copy_secrets(safeName, *args, **kwargs):

@@ -52,9 +52,7 @@ def check_serve(*args, host=None, port=None, connector=None, **kwargs):
 
 def warn_deletion(*args, retain, hard, **kwargs):
     kwargs["hard"] = hard
-    if kwargs["action"] in {
-        "serve",
-    }:
+    if kwargs["action"] in {}:
         if retain == False and hard == False:
             msg = f"Retain is set to {retain}. Your secrets.yml will be deleted after reading !"
             print(f"{RED}{msg}{COL_RM}")
@@ -77,7 +75,7 @@ def warn_deletion(*args, retain, hard, **kwargs):
 
 
 def error_upload_all(action, *args, host, **kwargs):
-    if action not in ["fetch", "invoke", "serve"] and host is not None:
+    if action not in ["fetch", "call", "serve"] and host is not None:
         msg = f"Your -ip, host contains {host}. It must be empty to use load_all!"
         print(f"{RED}{msg}{COL_RM}")
         exit()
