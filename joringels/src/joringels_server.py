@@ -40,8 +40,7 @@ class JoringelsServer(Joringel):
         starts the http server
         """
         self.prep_params(*args, **kwargs)
-        if self.apiParams.api:
-            self._initialize_api_endpoint(*args, **kwargs)
+        self._initialize_api_endpoint(*args, **kwargs)
         self._memorize(*args, **kwargs)
         # self._serve(*args, **kwargs)
 

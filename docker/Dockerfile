@@ -22,6 +22,7 @@ RUN pip3 install pipenv
 # package installs
 COPY ./$DATASAFENAME.json /root/.ssp/$DATASAFENAME.json
 COPY ./$Pipfile $PACKAGEDIR/$Pipfile
+RUN mkdir $PACKAGEDIR/.venv
 WORKDIR $PACKAGEDIR
 RUN ls -la
 RUN pipenv install
