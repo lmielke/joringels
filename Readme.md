@@ -1,4 +1,4 @@
-# Joringels manages your rest api calls (RPC calls) to connected machines.
+# Joringels unittes your web-service cluster to a single network
 This package is in alpha, so it will contain bugs and be limited in its functionality.
 
 Joringels is a light weight remote function call (RPC) toll. Jorinels turns your stand alone python package into a cluster of fully functioning web-services. Joringels uses REST data (json string) to transmit an api-id and kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
