@@ -46,7 +46,7 @@ def prep_data(*args, safeName=None, **kwargs):
         safeName = f"{os.environ.get('DATASAFENAME')}{sts.eext}"
     else:
         safeName = f"{safeName}{sts.eext}"
-    pgDir = f"root/{sts.appBasePath.split(os.getlogin())[-1].replace(os.sep, '/').strip('/')}"
+    pgDir = f"/root/{sts.appBasePath.split(os.getlogin())[-1].replace(os.sep, '/').strip('/')}"
     return safeName, pgDir
 
 
