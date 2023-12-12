@@ -16,9 +16,9 @@ it will build a docker image for your app named 'joringels'.
 
 ## How to use
 - activate joringels environemnt
-- jo dockerize \[-n safeName\]
+- jo dockerize \[-y\] \[--hard\] # --hard docker build, -y docker run
 - follow instructions and read the presented install cmds carefully
-- copy paste 'docker run ...' output from install output (stay inside package directory)
+- in case you did not use -y, copy paste 'docker run ...' output from install output (stay inside package directory)
 
 ## Enter the container
 - docker exec -it jo bash

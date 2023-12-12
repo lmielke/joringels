@@ -1,4 +1,4 @@
-# Joringels unittes your web-service cluster to a single network
+# Joringels integrates your stand alone web-services to a virtual cluster
 This package is in alpha, so it will contain bugs and be limited in its functionality.
 
 Joringels is a light weight remote function call (RPC) toll. Jorinels turns your stand alone python package into a cluster of fully functioning web-services. Joringels uses REST data (json string) to transmit an api-id and kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
@@ -107,12 +107,11 @@ Here is a code example for calling a remote server.
                     'text': 'Hello World!,\\nThis is a testmail from WHILE-AI-2'}" 
     """
     # runs a remote server micro-service using api id and kwargs
-    data = {   
-            'api': 0,
-            'kwargs':{
-                    'a': 5
-                    'b': 5
-            }
+    # this assumes you have a adder package served by joringels with a func at api=0 that
+    # performs an addition of the kwargs provided
+    # def add(*args, a, b, **kwargs):
+    #    return a + b
+    data = {'api': 0, 'kwargs':{'a': 5 'b': 5 }
     call.main(connector='adder', data=data)
     # out 10
 ```
@@ -147,12 +146,12 @@ Here is a param file example for the target machine (joringels server machine).
 ```
 ### load the yaml file to joringels
 ```
-    jo load -pr oamailer -src application -con '...\oamailer\joringels\params.json'
+    jo load -n dataSafeName -pd productName -cl clusterName
 ```
 
 ### serve your api access point
 ```
-    jo serve -n oamailer -rt -p 7007 -pr oamailer
+    jo serve -n dataSafeName -con packageToServe -cn clusterName -rt -t
 
 ```
 
@@ -172,86 +171,6 @@ Here is a param file example for the target machine (joringels server machine).
 # Important develoment info
 - Currently kdbx (password-manager) is the only supported secret source
 - scp is used as connector for secrets file transfer to server
-
-## 1 What joringels does
-- efficiently manage your secrets while maintaining it in a save location i.e. kdbx
-- create dataSafes (bundles of secrets) using combined entries in your source (i.e. kdbx)
-- serve dataSafes secrets to a single network
-    - source ~/.ssp directory serves secrets to a single client
-    - source encrypted http connection serves secrets to multiple clients simultaneously
-- extracts and uploads your encrypted dataSafes to multiple remote server simultaneously
-
-## 2 Download and install from gitlab
-- see install instructions above
-
-## 3 Setup
-### secret host machine setup (mandatory)
-- install password manager # Currently only keepass is supported !
-You have to setup two keepass entries specific to joringels:
-    - 'dataSafe': 'pwd' (encrypts safeName.json file when it is saved-locally or scp-send)
-    - 'cluster': contains cluster parameters for the cluster where joringels is working in
-#### KDBX setup
-- create a kdbx file (i.e. passwords.kdbx) and add a group named data_safes)
-- create one or multiple entries within the data_safes group
-- Inside the 'advanced' tab create a attachment 'safe_params.yml'
-
-##### safe_params.yml
-tbd
-
-### secret host machine setup (optional)
-- define some helpful environment variables to avoid typing kwargs all the time
-    - DATASAFEIP: ip the host server uses to serve secrets (ipv4 address of your server)
-    - DATASAFENAME: name of dataSafe you want to use in a network
-
-
-### Joringels package setup (mandatory)
-- create a  \~/.ssp directory (this will contain any en/decrpyted files)
-- in keepass add Group -> name it like settings.py / groupName (i.e. joringels_data_safes)
-- in keepass, inside the Group create a dataSafe entry (i.e. myfirstdatasafe) with generated password
-
-- for each dataSafe create a soures/targets .json file as shown in example below
-- NOTE: targets AND entries contain full paths to keepass entries
-````
-    # entries for single or multiple target server logins (server using the dataSafe secrets)
-    targets:
-      - pyenvs/provider/droplets/testing/github-runner-token
-    
-    # entries for secrets your dataSafe will hold
-    entries:
-      - pyenvs/utils/dbs/my_db_login
-      - pyenvs/provider/apiTokens/repo_download
-      - pyenvs/provider/apiTokens/myprovider_api_token
-      - pyenvs/provider/google_oauth
-````
-- attach the new file to your dataSafe entry (myfirstdatasafe): keepass>>advanced>>attach
-
-```
-    # only these hosts are allowed to request a secret
-    allowedClients:
-        - 164.92.206.169
-        - 188.166.87.121
-    application: joringels
-    decPrefix: decrypted_
-    kPath: fullPath to your .kdbx file
-    lastUpdate: 2022-06-06-11-22-21-842103
-    port: 7000
-    validator: text_is_valid
-    # name of allowed develoment systems
-    secureHosts:
-        - BLUE-MOON_1
-        - BLUE-MOON_2
-```
-- remove the unprotected .json files, so they only exist in kdbx now
-
-### Joringels setup (optional)
-- if you wish, change relevant names and dirs in joringels/src/settings.py
-
-
-### Try the folowing commands
-1. jo info: (will show you more readme)
-2. jo load: -n safeName (will load your dataSafe secrets file to .ssh)
-3. jo chkey -n safeName [-nk os] # not needed but propaply better to do so
-4. jo serve -n safeName
 
 ## 5 Some Windows gimmics
 ### powershell functions to add to your $PROFILE
@@ -279,14 +198,14 @@ tbd
 ```
 
 ## 6 Some docker stuff
-- docker container is under construction
-- to run use
-    - docker run -itd --rm --name [joringels] -p [7000:7000] -w /home/gitlab-runner/your_env_name/joringels --network [illuminati] joringels bash ./prcs/jo.serve.sh
+- jo dockerize \[-y\] \[--hard\] (-y will docker run, --hard will docker build)
+- docker exec -it jo bash
+
+NOTE: get 'jo info' to be GREEN before running dockerize
 
 
 ## 7 Known issues
-- as of 06/2022 python10.5 not installing (use python10.4 instead)
-- FileNotFoundError: [Errno 2] No such file or directory <- create folder/file as shown below
+- data ClusterParams dataclass keeps adding ips to allowedClients for every call
 ```
     # defaults used for startup sequence
     decPrefix: decrypted_
@@ -296,6 +215,3 @@ tbd
     - Computername1
     - Computername2
 ```
-
-FileNotFoundError: [Errno 2] No such file or directory  <- create empty folder as shown below
-.virtualenvs\\[your_env_name]\\lib\\site-packages\\joringels\\logs
