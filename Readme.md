@@ -1,11 +1,15 @@
 # Joringels integrates your stand alone web-services to a virtual cluster
 This package is in alpha, so it will contain bugs and be limited in its functionality.
 
-Joringels is a light weight remote function call (RPC) toll. Jorinels turns your stand alone python package into a cluster of fully functioning web-services. Joringels uses REST data (json string) to transmit an api-id and kwargs to a target server machine. The target machine then uses the kwargs to perform a function call. The result is then send back to the calling machine.
+Joringels is a light weight remote function call (RPC) tool, that uses REST data (json string) to transmit commands and kwargs to the specified target machine. Joringels on the target machine then uses the received command and its associated kwargs to perform a local function call. The result is then send back to the calling machine.
+All commands and services are available from any machine belonging to the same designated joringels cluster. 
 
-Joringels combines multiple web-services into one single cluster (i.e. a web-server, a database and a mail server). Joringels will then serve all cluster web-services (web-services that share the same dataSafe) to a single network. Think of a cluster as multiple container instances inside a docker compose file.
+A joringels cluster is defined as:
 
-NOTE: Joringels does not serialize python objects. For that you might look for more complex packages like google rpc.
+    a. multiple machines with each running joringels
+    b. who share the same dataKey and dataSafeKey
+    c. who share the same cluster parameter file
+    d. whos client IP address has been added to the allowedClients list inside the cluster parameter file
 
 
 <img src="https://drive.google.com/uc?id=1CIS09n1chfoNAgEJWSiWx3WqfcVP2Wtb" alt="joringels_thumb_from_gpt" class="plain" height="300px" width="500px">
