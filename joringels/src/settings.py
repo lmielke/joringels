@@ -28,7 +28,7 @@ safeParamsFileName = f"safe_params"
 cluster_params = "cluster_params"
 allowedClients = "allowedClients"
 secureHosts = "secureHosts"
-appParamsFileName = f"appParams"
+clParamsFileName = f"clParams"
 apiParamsFileName = f"services"
 providerHost = "ipv4_address"
 # dev computer names
@@ -60,7 +60,6 @@ srcPath = os.path.split(settingsPath)[0]
 appBasePath = os.path.split(srcPath)[0]
 dockerPath = os.path.join(appBasePath, "docker")
 logDir = os.path.join(srcPath, "logs")
-appParamsPath = prep_path(os.path.join(encryptDir, appParamsFileName))
 execsDir = unalias_path("~/.virtualenvs")
 
 # test paths and data used for unittesting
@@ -86,7 +85,7 @@ startUpVars = [
     "DATASAFEIP",
     "DATASAFEPORT",
 ]
-# startupParamsPath = os.path.join(srcPath, "resources", appParamsFileName)
+
 # default ip to fetch dataSafe from
 defaultHost = soc.get_local_ip()
 defaultPort = 7000

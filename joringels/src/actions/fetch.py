@@ -28,8 +28,6 @@ def local(*args, entryName, **kwargs) -> dict:
 
 def get_nested_value(nested_dict, keys):
     """
-    you can fetch a value like this:
-        jo fetch -e testing.cluster_params.appParams.DATASAFEIP
     In this case fetch will split the dotted string and follow the resulting path to
     the lowest key.
 
@@ -68,7 +66,6 @@ def main(*args, entryName, **kwargs) -> None:
         entryName = int(entries[0])
     secret = alloc(*args, entryName=entries[0], **kwargs)
     if len(entries) >= 2:
-        # jo fetch -e testing.cluster_params.appParams.DATASAFEIP
         # the dotted string above results in a list of keys that can be followed down the dict
         subSecret = get_nested_value(secret, entries[1].split("."))
     return secret if subSecret is None else subSecret

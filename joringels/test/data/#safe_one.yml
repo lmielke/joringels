@@ -29,7 +29,7 @@ safe_one:
   username: myDataKey
 testing_cluster:
   cluster_params:
-    appParams:
+    clParams:
       DATASAFEIP: 172.18.0.2
       DATASAFENAME: testserver
       allowedClients:

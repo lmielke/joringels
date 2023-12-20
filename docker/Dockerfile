@@ -21,8 +21,8 @@ RUN pip3 install --upgrade pip
 RUN pip3 install pipenv
 
 # package installs
-# COPY ./$DATASAFENAME.json /root/.ssp/$DATASAFENAME.json
-RUN mkdir $ENCRYPTDIR
+COPY ./$DATASAFENAME.json /root/.ssp/$DATASAFENAME.json
+# RUN mkdir $ENCRYPTDIR
 COPY ./$Pipfile $PACKAGEDIR/$Pipfile
 # RUN mkdir $PACKAGEDIR/.venv ; not allowed because logunittest creates .venv file during test
 WORKDIR $PACKAGEDIR

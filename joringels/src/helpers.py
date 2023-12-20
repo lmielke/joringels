@@ -3,6 +3,7 @@ from pathlib import Path
 import json, os, shutil, sys, time, yaml
 from contextlib import contextmanager
 import joringels.src.settings as sts
+import functools
 
 
 def unalias_path(workPath: str) -> str:
@@ -103,7 +104,7 @@ def temp_secret(j, *args, secretsFilePath: str, entryName: str, **kwargs) -> Non
 
 
 @contextmanager
-def temp_chdir(path: Path) -> None:
+def temp_chdir(path: Path, *args) -> None:
     """Sets the cwd within the context
 
     Args:
@@ -230,9 +231,77 @@ def load_str(testFilePath, *args, **kwargs):
         return f.read()
 
 
+def test_setup(*outer_args, **outer_kwargs):
+    """
+    A decorator for setting up a test environment with a temporary file, a specific
+    working/execution directory and temporay passwords for encryption/decryption.
+    This decorator uses two context managers:
+        temp_test_file and temp_chdir. temp_test_file creates a
+    temporary file for the test, and temp_chdir temporarily changes the
+    current working directory.
+    Args:
+        *outer_args: Arguments for the temp_test_file context manager.
+                     The first argument is expected to be the path for temp_chdir.
+        **outer_kwargs: Keyword arguments for the temp_test_file context manager.
+    Returns:
+        The decorated test function.
+    """
+
+    def decorator(test_func):
+        # The actual decorator that wraps the test function
+        @functools.wraps(test_func)
+        def wrapper(self, *inner_args, **inner_kwargs):
+            # Wrapper function that sets up the test environment and executes the test
+            # Use temp_test_file to create a temporary file
+            with temp_test_file(test_func.__name__, *outer_args) as tempDataPath:
+                # Use temp_chdir to change the current working directory
+                with temp_chdir(outer_args[1]):
+                    # use temporary testing passwords for encryption
+                    # NOTE: this was formally included when calling unittest.main() on the
+                    # test module. This did not always work however. So it was moved here.
+                    with temp_password():
+                        # Execute the test function with the path to the temporary files.
+                        return test_func(self, tempDataPath, *inner_args, **inner_kwargs)
+
+        return wrapper
+
+    return decorator
+
+
 @contextmanager
-def temp_password(*args, pw, **kwargs) -> None:
-    current = os.environ["DATASAFEKEY"]
+def temp_test_file(tempDirName: str, testDataFileName: str, *args) -> None:
+    """
+    Creates a temp dir named like test_func_name_to_be_tested and copies test data to it
+    returns the full path to the copied file. The tempDir is removed when context is left.
+    Example:
+    Use this to create an isolated test data source named like the test function.
+    The test file can then be read, changed, destroyed.
+    testDataFileName, tempDirName = 'safe_one.json', 'test__prep_api_params'
+    results in:
+        1. created tempDir like sts.testDataDir/tempDirName
+            tempDir = sts.testDataDir/test__prep_api_params/
+        2. copies sts.testDataDir/safe_one.json to tempDir/safe_one.json
+            tempPath = sts.testDataDir/test__prep_api_params/safe_one.json
+    use like Example:
+    with helpers.temp_test_file('test__prep_api_params', 'safe_one.json') as tempPath:
+        run_any_test_using(tempPath)
+    """
+    sourcePath = os.path.join(sts.testDataDir, testDataFileName)
+    assert os.path.isfile(sourcePath), f"file {sourcePath} not found"
+    try:
+        tempDir = os.path.join(sts.testDataDir, tempDirName)
+        tempPath = os.path.join(tempDir, testDataFileName)
+        if not os.path.isdir(tempDir):
+            os.makedirs(tempDir)
+        shutil.copyfile(sourcePath, tempPath)
+        yield tempPath
+    finally:
+        if os.path.exists(tempDir):
+            shutil.rmtree(tempDir, ignore_errors=False, onerror=None)
+
+
+@contextmanager
+def temp_password(*args, pw: str = None, **kwargs) -> None:
     try:
         os.environ["DATASAFEKEY"] = sts.testKeyOuter
         os.environ["DATAKEY"] = sts.testKeyInner

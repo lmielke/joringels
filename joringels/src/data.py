@@ -144,9 +144,9 @@ class ClusterParams:
         self.portMapping = f"{str(self.port)}:{str(self.port)}"
         self.services.update(services["services"])
 
-    def source_app_params(self, appParams: Dict[str, Any], connector):
-        # Extract data from the appParams dictionary (part of cluster params)
-        self.nodeMasterIp = appParams.get("NODEMASTERIP", self.nodeMasterIp)
+    def source_cl_params(self, clParams: Dict[str, Any], connector):
+        # Extract data from the clParams dictionary (part of cluster params)
+        self.nodeMasterIp = clParams.get("NODEMASTERIP", self.nodeMasterIp)
 
     def update(self, kwargs: Dict[str, Any]):
         self.__dict__.update(kwargs)

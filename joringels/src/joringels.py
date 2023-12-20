@@ -120,8 +120,8 @@ class Joringel:
         services = secrets[self.clusterName][sts.cluster_params]["services"]
         services["services"] = self.prep_services(services)
         sts.clParams.source_services(services, connector)
-        sts.clParams.source_app_params(
-            secrets[self.clusterName][sts.cluster_params][sts.appParamsFileName], connector
+        sts.clParams.source_cl_params(
+            secrets[self.clusterName][sts.cluster_params][sts.clParamsFileName], connector
         )
         self.dataSafe.source_secrets(secrets, connector)
         # self.dataSafe.source_cluster(

@@ -12,7 +12,7 @@ A joringels cluster is defined as:
     d. whos client IP address has been added to the allowedClients list inside the cluster parameter file
 
 
-<img src="https://drive.google.com/uc?id=1CIS09n1chfoNAgEJWSiWx3WqfcVP2Wtb" alt="joringels_thumb_from_gpt" class="plain" height="300px" width="500px">
+<img src="https://drive.google.com/uc?id=1CKnOpDYizxTmIVRmaUckiaUWj9hEdUF1" alt="joringels_cluster" class="plain" height="300px" width="500px">
 
 <small><small>Unaltered generated image to honor our future ai overloards.</small></small>
 

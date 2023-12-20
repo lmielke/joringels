@@ -34,14 +34,14 @@ info = (
 
 
 def run(*args, host=None, port=None, entryName, hard, **kwargs) -> None:
-    appParams = fetch.main(*args, entryName="clParams", **kwargs)
+    clParams = fetch.main(*args, entryName="clParams", **kwargs)
     with helpers.temp_chdir(path=sts.dockerPath) as p:
         data = prep_data(*args, **kwargs)
         if hard:
-            docker_bulid(appParams, *data)
+            docker_bulid(clParams, *data)
         else:
             print(f"{YELLOW}Skipping build becaue hard parameter: -h {hard}{COL_RM}")
-        docker_run(*args, **appParams, **kwargs)
+        docker_run(*args, **clParams, **kwargs)
 
 
 def prep_data(*args, safeName=None, **kwargs):
@@ -53,7 +53,7 @@ def prep_data(*args, safeName=None, **kwargs):
     return safeName, pgDir
 
 
-def docker_bulid(appParams, safeName, pgDir, *args, **kwargs):
+def docker_bulid(clParams, safeName, pgDir, *args, **kwargs):
     copy_secrets(safeName, *args, **kwargs)
     prep_files(safeName, *args, **kwargs)
     docker_build_image(safeName, pgDir, *args, **kwargs)
@@ -138,7 +138,7 @@ def docker_run(*args, host, portMapping, network, retain=False, allYes=False, **
         # not implemented short environment variable setting
         # startUpVars = ' '.join([f'-e {varName}={os.environ.get(varName)} '
         #                                                  for varName in sts.startUpVars])
-        # NOTE: This currently only works if no spaces exist within env vars.
+        # NOTE: This currently only works if no spaces exist within env vars strings.
         cmd = (
             (
                 f"docker run -itd {rm} --name {sts.appName[:2]} --privileged "
@@ -148,7 +148,8 @@ def docker_run(*args, host, portMapping, network, retain=False, allYes=False, **
                 f"-e DATASAFEIP={os.environ.get('DATASAFEIP')} "
                 f"-e DATASAFEPORT={os.environ.get('DATASAFEPORT')} "
                 f"--network {networkName} -p {portMapping} --ip {networkIp} "
-                f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
+                # dataSafe mount removed for safety reasons, file keeps existing during mount
+                # f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
                 f"{sts.appName}"
             )
             .replace("  ", " ")
@@ -176,7 +177,7 @@ def docker_run(*args, host, portMapping, network, retain=False, allYes=False, **
             f'-e "DATASAFEIP=$env:DATASAFEIP" '
             f'-e "DATASAFEPORT=$env:DATASAFEPORT" '
             f"--network {networkName} -p {portMapping} --ip {networkIp} "
-            f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
+            # f"-v {os.path.abspath('./').replace(os.sep, '/')}:/root/.ssp/ "
             f"{sts.appName}"
         )  # construct docker run command
         print(

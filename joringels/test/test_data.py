@@ -49,16 +49,16 @@ class Test_ClusterParams(unittest.TestCase):
     def test_update(self):
         # first initialize the class with the default settings
         newHost = "123.234.345.6"
-        appParams = data.ClusterParams()
-        self.assertTrue(re.search(self.regex, appParams.secureHosts[0]))
-        self.assertEqual(appParams.host, soc.get_local_ip())
+        clParams = data.ClusterParams()
+        self.assertTrue(re.search(self.regex, clParams.secureHosts[0]))
+        self.assertEqual(clParams.host, soc.get_local_ip())
         # now update two one field using update method
         kwargs = {"host": newHost}
-        appParams.update(kwargs)
+        clParams.update(kwargs)
         # host field is changed because its in kwars
-        self.assertEqual(appParams.host, newHost)
+        self.assertEqual(clParams.host, newHost)
         # port remains unchanged
-        self.assertEqual(appParams.port, sts.defaultPort)
+        self.assertEqual(clParams.port, sts.defaultPort)
 
 
 class Test_DataSafe(unittest.TestCase):

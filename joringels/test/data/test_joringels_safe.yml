@@ -76,7 +76,7 @@ repo_download:
   username: joringels_test_user_name
 testing:
   cluster_params:
-    appParams:
+    clParams:
       DATASAFEIP: 123.456.789.9
       DATASAFENAME: test_joringels_safe
       JORINGELSSERVER: 0.0.0.0

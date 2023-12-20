@@ -125,7 +125,7 @@ class KeePassSecrets:
                         self.secrets[self.clusterName].update(vs1)
                     elif k1 == "attachments":
                         clusterParams = vs1.get("cluster_params")
-                        clusterParams[sts.appParamsFileName]["allowedClients"].append(
+                        clusterParams[sts.clParamsFileName]["allowedClients"].append(
                             self.ip_address
                         )
                         self.secrets[self.clusterName].update(clusterParams)

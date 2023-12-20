@@ -88,7 +88,7 @@ class KeePassSecrets:
             exit()
 
         safe_params = attachs.get(sts.safeParamsFileName)
-        # self.joringelsParams = attachs.get(sts.appParamsFileName, {})
+        # self.joringelsParams = attachs.get(sts.clParamsFileName, {})
         targets = dict([reversed(os.path.split(p)) for p in safe_params["targets"]])
         entries = safe_params["entries"]
         entries.append(self.dataSafePath)

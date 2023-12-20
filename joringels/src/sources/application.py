@@ -48,12 +48,12 @@ class Applcation:
             f.write(yaml.dump(self.secrets))
 
     def add_api_enpoint_params(self, apiEndpointDir, *args, safeName, **kwargs):
-        appParams = fetch.alloc(entryName=f"{sts.clParams}.yml", retain=True)
-        appParams["DATASAFENAME"] = safeName
-        appParams["port"] = self.secrets.get("port")
-        appParams["application"] = safeName
-        del appParams["kPath"]
-        self.secrets[sts.appParamsFileName] = appParams
+        clParams = fetch.alloc(entryName=f"{sts.clParams}.yml", retain=True)
+        clParams["DATASAFENAME"] = safeName
+        clParams["port"] = self.secrets.get("port")
+        clParams["application"] = safeName
+        del clParams["kPath"]
+        self.secrets[sts.clParamsFileName] = clParams
         self.secrets["apiEndpointDir"] = apiEndpointDir
 
 

@@ -12,15 +12,7 @@ import unittest
 import joringels.src.settings as sts
 import joringels.src.helpers as helpers
 from joringels.src.joringels_server import JoringelsServer
-from joringels.src.encryption_dict_handler import (
-    text_decrypt,
-    text_encrypt,
-    dict_keys_encrypt,
-    dict_keys_decrypt,
-    dict_values_decrypt,
-    dict_values_encrypt,
-)
-
+from joringels.src.encryption_dict_handler import text_encrypt, dict_encrypt, dict_decrypt
 from logunittest.settings import get_testlogsdir as logunittest_logs_dir
 
 # print(f"\n__file__: {__file__}")
@@ -37,7 +29,7 @@ class Test_JoringelsServer(unittest.TestCase):
         cls.params = params = {
             "safeName": cls.safeName,
             "productName": "haimdall",
-            "clusterName": "testing",
+            "clusterName": "testing_cluster",
             "key": sts.testKeyOuter,
             "keyV": sts.testKeyInner,
             # never remove retain, it will break the test
@@ -55,53 +47,39 @@ class Test_JoringelsServer(unittest.TestCase):
         except:
             pass
 
-    def test__from_memory(self, *args, **kwargs):
-        """
-        this tests if a entryName can be given in an encycpted form and a
-        valid entry value can be returned
-        if entryName is not decryptable or not existign in secrets, no value will be returned
-        """
-        testFileName = "test__from_memory.yml"
-        testDataPath = helpers.copy_test_data(
-            sts.encryptDir, f"{self.safeName}.yml", targetName=testFileName
-        )
+    @helpers.test_setup("safe_one.json", os.getcwd())  # see helpers.test_setup docstring
+    def test__prep_api_params(self, tempDataPath, *args, **kwargs):
         params = self.params.copy()
-        params.update({"safeName": testFileName[:-4]})
-        # decrypted entryName = 'PRODUCTNAME'
-        correct = (
-            f"oTBYJT8FeBrdic7yPscEf+aL/elTynPu6kRPml1sGVg=:k3dwSn4ryg8OzrNJjPLrzg==:"
-            f"FX8jbchVKFBIExwjR+8K3w=="
+        params.update({"safeName": "safe_one", "connector": "haimdall"})
+        js = JoringelsServer(**params)
+        js.encryptPath = tempDataPath
+        js._digest(*args, **params)
+        js._prep_api_params(*args, **params)
+        self.assertEqual(js.apiParams.connector, params.get("connector"))
+        self.assertIsNotNone(js.apiParams.api[0])
+        self.assertEqual(
+            js.apiParams.api[0],
+            {"import": "haimdall.actions.communicate", "action": "send", "response": None},
         )
-        # correctVal = text_decrypt(correct, os.environ.get("DATASAFEKEY"))
-        correctVal = text_decrypt(correct, sts.testKeyOuter)
-        self.assertEqual(correctVal, "PRODUCTNAME")
-        # decrypted entryName = 'NONEXISTENT'
-        nonExistent = (
-            f"sX0h44lmnOOtEhvvcznWvBmfdv2cCYg4Ree1KM6V4f8=:inLKojotIIZ/sJKjgf6Bvg==:"
-            f"oF6fvoQ4Tb58dAEK6E96EA=="
-        )
-        # nonExistentVal = text_decrypt(nonExistent, sts.testKeyOuter)
-        # self.assertEqual(nonExistentVal, "NONEXISTENT")
-        # # test starts here
-        # js = JoringelsServer(**params)
-        # self.deletePaths.extend([js.encryptPath, js.decryptPath])
-        # p, s = js._digest(testDataPath)
-        # js._memorize(secrets=js.secrets, connector="joringels")
-        # # decycptable but nonExistent entry returns None
-        # # this raises exception
-        # with self.assertRaises(Exception):
-        #     self.assertIsNone(js._from_memory('something'))
-        # self.assertIsNone(js._from_memory(nonExistent))
-        # # # finally the correct pwd with a existing entry returns a value
-        # # print('test__from_memory 3')
-        # self.assertIsNotNone(js._from_memory(correct))
-        # if os.path.exists(js.encryptPath):
-        #     os.remove(js.encryptPath)
-        # if os.path.exists(js.decryptPath):
-        #     os.remove(js.decryptPath)
+
+    @helpers.test_setup("safe_one.json", os.getcwd())  # see helpers.test_setup docstring
+    def test__from_memory(self, tempDataPath, *args, **kwargs):
+        params = self.params.copy()
+        params.update({"safeName": "safe_one", "connector": "joringels"})
+        # prep test create a JoringelsServer instance with encypted secrets
+        js = JoringelsServer(**params)
+        js.encryptPath = tempDataPath
+        js.server(*args, **params)
+        # passing valid entryName to _from_memory should retrieve
+        # the encrypted secrets for that entryName
+        outEnc = js._from_memory(text_encrypt(params["clusterName"], params["key"]))
+        outDec = dict_decrypt(outEnc)
+        self.assertEqual(list(outDec)[0], params["clusterName"])
+        self.assertIsNotNone(outEnc)
+        # passing a non existing entryName to _from_memory should return None
+        outNone = js._from_memory(text_encrypt("NonExistingEntry", params["key"]))
+        self.assertIsNone(outNone)
 
 
 if __name__ == "__main__":
-    with helpers.temp_password(pw=sts.testKeyOuter):
-        print(f"test_joringels_server.main: {os.environ.get('DATASAFEKEY') = }")
-        unittest.main()
+    unittest.main()

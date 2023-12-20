@@ -48,24 +48,23 @@ class JoringelsServer(Joringel):
         self._digest(*args, **kwargs)
         self._prep_api_params(*args, **kwargs)
 
-    def _prep_api_params(self, *args, clusterName: str = None, connector: str = None, **kwargs):
+    def _prep_api_params(self, *args, clusterName: str, connector: str, **kwargs):
         """
         extracts runntime infos from secrets to be used by api endpoint
         for example host, port and network infos
-        clParams has these infos under appParams, services
         """
         if "serving" in self.sessions:
             return False
-        clusterName = clusterName if clusterName else "testing"
-        if not self.secrets.get(clusterName):
+        # clusterName = clusterName if clusterName else "testing"
+        elif not self.secrets.get(clusterName):
             return False
         # hanle all parameter settings and gettings
+        # joringels basic runntime params like allowedHosts must be loaded from secrets
         clParams = self.secrets[clusterName][sts.cluster_params]["services"][connector]
         self.apiParams = data.apiParams(
             connector=connector,
             api={int(k): vs for k, vs in clParams.items() if str(k).isnumeric()},
         )
-        # joringels basic runntime params like allowedHosts must be loaded from secrets
         self.sessions.update({"serving": re.sub(r"([: .])", r"-", str(dt.now()))})
         return True
 
